@@ -277,7 +277,6 @@ export default function Web3Status() {
 
   return (
     <>
-      <> LDRU TEST B</>
       <WalletModal ENSName={ENSName ?? undefined} />
     </>
   )

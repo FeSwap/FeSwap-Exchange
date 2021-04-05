@@ -292,6 +292,7 @@ export default function WalletModal({
     if (error) {
       return (
         <UpperSection>
+          <p> LDRU Here B: `${walletView} </p>
           <CloseIcon onClick={toggleWalletModal}>
             <CloseColor />
           </CloseIcon>
@@ -303,24 +304,28 @@ export default function WalletModal({
               'Error connecting. Try refreshing the page.'
             )}
           </ContentWrapper>
-          <p> Here A</p>
+          <p> LDRU Here B</p>
         </UpperSection>
       )
     }
-    if (account && walletView === WALLET_VIEWS.ACCOUNT) {
-      return (
-        <AccountDetails
-          toggleWalletModal={toggleWalletModal}
+
 //          pendingTransactions={pendingTransactions}
 //          confirmedTransactions={confirmedTransactions}
+    if (account && walletView === WALLET_VIEWS.ACCOUNT) {
+      return (
+        <UpperSection>
+        <AccountDetails
+          toggleWalletModal={toggleWalletModal}
           ENSName={ENSName}
           openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
         />
+        <p> LDRU Here A</p>
+        </UpperSection>
       )
     }
     return (
       <UpperSection>
-        <p> Here B</p>
+        <p> LDRU Here AB: `${walletView} </p>
         <CloseIcon onClick={toggleWalletModal}>
           <CloseColor />
         </CloseIcon>

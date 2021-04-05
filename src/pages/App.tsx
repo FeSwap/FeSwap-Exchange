@@ -4,6 +4,9 @@ import styled from 'styled-components'
 import './App.css'
 import Header from '../components/Header'
 import Web3ReactManager from '../components/Web3ReactManager'
+import { useModalOpen, useToggleModal } from '../state/application/hooks'
+import { ApplicationModal } from '../state/application/actions'
+import AddressClaimModal from '../components/claim/AddressClaimModal'
 import Web3Status from '../components/Web3Status'
 
 const AppWrapper = styled.div`
@@ -41,7 +44,11 @@ const BodyWrapper = styled.div`
 const Marginer = styled.div`
   margin-top: 5rem;
 `
-
+function TopLevelModals() {
+  const open = useModalOpen(ApplicationModal.ADDRESS_CLAIM)
+  const toggle = useToggleModal(ApplicationModal.ADDRESS_CLAIM)
+  return <AddressClaimModal isOpen={open} onDismiss={toggle} />
+}
 
 function App() {
   return (
@@ -58,7 +65,7 @@ function App() {
         </HeaderWrapper>
         <body>
               <Web3ReactManager>
-              <Web3Status />
+              <p> LDRU Test PPP </p>
               </Web3ReactManager>
         </body>
         </>
@@ -68,3 +75,9 @@ function App() {
 }
 
 export default App
+
+//<body>
+//<Web3ReactManager>
+//<Web3Status />
+//</Web3ReactManager>
+//</body>

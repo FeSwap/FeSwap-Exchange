@@ -117,12 +117,12 @@ export default function Modal({
           item && (
             <StyledDialogOverlay key={key} style={props} onDismiss={onDismiss} initialFocusRef={initialFocusRef}>
               <StyledDialogContent
-//                {...(isMobile
-//                  ? {
-//                      ...bind(),
-//                      style: { transform: y.interpolate(x => `translateY(${x > 0 ? x : 0}px)`) }
-//                    }
-//                  : {})}
+                {...(isMobile
+                  ? {
+                      ...bind(),
+                      style: { transform: y.interpolate(y => `translateY(${y}px)`) }
+                    }
+                  : {})}
                 aria-label="dialog content"
                 minHeight={minHeight}
                 maxHeight={maxHeight}
@@ -138,3 +138,5 @@ export default function Modal({
     </>
   )
 }
+
+//                      style: { transform: y.interpolate(y => `translateY(${y > 0 ? y : 0}px)`) }
