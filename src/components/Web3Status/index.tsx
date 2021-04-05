@@ -10,20 +10,22 @@ import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
 import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../../connectors'
-//import { NetworkContextName } from '../../constants'
-//import useENSName from '../../hooks/useENSName'
+import { NetworkContextName } from '../../constants'
+import useENSName from '../../hooks/useENSName'
 //import { useHasSocks } from '../../hooks/useSocksBalance'
 //import { useWalletModalToggle } from '../../state/application/hooks'
 //import { isTransactionRecent, useAllTransactions } from '../../state/transactions/hooks'
 //import { TransactionDetails } from '../../state/transactions/reducer'
-import { shortenAddress } from '../../utils'
+//import { shortenAddress } from '../../utils'
 import { ButtonSecondary } from '../Button'
 
 import Identicon from '../Identicon'
 //import Loader from '../Loader'
 
 //import { RowBetween } from '../Row'
-//import WalletModal from '../WalletModal'
+import WalletModal from '../WalletModal'
+
+import Web3ReactManager from '../Web3ReactManager'
 
 const IconWrapper = styled.div<{ size?: number }>`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -165,29 +167,33 @@ function StatusIcon({ connector }: { connector: AbstractConnector }) {
   return null
 }
 
+/*
 export default function Web3Status() {
   const { account, connector, error } = useWeb3React()
 
   return(
     <>
-        <Text>This is Test</Text>
-        <p> This is Test </p>
-        <Text>{ account && shortenAddress(account)}</Text>
-        { connector && <StatusIcon connector={connector} />}
-        <Web3StatusConnect id="connect-wallet" faded={!account}>
-          <Text>{'Connect to a wallet'}</Text>
-        </Web3StatusConnect>
-        <Web3StatusConnected id="connect-wallet">
-          <Text>{'Connect to a wallet'}</Text>
-        </Web3StatusConnected>
-        <Web3StatusError>
-          <NetworkIcon />
-          <Text>{error instanceof UnsupportedChainIdError ? 'Wrong Network' : 'Error'}</Text>
-        </Web3StatusError>
+      <Web3ReactManager>
+        <>
+          <Text>{ account && shortenAddress(account)}</Text>
+          { connector && <StatusIcon connector={connector} />}
+          <Web3StatusConnect id="connect-wallet" faded={!account}>
+            <Text>{'Connect to a wallet'}</Text>
+          </Web3StatusConnect>
+          <Web3StatusConnected id="connect-wallet">
+            <Text>{'Connect to a wallet'}</Text>
+          </Web3StatusConnected>
+          <Web3StatusError>
+            <NetworkIcon />
+            <Text>{error instanceof UnsupportedChainIdError ? 'Wrong Network' : 'Error'}</Text>
+          </Web3StatusError>
+        </>
+      </Web3ReactManager>
     </>
   )
 }
 
+*/
 
 /*
 function Web3StatusInner() {
@@ -240,32 +246,41 @@ function Web3StatusInner() {
     )
   }
 }
-/*
+*/
+
 export default function Web3Status() {
   const { active, account } = useWeb3React()
   const contextNetwork = useWeb3React(NetworkContextName)
 
   const { ENSName } = useENSName(account ?? undefined)
 
-  const allTransactions = useAllTransactions()
+//  const allTransactions = useAllTransactions()
 
-  const sortedRecentTransactions = useMemo(() => {
-    const txs = Object.values(allTransactions)
-    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
-  }, [allTransactions])
+//  const sortedRecentTransactions = useMemo(() => {
+//    const txs = Object.values(allTransactions)
+//    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
+//  }, [allTransactions])
 
-  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
-  const confirmed = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
+//  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
+//  const confirmed = sortedRecentTransactions.filter(tx => tx.receipt).map(tx => tx.hash)
 
   if (!contextNetwork.active && !active) {
     return null
   }
 
+//  return (
+//    <>
+//      <Web3StatusInner />
+//      <WalletModal ENSName={ENSName ?? undefined} pendingTransactions={pending} confirmedTransactions={confirmed} />
+//    </>
+//  )
+
   return (
     <>
-      <Web3StatusInner />
-      <WalletModal ENSName={ENSName ?? undefined} pendingTransactions={pending} confirmedTransactions={confirmed} />
+      <> LDRU TEST B</>
+      <WalletModal ENSName={ENSName ?? undefined} />
     </>
   )
+
+
 }
-*/
