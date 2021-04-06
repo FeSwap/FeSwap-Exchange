@@ -117,12 +117,12 @@ const WALLET_VIEWS = {
 }
 
 export default function WalletModal({
-//  pendingTransactions,
-//  confirmedTransactions,
+  pendingTransactions,
+  confirmedTransactions,
   ENSName
 }: {
-//  pendingTransactions: string[] // hashes of pending
-//  confirmedTransactions: string[] // hashes of confirmed
+  pendingTransactions: string[] // hashes of pending
+  confirmedTransactions: string[] // hashes of confirmed
   ENSName?: string
 }) {
   // important that these are destructed from the account-specific web3-react context
@@ -292,7 +292,6 @@ export default function WalletModal({
     if (error) {
       return (
         <UpperSection>
-          <p> LDRU Here B: `${walletView} </p>
           <CloseIcon onClick={toggleWalletModal}>
             <CloseColor />
           </CloseIcon>
@@ -304,28 +303,22 @@ export default function WalletModal({
               'Error connecting. Try refreshing the page.'
             )}
           </ContentWrapper>
-          <p> LDRU Here B</p>
         </UpperSection>
       )
     }
-
-//          pendingTransactions={pendingTransactions}
-//          confirmedTransactions={confirmedTransactions}
     if (account && walletView === WALLET_VIEWS.ACCOUNT) {
       return (
-        <UpperSection>
         <AccountDetails
           toggleWalletModal={toggleWalletModal}
+          pendingTransactions={pendingTransactions}
+          confirmedTransactions={confirmedTransactions}
           ENSName={ENSName}
           openOptions={() => setWalletView(WALLET_VIEWS.OPTIONS)}
         />
-        <p> LDRU Here A</p>
-        </UpperSection>
       )
     }
     return (
       <UpperSection>
-        <p> LDRU Here AB: `${walletView} </p>
         <CloseIcon onClick={toggleWalletModal}>
           <CloseColor />
         </CloseIcon>
@@ -368,14 +361,8 @@ export default function WalletModal({
   }
 
   return (
-    <Modal isOpen={true} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90}>
+    <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90}>
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>
   )
 }
-
-//return (
-//  <Modal isOpen={walletModalOpen} onDismiss={toggleWalletModal} minHeight={false} maxHeight={90}>
-//    <Wrapper>{getModalContent()}</Wrapper>
-//  </Modal>
-//)

@@ -48,8 +48,6 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   // track and parse user input
   const [typedValue, setTypedValue] = useState('')
   const { parsedAmount, error } = useDerivedStakeInfo(typedValue, stakingInfo.stakedAmount.token, userLiquidityUnstaked)
-//  const { parsedAmount, error } = {stakingInfo.stakedAmount, 'LDRU: Just for compile':string}
-
   const parsedAmountWrapped = wrappedCurrencyAmount(parsedAmount, chainId)
 
   let hypotheticalRewardRate: TokenAmount = new TokenAmount(stakingInfo.rewardRate.token, '0')
@@ -60,7 +58,6 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       stakingInfo.totalRewardRate
     )
   }
-  
 
   // state for pending and submitted txn views
   const addTransaction = useTransactionAdder()

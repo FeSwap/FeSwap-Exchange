@@ -1,12 +1,21 @@
-import React from 'react'
+import React, { Suspense } from 'react'
+import { Route, Switch } from 'react-router-dom'
+import GoogleAnalyticsReporter from '../components/analytics/GoogleAnalyticsReporter'
 //import logo from './logo.svg'
 import styled from 'styled-components'
-import './App.css'
+//import './App.css'
 import Header from '../components/Header'
+import URLWarning from '../components/Header/URLWarning'
+import Polling from '../components/Header/Polling'
+import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import { useModalOpen, useToggleModal } from '../state/application/hooks'
 import { ApplicationModal } from '../state/application/actions'
 import AddressClaimModal from '../components/claim/AddressClaimModal'
+import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
+import Pool from './Pool'
+import Swap from './Swap'
+import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import Web3Status from '../components/Web3Status'
 
 const AppWrapper = styled.div`
@@ -50,34 +59,30 @@ function TopLevelModals() {
   return <AddressClaimModal isOpen={open} onDismiss={toggle} />
 }
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </header>
-
-        <>
+    <Suspense fallback={null}>
+      <Route component={GoogleAnalyticsReporter} />
+      <Route component={DarkModeQueryParamReader} />
+      <AppWrapper>
+        <URLWarning />
         <HeaderWrapper>
-            <Header />
+          <Header />
         </HeaderWrapper>
-        <body>
-              <Web3ReactManager>
-              <p> LDRU Test PPP </p>
+        <BodyWrapper>
+          <Popups />
+          <Polling />
+          <TopLevelModals />
+          <Web3ReactManager>
+            <Switch>
+              <Route exact strict path="/swap" component={Swap} />
+              <Route exact strict path="/pool" component={Pool} />
+              <Route component={RedirectPathToSwapOnly} />
+            </Switch>
               </Web3ReactManager>
-        </body>
-        </>
-
-    </div>
+          <Marginer />
+        </BodyWrapper>
+      </AppWrapper>
+    </Suspense>
   )
 }
-
-export default App
-
-//<body>
-//<Web3ReactManager>
-//<Web3Status />
-//</Web3ReactManager>
-//</body>

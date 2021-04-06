@@ -3,11 +3,11 @@ import { useDispatch } from 'react-redux'
 import styled, { ThemeContext } from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch } from '../../state'
-//import { clearAllTransactions } from '../../state/transactions/actions'
+import { clearAllTransactions } from '../../state/transactions/actions'
 import { shortenAddress } from '../../utils'
-//import { AutoRow } from '../Row'
+import { AutoRow } from '../Row'
 import Copy from './Copy'
-//import Transaction from './Transaction'
+import Transaction from './Transaction'
 
 import { SUPPORTED_WALLETS } from '../../constants'
 import { ReactComponent as Close } from '../../assets/images/x.svg'
@@ -200,28 +200,28 @@ const MainWalletAction = styled(WalletAction)`
   color: ${({ theme }) => theme.primary1};
 `
 
-//function renderTransactions(transactions: string[]) {
-//  return (
-//    <TransactionListWrapper>
-//      {transactions.map((hash, i) => {
-//        return <Transaction key={i} hash={hash} />
-//      })}
-//    </TransactionListWrapper>
-//  )
-//}
+function renderTransactions(transactions: string[]) {
+  return (
+    <TransactionListWrapper>
+      {transactions.map((hash, i) => {
+        return <Transaction key={i} hash={hash} />
+      })}
+    </TransactionListWrapper>
+  )
+}
 
 interface AccountDetailsProps {
   toggleWalletModal: () => void
-//  pendingTransactions: string[]
-//  confirmedTransactions: string[]
+  pendingTransactions: string[]
+  confirmedTransactions: string[]
   ENSName?: string
   openOptions: () => void
 }
 
 export default function AccountDetails({
   toggleWalletModal,
-//  pendingTransactions,
-//  confirmedTransactions,
+  pendingTransactions,
+  confirmedTransactions,
   ENSName,
   openOptions
 }: AccountDetailsProps) {
@@ -285,9 +285,9 @@ export default function AccountDetails({
     return null
   }
 
-//  const clearAllTransactionsCallback = useCallback(() => {
-//    if (chainId) dispatch(clearAllTransactions({ chainId }))
-//  }, [dispatch, chainId])
+  const clearAllTransactionsCallback = useCallback(() => {
+    if (chainId) dispatch(clearAllTransactions({ chainId }))
+  }, [dispatch, chainId])
 
   return (
     <>
@@ -392,22 +392,20 @@ export default function AccountDetails({
           </YourAccount>
         </AccountSection>
       </UpperSection>
+      {!!pendingTransactions.length || !!confirmedTransactions.length ? (
+        <LowerSection>
+          <AutoRow mb={'1rem'} style={{ justifyContent: 'space-between' }}>
+            <TYPE.body>Recent Transactions</TYPE.body>
+            <LinkStyledButton onClick={clearAllTransactionsCallback}>(clear all)</LinkStyledButton>
+          </AutoRow>
+          {renderTransactions(pendingTransactions)}
+          {renderTransactions(confirmedTransactions)}
+        </LowerSection>
+      ) : (
+        <LowerSection>
+          <TYPE.body color={theme.text1}>Your transactions will appear here...</TYPE.body>
+        </LowerSection>
+      )}
     </>
   )
 }
-
-
-//      {!!pendingTransactions.length || !!confirmedTransactions.length ? (
-//        <LowerSection>
-//          <AutoRow mb={'1rem'} style={{ justifyContent: 'space-between' }}>
-//            <TYPE.body>Recent Transactions</TYPE.body>
-//            <LinkStyledButton onClick={clearAllTransactionsCallback}>(clear all)</LinkStyledButton>
-//          </AutoRow>
-//          {renderTransactions(pendingTransactions)}
-//          {renderTransactions(confirmedTransactions)}
-//        </LowerSection>
-//      ) : (
-//        <LowerSection>
-//         <TYPE.body color={theme.text1}>Your transactions will appear here...</TYPE.body>
-//        </LowerSection>
-//      )}

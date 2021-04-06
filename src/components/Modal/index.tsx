@@ -120,7 +120,8 @@ export default function Modal({
                 {...(isMobile
                   ? {
                       ...bind(),
-                      style: { transform: y.interpolate(y => `translateY(${y}px)`) }
+//                      style: { transform: y.interpolate(y => `translateY(${y > 0 ? y : 0}px)`) }
+                        style: { transform: y.interpolate(y => `translateY(${y}px)`) }
                     }
                   : {})}
                 aria-label="dialog content"
@@ -138,5 +139,3 @@ export default function Modal({
     </>
   )
 }
-
-//                      style: { transform: y.interpolate(y => `translateY(${y > 0 ? y : 0}px)`) }

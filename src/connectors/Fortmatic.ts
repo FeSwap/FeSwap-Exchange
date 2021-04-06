@@ -12,7 +12,6 @@ const CHAIN_ID_NETWORK_ARGUMENT: { readonly [chainId in FormaticSupportedChains]
   [ChainId.KOVAN]: 'kovan'
 }
 
-
 export class FortmaticConnector extends FortmaticConnectorCore {
   async activate() {
     if (!this.fortmatic) {
@@ -46,4 +45,3 @@ export class FortmaticConnector extends FortmaticConnectorCore {
     return { provider: this.fortmatic.getProvider(), chainId: (this as any).chainId, account }
   }
 }
-
