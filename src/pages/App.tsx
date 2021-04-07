@@ -1,22 +1,19 @@
 import React, { Suspense } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import GoogleAnalyticsReporter from '../components/analytics/GoogleAnalyticsReporter'
-//import logo from './logo.svg'
 import styled from 'styled-components'
-//import './App.css'
+import GoogleAnalyticsReporter from '../components/analytics/GoogleAnalyticsReporter'
+import AddressClaimModal from '../components/claim/AddressClaimModal'
 import Header from '../components/Header'
-import URLWarning from '../components/Header/URLWarning'
 import Polling from '../components/Header/Polling'
+import URLWarning from '../components/Header/URLWarning'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
-import { useModalOpen, useToggleModal } from '../state/application/hooks'
 import { ApplicationModal } from '../state/application/actions'
-import AddressClaimModal from '../components/claim/AddressClaimModal'
+import { useModalOpen, useToggleModal } from '../state/application/hooks'
 import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Pool from './Pool'
 import Swap from './Swap'
 import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
-import Web3Status from '../components/Web3Status'
 
 const AppWrapper = styled.div`
   display: flex;
@@ -53,6 +50,7 @@ const BodyWrapper = styled.div`
 const Marginer = styled.div`
   margin-top: 5rem;
 `
+
 function TopLevelModals() {
   const open = useModalOpen(ApplicationModal.ADDRESS_CLAIM)
   const toggle = useToggleModal(ApplicationModal.ADDRESS_CLAIM)
@@ -79,7 +77,7 @@ export default function App() {
               <Route exact strict path="/pool" component={Pool} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>
-              </Web3ReactManager>
+          </Web3ReactManager>
           <Marginer />
         </BodyWrapper>
       </AppWrapper>
