@@ -56,7 +56,7 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, mobile, isOpen, ...r
         min-height: ${minHeight}vh;
       `}
     display: flex;
-    border-radius: 20px;
+    border-radius: 10px;
     ${({ theme }) => theme.mediaWidth.upToMedium`
       width: 65vw;
       margin: 0;
@@ -121,7 +121,7 @@ export default function Modal({
                   ? {
                       ...bind(),
 //                      style: { transform: y.interpolate(y => `translateY(${y > 0 ? y : 0}px)`) }
-                        style: { transform: y.interpolate(y => `translateY(${y}px)`) }
+                        style: { transform: y.interpolate(y => `translateY({y > 0 ? y : 0}px)`) }
                     }
                   : {})}
                 aria-label="dialog content"

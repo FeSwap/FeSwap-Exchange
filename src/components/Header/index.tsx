@@ -42,7 +42,7 @@ const HeaderFrame = styled.div`
   top: 0;
   position: relative;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  padding: 1rem 1.5rem 
   z-index: 2;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;
@@ -206,52 +206,21 @@ const StyledNavLink = styled(NavLink).attrs({
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme }) => theme.text2};
-  font-size: 1rem;
+  font-size: 1.2rem;
   width: fit-content;
   margin: 0 12px;
   font-weight: 500;
 
   &.${activeClassName} {
     border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.text1};
+    font-weight: 900;
+    color: ${({ theme }) => theme.navlink};
   }
 
   :hover,
   :focus {
-    color: ${({ theme }) => darken(0.1, theme.text1)};
+    color: ${({ theme }) => theme.navlink};
   }
-`
-
-const StyledExternalLink = styled(ExternalLink).attrs({
-  activeClassName
-})<{ isActive?: boolean }>`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: left;
-  border-radius: 3rem;
-  outline: none;
-  cursor: pointer;
-  text-decoration: none;
-  color: ${({ theme }) => theme.text2};
-  font-size: 1rem;
-  width: fit-content;
-  margin: 0 12px;
-  font-weight: 500;
-
-  &.${activeClassName} {
-    border-radius: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.text1};
-  }
-
-  :hover,
-  :focus {
-    color: ${({ theme }) => darken(0.1, theme.text1)};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      display: none;
-`}
 `
 
 const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
@@ -296,7 +265,7 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
-            {t('swap')}
+            SWAP
           </StyledNavLink>
           <StyledNavLink
             id={`pool-nav-link`}
@@ -309,17 +278,20 @@ export default function Header() {
               pathname.startsWith('/find')
             }
           >
-            {t('pool')}
+            POOL
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/uni'}>
-            UNI
+            FESW
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
-            Vote
+            GOVERNANCE
           </StyledNavLink>
-          <StyledExternalLink id={`stake-nav-link`} href={'https://uniswap.info'}>
-            Charts <span style={{ fontSize: '11px' }}>↗</span>
-          </StyledExternalLink>
+          <StyledNavLink id={`stake-nav-link`} to={'/nft'}>
+            NFT
+          </StyledNavLink>
+          <StyledNavLink id={`stake-nav-link`} to={'/giveaway'}>
+            GIVEAWAY<span style={{color:'red'}}><sup>❤</sup></span>
+          </StyledNavLink>
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>

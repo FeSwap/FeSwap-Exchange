@@ -46,7 +46,7 @@ import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
 import { isTradeBetter } from 'utils/trades'
 
-export default function Swap() {
+export default function Giveaway() {
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   // token warning stuff

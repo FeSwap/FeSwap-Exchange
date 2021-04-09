@@ -13,6 +13,8 @@ import { useModalOpen, useToggleModal } from '../state/application/hooks'
 import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Pool from './Pool'
 import Swap from './Swap'
+import Nft from './Nft'
+import Giveaway from './Giveaway'
 import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 
 const AppWrapper = styled.div`
@@ -75,6 +77,8 @@ export default function App() {
             <Switch>
               <Route exact strict path="/swap" component={Swap} />
               <Route exact strict path="/pool" component={Pool} />
+              <Route exact strict path="/nft" component={Nft} />
+              <Route exact strict path="/giveaway" component={Giveaway} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>
           </Web3ReactManager>

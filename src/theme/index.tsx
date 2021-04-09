@@ -54,6 +54,9 @@ export function colors(darkMode: boolean): Colors {
     bg4: darkMode ? '#565A69' : '#CED0D9',
     bg5: darkMode ? '#6C7284' : '#888D9B',
 
+    // for nav link
+    navlink: darkMode ? '#BF4722' : '#BF4722',
+
     //specialty colors
     modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
     advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.6)',
@@ -223,12 +226,17 @@ html {
 
 body {
   min-height: 100vh;
-  background-position: 0 -30vh;
-  background-repeat: no-repeat;
-  background-image: ${({ theme }) =>
-    `radial-gradient(50% 50% at 50% 50%, ${transparentize(0.9, theme.primary1)} 0%, ${transparentize(
-      1,
-      theme.bg1
-    )} 100%)`};
+  background-color:rgba(0,0,32,0.1);
 }
 `
+//body {
+//  min-height: 100vh;
+//  background-position: 0 -30vh;
+//  background-repeat: no-repeat;
+//  background-image: ${({ theme }) =>
+//    `radial-gradient(50% 50% at 50% 50%, ${transparentize(0.9, theme.primary1)} 0%, ${transparentize(
+//      1,
+//      theme.bg1
+//    )} 100%)`};
+//background-color:rgba(0,189,212,0.1);
+//background-color:rgba(191,71,34,0.5);

@@ -20,6 +20,8 @@ export interface Colors {
   bg4: Color
   bg5: Color
 
+  navlink: Color
+
   modalBG: Color
   advancedBG: Color
 

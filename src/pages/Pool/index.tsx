@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { Pair, JSBI } from '@uniswap/sdk'
 import { Link } from 'react-router-dom'
-import { SwapPoolTabs } from '../../components/NavigationTabs'
+//import { SwapPoolTabs } from '../../components/NavigationTabs'
 
 import FullPositionCard from '../../components/PositionCard'
 import { useUserHasLiquidityInAllTokens } from '../../data/V1'
@@ -123,10 +123,10 @@ export default function Pool() {
     )
   })
 
+  //        <SwapPoolTabs active={'pool'} />
   return (
     <>
       <PageWrapper>
-        <SwapPoolTabs active={'pool'} />
         <VoteCard>
           <CardBGImage />
           <CardNoise />

@@ -23,9 +23,10 @@ const WarningContainer = styled.div`
   max-width: 420px;
   width: 100%;
   padding: 1rem;
-  background: rgba(242, 150, 2, 0.05);
-  border: 1px solid #f3841e;
-  border-radius: 20px;
+  background: rgba(242, 150, 2, 0.2);
+  border: 2px solid #f3841e;
+  border-radius: 10px;
+  padding: 1.2rem;
   overflow: auto;
 `
 
@@ -92,6 +93,7 @@ export default function TokenWarningModal({
   tokens: Token[]
   onConfirm: () => void
 }) {
+//  isOpen =true
   const [understandChecked, setUnderstandChecked] = useState(false)
   const toggleUnderstand = useCallback(() => setUnderstandChecked(uc => !uc), [])
 
