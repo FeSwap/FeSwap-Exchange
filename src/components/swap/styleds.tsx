@@ -7,6 +7,7 @@ import { AutoColumn } from '../Column'
 
 export const Wrapper = styled.div`
   position: relative;
+  padding: 1rem;
 `
 
 export const ArrowWrapper = styled.div<{ clickable: boolean }>`
@@ -30,7 +31,7 @@ export const SectionBreak = styled.div`
 `
 
 export const BottomGrouping = styled.div`
-  margin: 1rem;
+  margin-top: 1rem;
 `
 
 export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`

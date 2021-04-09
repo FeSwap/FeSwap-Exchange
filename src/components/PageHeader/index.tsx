@@ -5,7 +5,7 @@ import { TYPE } from '../../theme'
 
 const StyledPageHeader = styled.div`
   padding: 1rem 1rem 0.3rem 1rem;
-  margin-bottom: 18px;
+  margin-bottom: 6px;
   width: 100%;
   max-width: 420px;
   font-size:  150%;
@@ -17,7 +17,6 @@ interface PageHeaderProps {
   children?: React.ReactNode
 }
 
-//<Settings />
 export default function PageHeader({header, children}:PageHeaderProps) {
   return (
     <StyledPageHeader>
