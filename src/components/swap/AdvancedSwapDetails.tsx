@@ -93,7 +93,7 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
           {showRoute && (
             <>
               <SectionBreak />
-              <AutoColumn style={{ padding: '0 24px' }}>
+              <AutoColumn style={{ padding: '0 16px' }}>
                 <RowFixed>
                   <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
                     Route
@@ -104,7 +104,7 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
               </AutoColumn>
             </>
           )}
-          <AutoColumn style={{ padding: '0 24px' }}>
+          <AutoColumn style={{ padding: '0 16px' }}>
             <InfoLink href={'https://uniswap.info/pair/' + trade.route.pairs[0].liquidityToken.address} target="_blank">
               View pair analytics ↗
             </InfoLink>

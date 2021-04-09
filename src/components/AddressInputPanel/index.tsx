@@ -10,7 +10,7 @@ import { getEtherscanLink } from '../../utils'
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
   position: relative;
-  border-radius: 1.25rem;
+  border-radius: 16px;
   background-color: ${({ theme }) => theme.bg1};
   z-index: 1;
   width: 100%;

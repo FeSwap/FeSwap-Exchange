@@ -23,8 +23,8 @@ const Section = styled(AutoColumn)`
 
 const BottomSection = styled(Section)`
   background-color: ${({ theme }) => theme.bg2};
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
