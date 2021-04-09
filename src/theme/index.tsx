@@ -48,8 +48,8 @@ export function colors(darkMode: boolean): Colors {
     text5: darkMode ? '#2C2F36' : '#EDEEF2',
 
     // backgrounds / greys
-    bg1: darkMode ? '#212429' : '#FFFFFF',
-    bg2: darkMode ? '#2C2F36' : '#F7F8FA',
+    bg1: darkMode ? '#212429' : '#F0F0F0',
+    bg2: darkMode ? '#2C2F36' : '#D8D8D8',
     bg3: darkMode ? '#40444F' : '#EDEEF2',
     bg4: darkMode ? '#565A69' : '#CED0D9',
     bg5: darkMode ? '#6C7284' : '#888D9B',
@@ -226,7 +226,7 @@ html {
 
 body {
   min-height: 100vh;
-  background-color:rgba(0,0,32,0.1);
+  background-image: linear-gradient(rgba(0,192,239,0.3), rgba(250,234,229,0.3));
 }
 `
 //body {
@@ -240,3 +240,5 @@ body {
 //    )} 100%)`};
 //background-color:rgba(0,189,212,0.1);
 //background-color:rgba(191,71,34,0.5);
+//background-color:rgba(0,0,32,0.1);
+//background-image: linear-gradient(rgba(0,192,239,0.3), rgba(250,234,229,0.3));
