@@ -78,7 +78,9 @@ export default function App() {
               <Route exact strict path="/swap" component={Swap} />
               <Route exact strict path="/pool" component={Pool} />
               <Route exact strict path="/nft" component={Nft} />
+              <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
               <Route exact strict path="/giveaway" component={Giveaway} />
+              <Route exact strict path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>
           </Web3ReactManager>
