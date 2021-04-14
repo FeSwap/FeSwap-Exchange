@@ -292,6 +292,9 @@ export default function Header() {
           <StyledNavLink id={`stake-nav-link`} to={'/giveaway'}>
             GIVEAWAY<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
+          <StyledNavLink id={`stake-nav-link`} to={'/fetest'}>
+            FeTest
+          </StyledNavLink>
         </HeaderLinks>
       </HeaderRow>
       <HeaderControls>
