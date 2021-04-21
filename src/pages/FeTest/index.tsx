@@ -45,6 +45,9 @@ import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
 import { isTradeBetter } from 'utils/trades'
+import { Contract, BigNumber, constants, utils, providers, ContractFactory } from 'ethers'
+import { ethers } from "ethers";
+import FeswapByteCode from '../../constants/abis/Fesw.json'
 
 export default function FeTest() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -60,6 +63,9 @@ export default function FeTest() {
     [loadedInputCurrency, loadedOutputCurrency]
   )
 
+  const { account, library } = useActiveWeb3React()
+  const theme = useContext(ThemeContext)
+
   const [showSponsorWarning, clearShowSponsorWarning] = useState<boolean>(true)
   const [willSponsor, setWillSponsor] = useState<boolean>(false)
   const handleWillSponsor = useCallback((yesOrNo: boolean) => {
@@ -67,8 +73,38 @@ export default function FeTest() {
     clearShowSponsorWarning(false)
   }, [setWillSponsor, clearShowSponsorWarning])
 
-  const { account } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+
+  ///////// FESW //////////
+
+  // The Metamask plugin also allows signing transactions to
+  // send ether and pay to change state within the blockchain.
+  // For this, you need the account signer...
+  const signer = library ? library.getSigner() : undefined
+
+  const overrides = {
+    gasLimit: 9999999,
+    gasPrice: 120000000000
+  }
+
+  // The factory we use for deploying contracts
+  const factory = new ContractFactory(FeswapByteCode.abi, FeswapByteCode.evm.bytecode, signer)
+
+  const genesisaDate = BigNumber.from(1619568000)     // "2021-04-28 08:00:00"
+  const [sponsorCounter, setSponsorCounter] = useState<number>(0)
+
+  const deployFesw = useCallback(async() => {
+    console.log("AAAA",signer)
+    setSponsorCounter(sponsorCounter+1)
+
+    const FeswContract = await factory.deploy( account, account, genesisaDate, overrides)
+    await FeswContract.deployed()
+    return FeswContract
+  },[sponsorCounter, setSponsorCounter,account, genesisaDate, overrides ])
+
+//    const FeswContract = await factory.deploy( account, account, genesisaDate, overrides)
+//    await FeswContract.deployed()
+//    return FeswContract
+//  }, [account, genesisaDate, overrides])
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -318,6 +354,7 @@ export default function FeTest() {
               onUserInput={handleTypeInput}
               onMax={handleMaxInput}
               onCurrencySelect={handleInputSelect}
+              disableCurrencySelect = {true}
               otherCurrency={currencies[Field.OUTPUT]}
               id="swap-currency-input"
               hideInput={false}
@@ -348,6 +385,7 @@ export default function FeTest() {
               showMaxButton={false}
               currency={currencies[Field.OUTPUT]}
               onCurrencySelect={handleOutputSelect}
+              disableCurrencySelect = {true}
               otherCurrency={currencies[Field.INPUT]}
               id="swap-currency-output"
             />
@@ -454,8 +492,10 @@ export default function FeTest() {
                       : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
                   </Text>
                 </ButtonError>
+
               </RowBetween>
             ) : (
+              <AutoColumn gap="8px">
               <ButtonError
                 onClick={() => {
                   if (isExpertMode) {
@@ -482,6 +522,10 @@ export default function FeTest() {
                     : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
                 </Text>
               </ButtonError>
+                <ButtonError onClick={() => {deployFesw()}}>
+                  Sponsor {sponsorCounter}
+                </ButtonError>
+              </AutoColumn>              
             )}
             {showApproveFlow && (
               <Column style={{ marginTop: '1rem' }}>
