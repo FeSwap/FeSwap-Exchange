@@ -8,6 +8,10 @@ import { ROUTER_ADDRESS } from '../constants'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
 
+export function expandTo18Decimals(n: number): BigNumber {
+  return BigNumber.from(n).mul(BigNumber.from(10).pow(18))
+}
+
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
   try {
