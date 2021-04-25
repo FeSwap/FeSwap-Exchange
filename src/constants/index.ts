@@ -31,18 +31,17 @@ export const GOVERNANCE_ADDRESS = '0x5e4be8Bc9637f0EAA1A755019e06A68ce081D58F'
 
 export const TIMELOCK_ADDRESS = '0x1a9C8182C09F50C8318d769245beA52c32BE35BC'
 
-const UNI_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
-export const UNI: { [chainId in ChainId]: Token } = {
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.KOVAN]: new Token(ChainId.KOVAN, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.FESW]: new Token(ChainId.FESW, UNI_ADDRESS, 18, 'FESW', 'FeSwap')  
+const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'
+export const FESW: { [chainId in ChainId]: Token } = {
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.KOVAN]: new Token(ChainId.KOVAN, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
 }
 
 export const COMMON_CONTRACT_NAMES: { [address: string]: string } = {
-  [UNI_ADDRESS]: 'UNI',
+  [FESW_ADDRESS]: 'FESW',
   [GOVERNANCE_ADDRESS]: 'Governance',
   [TIMELOCK_ADDRESS]: 'Timelock'
 }
@@ -58,7 +57,6 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.RINKEBY]: [WETH[ChainId.RINKEBY]],
   [ChainId.GÖRLI]: [WETH[ChainId.GÖRLI]],
   [ChainId.KOVAN]: [WETH[ChainId.KOVAN]],
-  [ChainId.FESW]: [WETH[ChainId.FESW]]
 }
 
 // used to construct intermediary pairs for trading

@@ -37,7 +37,7 @@ const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: s
   }
 `
 
-const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
+const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d{0,18}$`) // match escaped "." characters via in a non-capturing group
 
 export const Input = React.memo(function InnerInput({
   value,
@@ -72,10 +72,10 @@ export const Input = React.memo(function InnerInput({
       autoCorrect="off"
       // text-specific options
       type="text"
-      pattern="^[0-9]*[.,]?[0-9]*$"
+      pattern="^[0-9]*[.,]?[0-9]{0,18}$"
       placeholder={placeholder || '0.0'}
       minLength={1}
-      maxLength={79}
+      maxLength={39}
       spellCheck="false"
     />
   )

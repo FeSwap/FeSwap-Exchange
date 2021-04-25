@@ -1,4 +1,4 @@
-import { CurrencyAmount, JSBI, Token, Trade } from '@uniswap/sdk'
+import { Currency, CurrencyAmount, JSBI, Token, Trade, ETHER } from '@uniswap/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
 import ReactGA from 'react-ga'
@@ -20,7 +20,7 @@ import SponsorWarningModal from '../../components/SponsorWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
 import PageHeader from '../../components/PageHeader'
 
-import { BETTER_TRADE_LINK_THRESHOLD, INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
+import { BETTER_TRADE_LINK_THRESHOLD, INITIAL_ALLOWED_SLIPPAGE, FESW } from '../../constants'
 import { getTradeVersion } from '../../data/V1'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -49,21 +49,9 @@ import { Contract, BigNumber, constants, utils, providers, ContractFactory } fro
 import { ethers } from "ethers";
 import FeswapByteCode from '../../constants/abis/Fesw.json'
 
-export default function FeTest() {
-  const loadedUrlParams = useDefaultsFromURLSearch()
+export default function Sponsor() {
 
-  // token warning stuff
-  const [loadedInputCurrency, loadedOutputCurrency] = [
-    useCurrency(loadedUrlParams?.inputCurrencyId),
-    useCurrency(loadedUrlParams?.outputCurrencyId)
-  ]
-
-  const urlLoadedTokens: Token[] = useMemo(
-    () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
-    [loadedInputCurrency, loadedOutputCurrency]
-  )
-
-  const { account, library } = useActiveWeb3React()
+  const { account, library, chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
 
   const [showSponsorWarning, clearShowSponsorWarning] = useState<boolean>(true)
@@ -131,6 +119,16 @@ export default function FeTest() {
     currencies[Field.OUTPUT],
     typedValue
   )
+
+  const currenciesA: { [field in Field]?: Currency } = {
+    [Field.INPUT]: ETHER,
+    [Field.OUTPUT]: chainId ? FESW[chainId] : undefined
+  }
+  
+//  const isETH = currencyId?.toUpperCase() === 'ETH'
+//  const token = useToken(isETH ? undefined : currencyId)
+//  return isETH ? ETHER : token
+
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const { address: recipientAddress } = useENSAddress(recipient)
   const toggledVersion = useToggledVersion()
@@ -306,21 +304,10 @@ export default function FeTest() {
     setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
   }, [attemptingTxn, showConfirm, swapErrorMessage, trade, txHash])
 
-  const handleInputSelect = useCallback(
-    inputCurrency => {
-      setApprovalSubmitted(false) // reset 2 step UI for approvals
-      onCurrencySelection(Field.INPUT, inputCurrency)
-    },
-    [onCurrencySelection]
-  )
-
   const handleMaxInput = useCallback(() => {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
-  const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
-    onCurrencySelection
-  ])
 
   return (
     <>
@@ -329,7 +316,7 @@ export default function FeTest() {
         onConfirm={handleWillSponsor}
       />
       <AppBody>
-        <PageHeader header="FeTest" />
+        <PageHeader header="Sponsor" />
         <Wrapper id="swap-page">
           <ConfirmSwapModal
             isOpen={showConfirm}
@@ -347,28 +334,22 @@ export default function FeTest() {
 
           <AutoColumn gap={'md'}>
             <CurrencyInputPanel
-              label={independentField === Field.OUTPUT && !showWrap && trade ? 'PAY (estimated)' : 'SELL'}
+              label={'Will sponsor'}
               value={formattedAmounts[Field.INPUT]}
               showMaxButton={!atMaxAmountInput}
               currency={currencies[Field.INPUT]}
               onUserInput={handleTypeInput}
               onMax={handleMaxInput}
-              onCurrencySelect={handleInputSelect}
               disableCurrencySelect = {true}
-              otherCurrency={currencies[Field.OUTPUT]}
-              id="swap-currency-input"
-              hideInput={false}
+              id="sponsor-currency-input"
+              customBalanceText = 'Balance: '
             />
             <AutoColumn justify="space-between">
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
-                <ArrowWrapper clickable>
+                <ArrowWrapper clickable={false}>
                   <ArrowDown
                     size="16"
-                    onClick={() => {
-                      setApprovalSubmitted(false) // reset 2 step UI for approvals
-                      onSwitchTokens()
-                    }}
-                    color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.primary1 : theme.text2}
+                    color={theme.primary1}
                   />
                 </ArrowWrapper>
                 {recipient === null && !showWrap && isExpertMode ? (
@@ -381,10 +362,9 @@ export default function FeTest() {
             <CurrencyInputPanel
               value={formattedAmounts[Field.OUTPUT]}
               onUserInput={handleTypeOutput}
-              label={independentField === Field.INPUT && !showWrap && trade ? 'GET (estimated)' : 'BUY'}
+              label={'GET (estimated)'}
               showMaxButton={false}
               currency={currencies[Field.OUTPUT]}
-              onCurrencySelect={handleOutputSelect}
               disableCurrencySelect = {true}
               otherCurrency={currencies[Field.INPUT]}
               id="swap-currency-output"
@@ -394,7 +374,7 @@ export default function FeTest() {
               <>
                 <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
                   <ArrowWrapper clickable={false}>
-                    <ArrowDown size="16" color={theme.text2} />
+                    <ArrowDown size="16" color={theme.primary1} />
                   </ArrowWrapper>
                   <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeRecipient(null)}>
                     - Remove send

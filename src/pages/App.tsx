@@ -15,7 +15,7 @@ import Pool from './Pool'
 import Swap from './Swap'
 import Nft from './Nft'
 import Giveaway from './Giveaway'
-import FeTest from './FeTest'
+import Sponsor from './Sponsor'
 import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 
 const AppWrapper = styled.div`
@@ -81,7 +81,7 @@ export default function App() {
               <Route exact strict path="/nft" component={Nft} />
               <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
               <Route exact strict path="/giveaway" component={Giveaway} />
-              <Route exact strict path="/fetest" component={FeTest} />
+              <Route exact strict path="/sponsor" component={Sponsor} />
               <Route exact strict path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>

@@ -227,8 +227,7 @@ export const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.RINKEBY]: 'Rinkeby',
   [ChainId.ROPSTEN]: 'Ropsten',
   [ChainId.GÖRLI]: 'Görli',
-  [ChainId.KOVAN]: 'Kovan',
-  [ChainId.FESW]: 'Fesw'
+  [ChainId.KOVAN]: 'Kovan'
 }
 
 export default function Header() {
@@ -293,8 +292,8 @@ export default function Header() {
           <StyledNavLink id={`stake-nav-link`} to={'/giveaway'}>
             GIVEAWAY<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/fetest'}>
-            FeTest
+          <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
+            SPONSOR<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
         </HeaderLinks>
       </HeaderRow>
@@ -309,7 +308,7 @@ export default function Header() {
             <UNIWrapper onClick={toggleClaimModal}>
               <UNIAmount active={!!account && !availableClaim} style={{ pointerEvents: 'auto' }}>
                 <TYPE.white padding="0 2px">
-                  {claimTxn && !claimTxn?.receipt ? <Dots>Claiming UNI</Dots> : 'Claim UNI'}
+                  {claimTxn && !claimTxn?.receipt ? <Dots>Claiming FESW</Dots> : 'Claim FESW'}
                 </TYPE.white>
               </UNIAmount>
               <CardNoise />
@@ -336,7 +335,7 @@ export default function Header() {
                     </TYPE.white>
                   </HideSmall>
                 )}
-                UNI
+                FESW
               </UNIAmount>
               <CardNoise />
             </UNIWrapper>
