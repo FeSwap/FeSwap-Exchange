@@ -54,7 +54,13 @@ export default function Sponsor() {
   const { account, library, chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
 
+  const currencies: { [field in Field]?: Currency } = {
+    [Field.INPUT]:  ETHER,
+    [Field.OUTPUT]: chainId ? FESW[chainId] : undefined
+  }
+
   const [showSponsorWarning, clearShowSponsorWarning] = useState<boolean>(true)
+  
   const [willSponsor, setWillSponsor] = useState<boolean>(false)
   const handleWillSponsor = useCallback((yesOrNo: boolean) => {
     setWillSponsor(yesOrNo)
@@ -111,9 +117,9 @@ export default function Sponsor() {
     v2Trade,
     currencyBalances,
     parsedAmount,
-    currencies,
     inputError: swapInputError
   } = useDerivedSwapInfo()
+  
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -156,7 +162,7 @@ export default function Sponsor() {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
       }
 
-  const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
+  const { onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 

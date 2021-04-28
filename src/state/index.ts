@@ -6,6 +6,7 @@ import { updateVersion } from './global/actions'
 import user from './user/reducer'
 import transactions from './transactions/reducer'
 import swap from './swap/reducer'
+import sponsor from './sponsor/reducer'
 //import mint from './mint/reducer'
 import lists from './lists/reducer'
 //import burn from './burn/reducer'
@@ -19,6 +20,7 @@ const store = configureStore({
     user,
     transactions,
     swap,
+    sponsor,
 //    mint,
 //    burn,
     multicall,

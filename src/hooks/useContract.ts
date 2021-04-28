@@ -1,12 +1,13 @@
 import { Contract } from '@ethersproject/contracts'
 import { abi as GOVERNANCE_ABI } from '@uniswap/governance/build/GovernorAlpha.json'
+import { abi as SPONSOR_ABI } from '../constants/abis/FeswSponsor.json'
 import { abi as UNI_ABI } from '@uniswap/governance/build/Uni.json'
 import { abi as STAKING_REWARDS_ABI } from '@uniswap/liquidity-staker/build/StakingRewards.json'
 import { abi as MERKLE_DISTRIBUTOR_ABI } from '@uniswap/merkle-distributor/build/MerkleDistributor.json'
 import { ChainId, WETH } from '@uniswap/sdk'
 import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { useMemo } from 'react'
-import { GOVERNANCE_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, FESW } from '../constants'
+import { GOVERNANCE_ADDRESS, SPONSOR_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, FESW } from '../constants'
 import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS
@@ -111,9 +112,13 @@ export function useGovernanceContract(): Contract | null {
   return useContract(GOVERNANCE_ADDRESS, GOVERNANCE_ABI, true)
 }
 
-export function useUniContract(): Contract | null {
+export function useFeswContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(chainId ? FESW[chainId].address : undefined, UNI_ABI, true)
+}
+
+export function useSponsorContract(): Contract | null {
+  return useContract(SPONSOR_ADDRESS, SPONSOR_ABI, true)
 }
 
 export function useStakingContract(stakingAddress?: string, withSignerIfPossible?: boolean): Contract | null {

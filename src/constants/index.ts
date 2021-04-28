@@ -28,20 +28,22 @@ export const PROPOSAL_LENGTH_IN_BLOCKS = 40_320
 export const PROPOSAL_LENGTH_IN_SECS = AVERAGE_BLOCK_TIME_IN_SECS * PROPOSAL_LENGTH_IN_BLOCKS
 
 export const GOVERNANCE_ADDRESS = '0x5e4be8Bc9637f0EAA1A755019e06A68ce081D58F'
-
 export const TIMELOCK_ADDRESS = '0x1a9C8182C09F50C8318d769245beA52c32BE35BC'
+export const SPONSOR_ADDRESS = '0x9b185eCEbff41B991FdA0A268fEc31454779d276'
 
 const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'
+const FESW_TEST_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'
+
 export const FESW: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.KOVAN]: new Token(ChainId.KOVAN, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.KOVAN]: new Token(ChainId.KOVAN, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
 }
 
 export const COMMON_CONTRACT_NAMES: { [address: string]: string } = {
-  [FESW_ADDRESS]: 'FESW',
+//  [FESW_ADDRESS]: 'FESW',
   [GOVERNANCE_ADDRESS]: 'Governance',
   [TIMELOCK_ADDRESS]: 'Timelock'
 }
