@@ -1,7 +1,7 @@
 import useENS from '../../hooks/useENS'
 import { Version } from '../../hooks/useToggledVersion'
 import { parseUnits } from '@ethersproject/units'
-import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Trade } from '@uniswap/sdk'
+import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Trade, Fraction, Price } from '@uniswap/sdk'
 import { useSponsorContract, useFeswContract } from '../../hooks/useContract'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState } from 'react'
@@ -11,26 +11,40 @@ import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
-import { isAddress } from '../../utils'
+import { isAddress, calculateGasMargin  } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { Field, replaceSponsorState, setRecipient, typeInput } from './actions'
+import { replaceSponsorState, setRecipient, typeInput } from './actions'
 import { SponsorState } from './reducer'
-import useToggledVersion from '../../hooks/useToggledVersion'
-import { useUserSlippageTolerance } from '../user/hooks'
-import { tryParseAmount } from '../swap/hooks'
-import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { FESW } from '../../constants'
-import { useSingleCallResult } from '../multicall/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from '../multicall/hooks'
+import { Field } from '../swap/actions'
+import { tryParseAmount } from '../swap/hooks'
+import { Contract, BigNumber, constants } from 'ethers'
+import React, { useMemo } from 'react'
+import { useTransactionAdder } from '../../state/transactions/hooks'
+import { TransactionResponse } from '@ethersproject/providers'
+
+export interface SponsorTrade {
+  readonly parsedAmounts: { [field in Field]?: CurrencyAmount }
+  readonly feswGiveRate: Price | undefined
+}
 
 export function useSponsorState(): AppState['sponsor'] {
   return useSelector<AppState, AppState['sponsor']>(state => state.sponsor)
 }
 
-// get the users delegatee if it exists
-export function useSponsorFinalized(): string {
+// get if sponsor finalized
+export function useSponsorFinalized(): JSBI {
   const sponsorContract = useSponsorContract()
   const { result } = useSingleCallResult(sponsorContract, 'SponsorFinalized', [])
+  return result?.[0] ?? undefined
+}
+
+// get the users delegatee if it exists
+export function useTotalETHReceived(): JSBI {
+  const sponsorContract = useSponsorContract()
+  const { result } = useSingleCallResult(sponsorContract, 'TotalETHReceived', [])
   return result?.[0] ?? undefined
 }
 
@@ -52,8 +66,8 @@ export function useSponsorActionHandlers(): {
   const dispatch = useDispatch<AppDispatch>()
 
   const onUserInput = useCallback(
-    (typedValue: string) => {
-      dispatch(typeInput({typedValue }))
+    (independentField: Field, typedValue: string) => {
+      dispatch(typeInput({independentField, typedValue }))
     },
     [dispatch]
   )
@@ -71,41 +85,24 @@ export function useSponsorActionHandlers(): {
   }
 }
 
-const BAD_RECIPIENT_ADDRESSES: string[] = [
-  '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f', // v2 factory
-  '0xf164fC0Ec4E93095b804a4795bBe1e041497b92a', // v2 router 01
-  '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' // v2 router 02
-]
-
-/**
- * Returns true if any of the pairs or tokens in a trade have the given checksummed address
- * @param trade to check for the given address
- * @param checksummedAddress address to check in the pairs and tokens
- */
-function involvesAddress(trade: Trade, checksummedAddress: string): boolean {
-  return (
-    trade.route.path.some(token => token.address === checksummedAddress) ||
-    trade.route.pairs.some(pair => pair.liquidityToken.address === checksummedAddress)
-  )
-}
-
 // from the current sponsor inputs, compute the best trade and return it.
 export function useDerivedSponsorInfo(): {
   currencyBalances: { [field in Field]?: CurrencyAmount }
-  parsedAmount: CurrencyAmount | undefined
-  v2Trade: Trade | undefined
+  parsedAmounts: { [field in Field]?: CurrencyAmount }
+  feswGiveRate: Price | undefined
   inputError?: string
 } {
   const { account, chainId } = useActiveWeb3React()
+  const sponsorContract = useSponsorContract()
 
   const {
+    independentField,
     typedValue,
     recipient
   } = useSponsorState()
 
   const inputCurrency = ETHER
   const outputCurrency = chainId ? FESW[chainId] : undefined
-
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
 
@@ -114,12 +111,37 @@ export function useDerivedSponsorInfo(): {
     outputCurrency ?? undefined
   ])
 
-  const parsedAmount = tryParseAmount(typedValue, inputCurrency ?? undefined)
+  const INITIAL_FESW_RATE_PER_ETH = useSingleCallResult(sponsorContract, 'SponsorFinalized', undefined, 
+                                      NEVER_RELOAD)?.result?.[0] ?? undefined
+  const FESW_CHANGE_RATE_VERSUS_ETH = useSingleCallResult(sponsorContract, 'SponsorFinalized', undefined, 
+                                      NEVER_RELOAD)?.result?.[0] ?? undefined
 
-  const bestTradeExactIn = useTradeExactIn( parsedAmount ?? undefined, outputCurrency ?? undefined)
-  const bestTradeExactOut = useTradeExactOut(inputCurrency ?? undefined, parsedAmount ?? undefined)
+  const TotalETHReceived = useSingleCallResult(sponsorContract, 'TotalETHReceived', [])?.result?.[0] ?? undefined
 
-  const v2Trade = bestTradeExactIn 
+  const feswGiveRate: Price | undefined = useMemo(() => {
+    if( !INITIAL_FESW_RATE_PER_ETH || FESW_CHANGE_RATE_VERSUS_ETH || !TotalETHReceived || !outputCurrency) return undefined
+
+    const feswGiveRateBigNumber = BigNumber.from(INITIAL_FESW_RATE_PER_ETH).sub(
+      BigNumber.from(TotalETHReceived).mul(BigNumber.from(FESW_CHANGE_RATE_VERSUS_ETH)).div(1e18) )
+
+    return new Price(inputCurrency, outputCurrency, '1', feswGiveRateBigNumber.toString())
+
+  }, [INITIAL_FESW_RATE_PER_ETH, FESW_CHANGE_RATE_VERSUS_ETH, TotalETHReceived])
+
+  const isExactIn: boolean = independentField === Field.INPUT
+  const dependentField: Field = isExactIn ? Field.OUTPUT : Field.INPUT
+
+  const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+  const parsedAmountInduced : CurrencyAmount | undefined = feswGiveRate 
+      ? isExactIn 
+        ? tryParseAmount(JSBI.multiply(JSBI.BigInt(typedValue), feswGiveRate.quotient).toString(), outputCurrency) ?? undefined
+        : tryParseAmount(JSBI.divide(JSBI.BigInt(typedValue), feswGiveRate.quotient).toString(), inputCurrency) ?? undefined
+       : undefined
+
+  const parsedAmounts = {
+          [independentField]: parsedAmount,
+          [dependentField]: parsedAmountInduced
+       }
 
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
@@ -138,26 +160,12 @@ export function useDerivedSponsorInfo(): {
   const formattedTo = isAddress(to)
   if (!to || !formattedTo) {
     inputError = inputError ?? 'Enter a recipient'
-  } else {
-    if (
-      BAD_RECIPIENT_ADDRESSES.indexOf(formattedTo) !== -1 ||
-      (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo)) ||
-      (bestTradeExactOut && involvesAddress(bestTradeExactOut, formattedTo))
-    ) {
-      inputError = inputError ?? 'Invalid recipient'
-    }
-  }
-
-  const [allowedSlippage] = useUserSlippageTolerance()
-
-  const slippageAdjustedAmounts = v2Trade && allowedSlippage && computeSlippageAdjustedAmounts(v2Trade, allowedSlippage)
+  } 
 
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
     currencyBalances[Field.INPUT],
-      slippageAdjustedAmounts
-      ? slippageAdjustedAmounts[Field.INPUT]
-      : null
+    parsedAmounts[Field.INPUT]
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
@@ -166,8 +174,38 @@ export function useDerivedSponsorInfo(): {
 
   return {
     currencyBalances,
-    parsedAmount,
-    v2Trade: v2Trade ?? undefined,
+    parsedAmounts,
+    feswGiveRate,
     inputError,
   }
+}
+
+export function useSponsorCallback(
+  sponsorAmount: CurrencyAmount | undefined
+): {
+  sponsorCallback: () => Promise<string>
+} {
+  // get claim data for this account
+  const { library, chainId, account } = useActiveWeb3React()
+  const sponsorContract = useSponsorContract()
+
+  // used for popup summary
+  const addTransaction = useTransactionAdder()
+
+  const sponsorCallback = async function() {
+    if (!sponsorAmount || !account || !library || !chainId|| !sponsorContract ) return
+
+   return sponsorContract.estimateGas['Sponsor'](account, {}).then(estimatedGasLimit => {
+      return sponsorContract
+        .Sponsor(account, { value: sponsorAmount.raw, gasLimit: calculateGasMargin(estimatedGasLimit) })
+        .then((response: TransactionResponse) => {
+          addTransaction(response, {
+            summary: `Sponsored ${sponsorAmount?.toSignificant(6)} ETH`,
+          })
+          return response.hash
+        })
+    })
+  }
+
+  return { sponsorCallback }
 }

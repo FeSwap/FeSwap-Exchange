@@ -8,7 +8,7 @@ import AddressInputPanel from '../../components/AddressInputPanel'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
 import Card, { GreyCard } from '../../components/Card'
 import Column, { AutoColumn } from '../../components/Column'
-import ConfirmSwapModal from '../../components/swap/ConfirmSwapModal'
+import ConfirmSponsorModal from '../../components/Sponsor/ConfirmSponsorModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from '../../components/Row'
 import AdvancedSwapDetailsDropdown from '../../components/swap/AdvancedSwapDetailsDropdown'
@@ -16,7 +16,7 @@ import BetterTradeLink, { DefaultVersionLink } from '../../components/swap/Bette
 import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
 import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
 import TradePrice from '../../components/swap/TradePrice'
-import SponsorWarningModal from '../../components/SponsorWarningModal'
+import SponsorWarningModal from '../../components/Sponsor'
 import ProgressSteps from '../../components/ProgressSteps'
 import PageHeader from '../../components/PageHeader'
 
@@ -32,11 +32,11 @@ import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
 import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
 import { Field } from '../../state/swap/actions'
 import {
-  useDefaultsFromURLSearch,
-  useDerivedSwapInfo,
-  useSwapActionHandlers,
-  useSwapState
-} from '../../state/swap/hooks'
+  SponsorTrade,
+  useDerivedSponsorInfo,
+  useSponsorActionHandlers,
+  useSponsorState
+} from '../../state/sponsor/hooks'
 import { useExpertModeManager, useUserSlippageTolerance, useUserSingleHopOnly } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
@@ -44,15 +44,20 @@ import { computeTradePriceBreakdown, warningSeverity } from '../../utils/prices'
 import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
-import { isTradeBetter } from 'utils/trades'
 import { Contract, BigNumber, constants, utils, providers, ContractFactory } from 'ethers'
 import { ethers } from "ethers";
 import FeswapByteCode from '../../constants/abis/Fesw.json'
+import { useTransactionAdder } from '../../state/transactions/hooks'
+import { useSponsorContract, useFeswContract } from '../../hooks/useContract'
+import { TransactionResponse } from '@ethersproject/providers'
+import { isAddress, calculateGasMargin } from '../../utils'
+import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 
 export default function Sponsor() {
-
-  const { account, library, chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
+  const { account, chainId, library } = useActiveWeb3React()
+  const addTransaction = useTransactionAdder()
+  const sponsorContract = useSponsorContract()
 
   const currencies: { [field in Field]?: Currency } = {
     [Field.INPUT]:  ETHER,
@@ -67,103 +72,26 @@ export default function Sponsor() {
     clearShowSponsorWarning(false)
   }, [setWillSponsor, clearShowSponsorWarning])
 
-
-  ///////// FESW //////////
-
-  // The Metamask plugin also allows signing transactions to
-  // send ether and pay to change state within the blockchain.
-  // For this, you need the account signer...
-  const signer = library ? library.getSigner() : undefined
-
-  const overrides = {
-    gasLimit: 9999999,
-    gasPrice: 120000000000
-  }
-
-  // The factory we use for deploying contracts
-  const factory = new ContractFactory(FeswapByteCode.abi, FeswapByteCode.evm.bytecode, signer)
-
-  const genesisaDate = BigNumber.from(1619568000)     // "2021-04-28 08:00:00"
-  const [sponsorCounter, setSponsorCounter] = useState<number>(0)
-
-  const deployFesw = useCallback(async() => {
-    console.log("AAAA",signer)
-    setSponsorCounter(sponsorCounter+1)
-
-    const FeswContract = await factory.deploy( account, account, genesisaDate, overrides)
-    await FeswContract.deployed()
-    return FeswContract
-  },[sponsorCounter, setSponsorCounter,account, genesisaDate, overrides ])
-
-//    const FeswContract = await factory.deploy( account, account, genesisaDate, overrides)
-//    await FeswContract.deployed()
-//    return FeswContract
-//  }, [account, genesisaDate, overrides])
-
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
-
-  // for expert mode
-  const toggleSettings = useToggleSettingsMenu()
   const [isExpertMode] = useExpertModeManager()
 
-  // get custom setting values for user
-  const [allowedSlippage] = useUserSlippageTolerance()
-
   // swap state
-  const { independentField, typedValue, recipient } = useSwapState()
+  const { independentField, typedValue, recipient } = useSponsorState() 
+
   const {
-    v1Trade,
-    v2Trade,
     currencyBalances,
-    parsedAmount,
-    inputError: swapInputError
-  } = useDerivedSwapInfo()
-  
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue
-  )
+    parsedAmounts,
+    feswGiveRate,
+    inputError: SponsorInputError
+  } = useDerivedSponsorInfo()
 
-  const currenciesA: { [field in Field]?: Currency } = {
-    [Field.INPUT]: ETHER,
-    [Field.OUTPUT]: chainId ? FESW[chainId] : undefined
-  }
+  const sponsor: SponsorTrade = {parsedAmounts, feswGiveRate}
   
-//  const isETH = currencyId?.toUpperCase() === 'ETH'
-//  const token = useToken(isETH ? undefined : currencyId)
-//  return isETH ? ETHER : token
-
-  const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const { address: recipientAddress } = useENSAddress(recipient)
-  const toggledVersion = useToggledVersion()
-  const tradesByVersion = {
-    [Version.v1]: v1Trade,
-    [Version.v2]: v2Trade
-  }
-  const trade = showWrap ? undefined : tradesByVersion[toggledVersion]
-  const defaultTrade = showWrap ? undefined : tradesByVersion[DEFAULT_VERSION]
 
-  const betterTradeLinkVersion: Version | undefined =
-    toggledVersion === Version.v2 && isTradeBetter(v2Trade, v1Trade, BETTER_TRADE_LINK_THRESHOLD)
-      ? Version.v1
-      : toggledVersion === Version.v1 && isTradeBetter(v1Trade, v2Trade)
-      ? Version.v2
-      : undefined
-
-  const parsedAmounts = showWrap
-    ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount
-      }
-    : {
-        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
-      }
-
-  const { onUserInput, onChangeRecipient } = useSwapActionHandlers()
-  const isValid = !swapInputError
+  const { onUserInput, onChangeRecipient } = useSponsorActionHandlers()
+  const isValid = !SponsorInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
   const handleTypeInput = useCallback(
@@ -180,135 +108,63 @@ export default function Sponsor() {
   )
 
   // modal and loading
-  const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
+  const [{ showConfirm, sponsorToConfirm, spnosorErrorMessage, attemptingTxn, txHash }, setSponsorState] = useState<{
     showConfirm: boolean
-    tradeToConfirm: Trade | undefined
+    sponsorToConfirm: SponsorTrade | undefined
     attemptingTxn: boolean
-    swapErrorMessage: string | undefined
+    spnosorErrorMessage: string | undefined
     txHash: string | undefined
   }>({
     showConfirm: false,
-    tradeToConfirm: undefined,
+    sponsorToConfirm: undefined,
     attemptingTxn: false,
-    swapErrorMessage: undefined,
+    spnosorErrorMessage: undefined,
     txHash: undefined
   })
 
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: showWrap
-      ? parsedAmounts[independentField]?.toExact() ?? ''
-      : parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? ''
   }
-
-  const route = trade?.route
-  const userHasSpecifiedInputOutput = Boolean(
-    currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
-  )
-  const noRoute = !route
-
-  // check whether the user has approved the router on the input token
-  const [approval, approveCallback] = useApproveCallbackFromTrade(trade, allowedSlippage)
-
-  // check if user has gone through approval process, used to show two step buttons, reset on token change
-  const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
-
-  // mark when a user has submitted an approval, reset onTokenSelection for input field
-  useEffect(() => {
-    if (approval === ApprovalState.PENDING) {
-      setApprovalSubmitted(true)
-    }
-  }, [approval, approvalSubmitted])
 
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
-  // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
-
-  const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
-
-  const [singleHopOnly] = useUserSingleHopOnly()
-
-  const handleSwap = useCallback(() => {
-    if (priceImpactWithoutFee && !confirmPriceImpactWithoutFee(priceImpactWithoutFee)) {
-      return
-    }
-    if (!swapCallback) {
-      return
-    }
-    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
-    swapCallback()
-      .then(hash => {
-        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
-
-        ReactGA.event({
-          category: 'Swap',
-          action:
-            recipient === null
-              ? 'Swap w/o Send'
-              : (recipientAddress ?? recipient) === account
-              ? 'Swap w/o Send + recipient'
-              : 'Swap w/ Send',
-          label: [
-            trade?.inputAmount?.currency?.symbol,
-            trade?.outputAmount?.currency?.symbol,
-            getTradeVersion(trade)
-          ].join('/')
-        })
-
-        ReactGA.event({
-          category: 'Routing',
-          action: singleHopOnly ? 'Swap with multihop disabled' : 'Swap with multihop enabled'
+  async function handleSponsor(){
+    const sponsorAmount = parsedAmounts[Field.INPUT]
+  
+    if (!sponsorAmount || !account || !library || !chainId|| !sponsorContract ) return
+  
+    setSponsorState({ attemptingTxn: true, sponsorToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: undefined })
+    sponsorContract.estimateGas['Sponsor'](account, {value: sponsorAmount.raw})
+      .then(estimatedGasLimit => {
+        sponsorContract.Sponsor(account, { value: sponsorAmount.raw, gasLimit: calculateGasMargin(estimatedGasLimit) })
+        .then((response: TransactionResponse) => {
+          addTransaction(response, {
+            summary: `Sponsored ${sponsorAmount?.toSignificant(6)} ETH`,
+          })
+          setSponsorState({ attemptingTxn: false, sponsorToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: response.hash })
         })
       })
       .catch(error => {
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm,
-          showConfirm,
-          swapErrorMessage: error.message,
-          txHash: undefined
-        })
+        setSponsorState({attemptingTxn: false, sponsorToConfirm, showConfirm, spnosorErrorMessage: error.message, txHash: undefined })
       })
-  }, [
-    priceImpactWithoutFee,
-    swapCallback,
-    tradeToConfirm,
-    showConfirm,
-    recipient,
-    recipientAddress,
-    account,
-    trade,
-    singleHopOnly
-  ])
-
+  }
+  
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
 
-  // warnings on slippage
-  const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
-
-  // show approve flow when: no error on inputs, not approved or pending, or approved in current session
-  // never show if price impact is above threshold in non expert mode
-  const showApproveFlow =
-    !swapInputError &&
-    (approval === ApprovalState.NOT_APPROVED ||
-      approval === ApprovalState.PENDING ||
-      (approvalSubmitted && approval === ApprovalState.APPROVED)) &&
-    !(priceImpactSeverity > 3 && !isExpertMode)
-
   const handleConfirmDismiss = useCallback(() => {
-    setSwapState({ showConfirm: false, tradeToConfirm, attemptingTxn, swapErrorMessage, txHash })
+    setSponsorState({ showConfirm: false, sponsorToConfirm, attemptingTxn, spnosorErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onUserInput(Field.INPUT, '')
     }
-  }, [attemptingTxn, onUserInput, swapErrorMessage, tradeToConfirm, txHash])
+  }, [attemptingTxn, onUserInput, spnosorErrorMessage, sponsorToConfirm, txHash])
 
   const handleAcceptChanges = useCallback(() => {
-    setSwapState({ tradeToConfirm: trade, swapErrorMessage, txHash, attemptingTxn, showConfirm })
-  }, [attemptingTxn, showConfirm, swapErrorMessage, trade, txHash])
+    setSponsorState({ sponsorToConfirm: sponsor, spnosorErrorMessage, txHash, attemptingTxn, showConfirm })
+  }, [attemptingTxn, showConfirm, spnosorErrorMessage, sponsor, txHash])
 
   const handleMaxInput = useCallback(() => {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
@@ -324,23 +180,21 @@ export default function Sponsor() {
       <AppBody>
         <PageHeader header="Sponsor" />
         <Wrapper id="swap-page">
-          <ConfirmSwapModal
+          <ConfirmSponsorModal
             isOpen={showConfirm}
-            trade={trade}
-            originalTrade={tradeToConfirm}
+            sponsor={sponsor}
+            originalSponsor={sponsorToConfirm}
             onAcceptChanges={handleAcceptChanges}
             attemptingTxn={attemptingTxn}
             txHash={txHash}
             recipient={recipient}
-            allowedSlippage={allowedSlippage}
-            onConfirm={handleSwap}
-            swapErrorMessage={swapErrorMessage}
+            onConfirm={handleSponsor}
+            swapErrorMessage={spnosorErrorMessage}
             onDismiss={handleConfirmDismiss}
           />
-
           <AutoColumn gap={'md'}>
             <CurrencyInputPanel
-              label={'Will sponsor'}
+              label={independentField === Field.OUTPUT && feswGiveRate ? 'Need to sponsor' : 'Will sponsor'}
               value={formattedAmounts[Field.INPUT]}
               showMaxButton={!atMaxAmountInput}
               currency={currencies[Field.INPUT]}
@@ -358,7 +212,7 @@ export default function Sponsor() {
                     color={theme.primary1}
                   />
                 </ArrowWrapper>
-                {recipient === null && !showWrap && isExpertMode ? (
+                {recipient === null && isExpertMode ? (
                   <LinkStyledButton id="add-recipient-button" onClick={() => onChangeRecipient('')}>
                     + Add a send (optional)
                   </LinkStyledButton>
@@ -368,7 +222,7 @@ export default function Sponsor() {
             <CurrencyInputPanel
               value={formattedAmounts[Field.OUTPUT]}
               onUserInput={handleTypeOutput}
-              label={'GET (estimated)'}
+              label={independentField === Field.INPUT && feswGiveRate ? 'GET (estimated)' : 'Apply'}
               showMaxButton={false}
               currency={currencies[Field.OUTPUT]}
               disableCurrencySelect = {true}
@@ -376,7 +230,7 @@ export default function Sponsor() {
               id="swap-currency-output"
             />
 
-            {recipient !== null && !showWrap ? (
+            {recipient !== null && (
               <>
                 <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
                   <ArrowWrapper clickable={false}>
@@ -388,146 +242,63 @@ export default function Sponsor() {
                 </AutoRow>
                 <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
               </>
-            ) : null}
-
-            {showWrap ? null : (
+            )}
+            {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
                 <AutoColumn gap="4px">
-                  {Boolean(trade) && (
+                  {Boolean(feswGiveRate) && (
                     <RowBetween align="center">
                       <Text fontWeight={500} fontSize={14} color={theme.text2}>
                         Price
                       </Text>
                       <TradePrice
-                        price={trade?.executionPrice}
+                        price={feswGiveRate}
                         showInverted={showInverted}
                         setShowInverted={setShowInverted}
                       />
                     </RowBetween>
                   )}
-                  {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
-                    <RowBetween align="center">
-                      <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        Slippage Tolerance
-                      </ClickableText>
-                      <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        {allowedSlippage / 100}%
-                      </ClickableText>
-                    </RowBetween>
-                  )}
                 </AutoColumn>
               </Card>
-            )}
+            }
           </AutoColumn>
           <BottomGrouping>
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
-            ) : showWrap ? (
-              <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
-                {wrapInputError ??
-                  (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
-              </ButtonPrimary>
-            ) : noRoute && userHasSpecifiedInputOutput ? (
-              <GreyCard style={{ textAlign: 'center' }}>
-                <TYPE.main mb="4px">Insufficient liquidity for this trade.</TYPE.main>
-                {singleHopOnly && <TYPE.main mb="4px">Try enabling multi-hop trades.</TYPE.main>}
-              </GreyCard>
-            ) : showApproveFlow ? (
-              <RowBetween>
-                <ButtonConfirmed
-                  onClick={approveCallback}
-                  disabled={approval !== ApprovalState.NOT_APPROVED || approvalSubmitted}
-                  width="48%"
-                  altDisabledStyle={approval === ApprovalState.PENDING} // show solid button while waiting
-                  confirmed={approval === ApprovalState.APPROVED}
-                >
-                  {approval === ApprovalState.PENDING ? (
-                    <AutoRow gap="6px" justify="center">
-                      Approving <Loader stroke="white" />
-                    </AutoRow>
-                  ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
-                    'Approved'
-                  ) : (
-                    'Approve ' + currencies[Field.INPUT]?.symbol
-                  )}
-                </ButtonConfirmed>
-                <ButtonError
-                  onClick={() => {
-                    if (isExpertMode) {
-                      handleSwap()
-                    } else {
-                      setSwapState({
-                        tradeToConfirm: trade,
-                        attemptingTxn: false,
-                        swapErrorMessage: undefined,
-                        showConfirm: true,
-                        txHash: undefined
-                      })
-                    }
-                  }}
-                  width="48%"
-                  id="swap-button"
-                  disabled={
-                    !isValid || approval !== ApprovalState.APPROVED || (priceImpactSeverity > 3 && !isExpertMode)
-                  }
-                  error={isValid && priceImpactSeverity > 2}
-                >
-                  <Text fontSize={16} fontWeight={500}>
-                    {priceImpactSeverity > 3 && !isExpertMode
-                      ? `Price Impact High`
-                      : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
-                  </Text>
-                </ButtonError>
-
-              </RowBetween>
             ) : (
               <AutoColumn gap="8px">
               <ButtonError
                 onClick={() => {
                   if (isExpertMode) {
-                    handleSwap()
+                    handleSponsor()
                   } else {
-                    setSwapState({
-                      tradeToConfirm: trade,
+                    setSponsorState({
+                      sponsorToConfirm: sponsor,
                       attemptingTxn: false,
-                      swapErrorMessage: undefined,
+                      spnosorErrorMessage: undefined,
                       showConfirm: true,
                       txHash: undefined
                     })
                   }
                 }}
                 id="swap-button"
-                disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError}
-                error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
+                disabled={!isValid || (!isExpertMode)}
+                error={isValid}
               >
                 <Text fontSize={20} fontWeight={500}>
-                  {swapInputError
-                    ? swapInputError
-                    : priceImpactSeverity > 3 && !isExpertMode
-                    ? `Price Impact Too High`
-                    : `Swap${priceImpactSeverity > 2 ? ' Anyway' : ''}`}
+                  {SponsorInputError
+                    ? SponsorInputError
+                    : `Sponosor`}
                 </Text>
               </ButtonError>
-                <ButtonError onClick={() => {deployFesw()}}>
-                  Sponsor {sponsorCounter}
-                </ButtonError>
               </AutoColumn>              
             )}
-            {showApproveFlow && (
-              <Column style={{ marginTop: '1rem' }}>
-                <ProgressSteps steps={[approval === ApprovalState.APPROVED]} />
-              </Column>
-            )}
-            {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
-            {betterTradeLinkVersion ? (
-              <BetterTradeLink version={betterTradeLinkVersion} />
-            ) : toggledVersion !== DEFAULT_VERSION && defaultTrade ? (
-              <DefaultVersionLink />
-            ) : null}
-          </BottomGrouping>
+            {spnosorErrorMessage ? <SwapCallbackError error={spnosorErrorMessage} /> : null}
+           </BottomGrouping>
         </Wrapper>
       </AppBody>
-      <AdvancedSwapDetailsDropdown trade={trade} />
     </>
   )
 }
+
+//      <AdvancedSwapDetailsDropdown trade={feswGiveRate} />

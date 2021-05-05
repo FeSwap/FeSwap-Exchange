@@ -1,12 +1,9 @@
 import { createAction } from '@reduxjs/toolkit'
+import { Field } from '../swap/actions'
 
-export enum Field {
-  INPUT = 'INPUT',
-  OUTPUT = 'OUTPUT'
-}
-
-export const typeInput = createAction<{ typedValue: string }>('sponsor/typeInput')
+export const typeInput = createAction<{ independentField: Field; typedValue: string }>('sponsor/typeInput')
 export const replaceSponsorState = createAction<{
+  independentField: Field
   typedValue: string
   recipient: string | null
 }>('sponsor/replaceSponsorState')

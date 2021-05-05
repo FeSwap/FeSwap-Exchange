@@ -5,8 +5,13 @@ import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUniswapV2Router02.json'
 import { ROUTER_ADDRESS } from '../constants'
-import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@uniswap/sdk'
+import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, Fraction } from '@uniswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
+
+export const WEI_DENOM = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))
+export const ZERO = JSBI.BigInt(0)
+export const ONE = JSBI.BigInt(1)
+export const ZERO_FRACTION = new Fraction(ZERO, ONE)
 
 export function expandTo18Decimals(n: number): BigNumber {
   return BigNumber.from(n).mul(BigNumber.from(10).pow(18))
