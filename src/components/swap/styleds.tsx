@@ -100,7 +100,7 @@ export const Dots = styled.span`
 `
 
 const SwapCallbackErrorInner = styled.div`
-  background-color: ${({ theme }) => transparentize(0.9, theme.red1)};
+  background-color: ${({ theme }) => transparentize(0.8, theme.red1)};
   border-radius: 1rem;
   display: flex;
   align-items: center;
@@ -143,6 +143,6 @@ export const SwapShowAcceptChanges = styled(AutoColumn)`
   background-color: ${({ theme }) => transparentize(0.9, theme.primary1)};
   color: ${({ theme }) => theme.primary1};
   padding: 0.5rem;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-top: 8px;
 `

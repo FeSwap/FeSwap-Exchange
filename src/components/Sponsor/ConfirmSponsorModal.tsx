@@ -9,7 +9,7 @@ import SponsorModalFooter from './SponsorModalFooter'
 import {SponsorTrade} from '../../state/sponsor/hooks'
 import { Field } from '../../state/swap/actions'
 
-export default function ConfirmSwapModal({
+export default function ConfirmSponsorModal({
   sponsor,
   originalSponsor,
   onAcceptChanges,
@@ -19,7 +19,8 @@ export default function ConfirmSwapModal({
   swapErrorMessage,
   isOpen,
   attemptingTxn,
-  txHash
+  txHash,
+  highSponsor
 }: {
   isOpen: boolean
   sponsor: SponsorTrade | undefined
@@ -31,6 +32,7 @@ export default function ConfirmSwapModal({
   onConfirm: () => void
   swapErrorMessage: string | undefined
   onDismiss: () => void
+  highSponsor: boolean
 }) {
   const showAcceptChanges = useMemo(
     () => Boolean(sponsor?.feswGiveRate && originalSponsor?.feswGiveRate && 
@@ -56,25 +58,26 @@ export default function ConfirmSwapModal({
         sponsor={sponsor}
         disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
+        highSponsor = {highSponsor}
       />
     ) : null
   }, [ onConfirm, showAcceptChanges, swapErrorMessage, sponsor])
 
   // text to show while loading
-  const pendingText = `Swapping ${sponsor?.parsedAmounts[Field.INPUT]?.toSignificant(6)} for ETH
-                                ${sponsor?.parsedAmounts[Field.OUTPUT]?.toSignificant(6)} FESW`
+  const pendingText = `Sponsoring ${sponsor?.parsedAmounts[Field.INPUT]?.toSignificant(6)} ETH,
+                      and will receive ${sponsor?.parsedAmounts[Field.OUTPUT]?.toSignificant(6)} FESW as the giveaway`
 
   const confirmationContent = useCallback(
     () =>
       swapErrorMessage ? (
         <TransactionErrorContent onDismiss={onDismiss} message={swapErrorMessage} />
       ) : (
-        <ConfirmationModalContent
-          title="Confirm Swap"
+         <ConfirmationModalContent
+          title="Confirm Sponsor"
           onDismiss={onDismiss}
           topContent={modalHeader}
           bottomContent={modalBottom}
-        />
+          />
       ),
     [onDismiss, modalBottom, modalHeader, swapErrorMessage]
   )
@@ -87,6 +90,8 @@ export default function ConfirmSwapModal({
       hash={txHash}
       content={confirmationContent}
       pendingText={pendingText}
+      pendingTitle="Confirm Sponsor"
+      submittedTitle="Sponsor Submitted"
     />
   )
 }

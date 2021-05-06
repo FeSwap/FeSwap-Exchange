@@ -11,7 +11,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
-import { isAddress, calculateGasMargin  } from '../../utils'
+import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { replaceSponsorState, setRecipient, typeInput } from './actions'
@@ -111,32 +111,37 @@ export function useDerivedSponsorInfo(): {
     outputCurrency ?? undefined
   ])
 
-  const INITIAL_FESW_RATE_PER_ETH = useSingleCallResult(sponsorContract, 'SponsorFinalized', undefined, 
+  const INITIAL_FESW_RATE_PER_ETH = useSingleCallResult(sponsorContract, 'INITIAL_FESW_RATE_PER_ETH', undefined, 
                                       NEVER_RELOAD)?.result?.[0] ?? undefined
-  const FESW_CHANGE_RATE_VERSUS_ETH = useSingleCallResult(sponsorContract, 'SponsorFinalized', undefined, 
+  const FESW_CHANGE_RATE_VERSUS_ETH = useSingleCallResult(sponsorContract, 'FESW_CHANGE_RATE_VERSUS_ETH', undefined, 
                                       NEVER_RELOAD)?.result?.[0] ?? undefined
 
   const TotalETHReceived = useSingleCallResult(sponsorContract, 'TotalETHReceived', [])?.result?.[0] ?? undefined
 
   const feswGiveRate: Price | undefined = useMemo(() => {
-    if( !INITIAL_FESW_RATE_PER_ETH || FESW_CHANGE_RATE_VERSUS_ETH || !TotalETHReceived || !outputCurrency) return undefined
+    if( !INITIAL_FESW_RATE_PER_ETH || !FESW_CHANGE_RATE_VERSUS_ETH || !TotalETHReceived || !outputCurrency ) return undefined
 
-    const feswGiveRateBigNumber = BigNumber.from(INITIAL_FESW_RATE_PER_ETH).sub(
-      BigNumber.from(TotalETHReceived).mul(BigNumber.from(FESW_CHANGE_RATE_VERSUS_ETH)).div(1e18) )
+    const feswGiveRateBigNumber = BigNumber.from(INITIAL_FESW_RATE_PER_ETH).mul(BigNumber.from(10).pow(18)).sub(
+      BigNumber.from(TotalETHReceived).mul(BigNumber.from(FESW_CHANGE_RATE_VERSUS_ETH)))
 
-    return new Price(inputCurrency, outputCurrency, '1', feswGiveRateBigNumber.toString())
+      return new Price( inputCurrency, outputCurrency, '1000000000000000000', feswGiveRateBigNumber.toString() )
 
-  }, [INITIAL_FESW_RATE_PER_ETH, FESW_CHANGE_RATE_VERSUS_ETH, TotalETHReceived])
+  }, [INITIAL_FESW_RATE_PER_ETH, FESW_CHANGE_RATE_VERSUS_ETH, TotalETHReceived, inputCurrency, outputCurrency])
 
   const isExactIn: boolean = independentField === Field.INPUT
   const dependentField: Field = isExactIn ? Field.OUTPUT : Field.INPUT
 
   const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
-  const parsedAmountInduced : CurrencyAmount | undefined = feswGiveRate 
-      ? isExactIn 
-        ? tryParseAmount(JSBI.multiply(JSBI.BigInt(typedValue), feswGiveRate.quotient).toString(), outputCurrency) ?? undefined
-        : tryParseAmount(JSBI.divide(JSBI.BigInt(typedValue), feswGiveRate.quotient).toString(), inputCurrency) ?? undefined
-       : undefined
+
+  const parsedAmountInduced : CurrencyAmount | undefined = useMemo(() => {
+    if(!feswGiveRate || !parsedAmount) return undefined
+
+    return isExactIn 
+            ? new TokenAmount(outputCurrency as Token, parsedAmount.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).quotient)
+            : new TokenAmount(inputCurrency as Token, parsedAmount.multiply(WEI_DENOM_FRACTION).divide(feswGiveRate.raw).quotient)
+    },
+    [isExactIn, inputCurrency, outputCurrency, parsedAmount, feswGiveRate]
+  )
 
   const parsedAmounts = {
           [independentField]: parsedAmount,

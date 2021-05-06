@@ -10,7 +10,7 @@ import Card, { GreyCard } from '../../components/Card'
 import Column, { AutoColumn } from '../../components/Column'
 import ConfirmSponsorModal from '../../components/Sponsor/ConfirmSponsorModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { AutoRow, RowBetween } from '../../components/Row'
+import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
 import AdvancedSwapDetailsDropdown from '../../components/swap/AdvancedSwapDetailsDropdown'
 import BetterTradeLink, { DefaultVersionLink } from '../../components/swap/BetterTradeLink'
 import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
@@ -50,14 +50,15 @@ import FeswapByteCode from '../../constants/abis/Fesw.json'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useSponsorContract, useFeswContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
-import { isAddress, calculateGasMargin } from '../../utils'
+import { isAddress, calculateGasMargin, FIVE_FRACTION } from '../../utils'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 
 export default function Sponsor() {
-  const theme = useContext(ThemeContext)
+
   const { account, chainId, library } = useActiveWeb3React()
-  const addTransaction = useTransactionAdder()
+  const theme = useContext(ThemeContext)
   const sponsorContract = useSponsorContract()
+  const addTransaction = useTransactionAdder()
 
   const currencies: { [field in Field]?: Currency } = {
     [Field.INPUT]:  ETHER,
@@ -76,7 +77,7 @@ export default function Sponsor() {
   const toggleWalletModal = useWalletModalToggle()
   const [isExpertMode] = useExpertModeManager()
 
-  // swap state
+  // sponsor state
   const { independentField, typedValue, recipient } = useSponsorState() 
 
   const {
@@ -124,7 +125,7 @@ export default function Sponsor() {
 
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(12) ?? ''
   }
 
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
@@ -136,23 +137,34 @@ export default function Sponsor() {
     if (!sponsorAmount || !account || !library || !chainId|| !sponsorContract ) return
   
     setSponsorState({ attemptingTxn: true, sponsorToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: undefined })
-    sponsorContract.estimateGas['Sponsor'](account, {value: sponsorAmount.raw})
-      .then(estimatedGasLimit => {
-        sponsorContract.Sponsor(account, { value: sponsorAmount.raw, gasLimit: calculateGasMargin(estimatedGasLimit) })
+    await sponsorContract.estimateGas['Sponsor'](account, {value: BigNumber.from(sponsorAmount.raw.toString())})
+      .then(async(estimatedGasLimit) => {
+        await sponsorContract.Sponsor(account, { value: BigNumber.from(sponsorAmount.raw.toString()), gasLimit: calculateGasMargin(estimatedGasLimit) })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
             summary: `Sponsored ${sponsorAmount?.toSignificant(6)} ETH`,
           })
           setSponsorState({ attemptingTxn: false, sponsorToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: response.hash })
         })
+        .catch((error: any) => {
+            // if the user rejected the tx, pass this along
+            if (error?.code === 4001) {
+                throw new Error(`Sponsor failed: You denied transaction signature.`)
+            } else {
+              // otherwise, the error was unexpected and we need to convey that
+              throw new Error(`Sponsor failed: ${error.message}`)
+            }
+        })
       })
-      .catch(error => {
+      .catch((error: any) => {
         setSponsorState({attemptingTxn: false, sponsorToConfirm, showConfirm, spnosorErrorMessage: error.message, txHash: undefined })
       })
   }
-  
+
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
+
+  const isHighValueSponsor: boolean = parsedAmounts[Field.INPUT] ? !parsedAmounts[Field.INPUT]?.lessThan(FIVE_FRACTION) : false
 
   const handleConfirmDismiss = useCallback(() => {
     setSponsorState({ showConfirm: false, sponsorToConfirm, attemptingTxn, spnosorErrorMessage, txHash })
@@ -179,7 +191,7 @@ export default function Sponsor() {
       />
       <AppBody>
         <PageHeader header="Sponsor" />
-        <Wrapper id="swap-page">
+        <Wrapper id="sponsor-page">
           <ConfirmSponsorModal
             isOpen={showConfirm}
             sponsor={sponsor}
@@ -191,6 +203,7 @@ export default function Sponsor() {
             onConfirm={handleSponsor}
             swapErrorMessage={spnosorErrorMessage}
             onDismiss={handleConfirmDismiss}
+            highSponsor = {isHighValueSponsor}
           />
           <AutoColumn gap={'md'}>
             <CurrencyInputPanel
@@ -227,7 +240,7 @@ export default function Sponsor() {
               currency={currencies[Field.OUTPUT]}
               disableCurrencySelect = {true}
               otherCurrency={currencies[Field.INPUT]}
-              id="swap-currency-output"
+              id="sponsor-currency-output"
             />
 
             {recipient !== null && (
@@ -245,17 +258,32 @@ export default function Sponsor() {
             )}
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
-                <AutoColumn gap="4px">
+                <AutoColumn gap="10px">
                   {Boolean(feswGiveRate) && (
                     <RowBetween align="center">
-                      <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        Price
-                      </Text>
+                      <RowFixed fontWeight={500} fontSize={14} color={theme.text2}>
+                        Giveaway Rate:
+                      </RowFixed>
                       <TradePrice
                         price={feswGiveRate}
                         showInverted={showInverted}
                         setShowInverted={setShowInverted}
                       />
+                    </RowBetween>
+                  )}
+                  {isHighValueSponsor && (
+                    <RowBetween align="center">
+                      <Text fontWeight={500} fontSize={14} color={theme.red2}>
+                        High Sponsor
+                      </Text>
+                      { SponsorInputError === 'Insufficient ETH balance'
+                        ? (<Text fontWeight={500} fontSize={14} color={theme.red2}>
+                            Insufficient ETH
+                          </Text>)
+                        : (<Text fontWeight={500} fontSize={14} color={theme.red2}>
+                            {parsedAmounts[Field.INPUT]?.toSignificant(6)} ETH
+                          </Text>)
+                      }
                     </RowBetween>
                   )}
                 </AutoColumn>
@@ -281,24 +309,22 @@ export default function Sponsor() {
                     })
                   }
                 }}
-                id="swap-button"
-                disabled={!isValid || (!isExpertMode)}
-                error={isValid}
+                id="sponsor-button"
+                disabled={!isValid}
+                error={ isValid && isHighValueSponsor}
               >
                 <Text fontSize={20} fontWeight={500}>
                   {SponsorInputError
                     ? SponsorInputError
-                    : `Sponosor`}
+                    : `Sponosor${isHighValueSponsor ? ' Anyway' : ''}`}
                 </Text>
               </ButtonError>
               </AutoColumn>              
             )}
-            {spnosorErrorMessage ? <SwapCallbackError error={spnosorErrorMessage} /> : null}
+            {spnosorErrorMessage && !showConfirm ? <SwapCallbackError error={spnosorErrorMessage} /> : null}
            </BottomGrouping>
         </Wrapper>
       </AppBody>
     </>
   )
 }
-
-//      <AdvancedSwapDetailsDropdown trade={feswGiveRate} />

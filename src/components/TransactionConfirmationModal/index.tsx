@@ -23,20 +23,21 @@ const Section = styled(AutoColumn)`
 
 const BottomSection = styled(Section)`
   background-color: ${({ theme }) => theme.bg2};
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
   padding: 60px 0;
 `
 
-function ConfirmationPendingContent({ onDismiss, pendingText }: { onDismiss: () => void; pendingText: string }) {
+function ConfirmationPendingContent({ pendingTitle, onDismiss, pendingText }: { pendingTitle?: string; onDismiss: () => void; pendingText: string }) {
   return (
     <Wrapper>
       <Section>
         <RowBetween>
-          <div />
+          {!pendingTitle
+            ? <div />
+            : (<Text fontWeight={500} fontSize={20}> {pendingTitle} </Text>)
+          }
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <ConfirmedIcon>
@@ -63,11 +64,13 @@ function ConfirmationPendingContent({ onDismiss, pendingText }: { onDismiss: () 
 function TransactionSubmittedContent({
   onDismiss,
   chainId,
-  hash
+  hash,
+  submittedTitle
 }: {
   onDismiss: () => void
   hash: string | undefined
   chainId: ChainId
+  submittedTitle?: string; 
 }) {
   const theme = useContext(ThemeContext)
 
@@ -75,7 +78,10 @@ function TransactionSubmittedContent({
     <Wrapper>
       <Section>
         <RowBetween>
-          <div />
+          {!submittedTitle
+            ? <div />
+            : (<Text fontWeight={500} fontSize={20}> {submittedTitle} </Text>)
+          }
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <ConfirmedIcon>
@@ -162,6 +168,8 @@ interface ConfirmationModalProps {
   content: () => React.ReactNode
   attemptingTxn: boolean
   pendingText: string
+  pendingTitle?: string
+  submittedTitle?: string
 }
 
 export default function TransactionConfirmationModal({
@@ -170,7 +178,9 @@ export default function TransactionConfirmationModal({
   attemptingTxn,
   hash,
   pendingText,
-  content
+  content,
+  pendingTitle,
+  submittedTitle
 }: ConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()
 
@@ -180,9 +190,9 @@ export default function TransactionConfirmationModal({
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90}>
       {attemptingTxn ? (
-        <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
+        <ConfirmationPendingContent pendingTitle={pendingTitle} onDismiss={onDismiss} pendingText={pendingText} />
       ) : hash ? (
-        <TransactionSubmittedContent chainId={chainId} hash={hash} onDismiss={onDismiss} />
+        <TransactionSubmittedContent submittedTitle={submittedTitle} chainId={chainId} hash={hash} onDismiss={onDismiss} />
       ) : (
         content()
       )}

@@ -74,7 +74,7 @@ export default function SponsorModalHeader({
               <TYPE.main color={theme.primary1}> Price Updated</TYPE.main>
             </RowFixed>
             <ButtonPrimary
-              style={{ padding: '.5rem', width: 'fit-content', fontSize: '0.825rem', borderRadius: '12px' }}
+              style={{ padding: '.5rem', width: 'fit-content', fontSize: '0.825rem', borderRadius: '10px' }}
               onClick={onAcceptChanges}
             >
               Accept
@@ -85,7 +85,7 @@ export default function SponsorModalHeader({
       <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
         <TYPE.italic textAlign="left" style={{ width: '100%' }}>
           The giveaway FESW amount is estimated, which may be less than the value above 
-          if your tranaction confirmatoin is delayed in Ethereum blockchain
+          if your tranaction confirmatoin is delayed in the Ethereum blockchain
         </TYPE.italic>
       </AutoColumn>
       {recipient !== null ? (

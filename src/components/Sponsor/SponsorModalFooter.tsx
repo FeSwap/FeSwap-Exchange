@@ -1,6 +1,6 @@
 import { Trade, TradeType, JSBI, Fraction, CurrencyAmount,Rounding } from '@uniswap/sdk'
 import React, { useContext, useMemo, useState } from 'react'
-import { Repeat } from 'react-feather'
+import { RefreshCcw } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { Field } from '../../state/swap/actions'
@@ -23,12 +23,14 @@ export default function SponsorModalFooter({
   sponsor,
   onConfirm,
   swapErrorMessage,
-  disabledConfirm
+  disabledConfirm,
+  highSponsor
 }: {
   sponsor: SponsorTrade
   onConfirm: () => void
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
+  highSponsor: boolean
 }) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useContext(ThemeContext)
@@ -37,11 +39,13 @@ export default function SponsorModalFooter({
     <>
       <AutoColumn gap="0px">
         <RowBetween align="center">
-          <Text fontWeight={400} fontSize={14} color={theme.text2}>
-            Giveaway Rate:
-            <QuestionHelper text="The giveway rate keeps same for all sponsor transactions in one block, and depends on 
-                                the total sponsorship reveived before current block." />
-          </Text>
+          <RowFixed>
+            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+              Giveaway Rate:
+            </TYPE.black>
+            <QuestionHelper text="The giveway rate keeps same for all sponsor transactions in the same block, and which depends on 
+                                the total sponsorship reveived before that block." />
+          </RowFixed>
           <Text
             fontWeight={500}
             fontSize={14}
@@ -54,12 +58,11 @@ export default function SponsorModalFooter({
               paddingLeft: '10px'
             }}
           >
-            inverted
-              ? `${sponsor?.feswGiveRate?.toSignificant(6, {rounding: Rounding.ROUND_DOWN})} FESW/ETH`
-              : `${sponsor?.feswGiveRate?.invert().toSignificant(6,{rounding: Rounding.ROUND_DOWN})} ETH/FESW`
-
+            {showInverted
+              ? `${sponsor?.feswGiveRate?.invert().toSignificant(6,{rounding: Rounding.ROUND_DOWN})} ETH/FESW`
+              : `${sponsor?.feswGiveRate?.toSignificant(6, {rounding: Rounding.ROUND_DOWN})} FESW/ETH` }
             <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-              <Repeat size={14} />
+              <RefreshCcw size={14} />
             </StyledBalanceMaxMini>
           </Text>
         </RowBetween>
@@ -70,6 +73,7 @@ export default function SponsorModalFooter({
           disabled={disabledConfirm}
           style={{ margin: '10px 0 0 0' }}
           id="confirm-swap-or-send"
+          error = {highSponsor}
         >
           <Text fontSize={20} fontWeight={500}>
             {'Confirm Sponosr'}

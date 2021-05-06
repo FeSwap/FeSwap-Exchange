@@ -99,8 +99,8 @@ const LowerSection = styled.div`
   flex-grow: 1;
   overflow: auto;
   background-color: ${({ theme }) => theme.bg2};
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 
   h5 {
     margin: 0;
