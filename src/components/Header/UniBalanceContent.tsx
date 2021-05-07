@@ -15,7 +15,7 @@ import { computeUniCirculation } from '../../utils/computeUniCirculation'
 import useUSDCPrice from '../../utils/useUSDCPrice'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
-import { Break, CardBGImage, CardNoise, CardSection, DataCard } from '../earn/styled'
+import { Break, CardSection, DataCard } from '../earn/styled'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -23,7 +23,6 @@ const ContentWrapper = styled(AutoColumn)`
 
 const ModalUpper = styled(DataCard)`
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #ff007a 0%, #021d43 100%);
   padding: 0.5rem;
 `
 
@@ -42,29 +41,27 @@ const StyledClose = styled(X)`
  */
 export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowUniBalanceModal: any }) {
   const { account, chainId } = useActiveWeb3React()
-  const uni = chainId ? FESW[chainId] : undefined
+  const fesw = chainId ? FESW[chainId] : undefined
 
   const total = useAggregateUniBalance()
-  const uniBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, uni)
-  const uniToClaim: TokenAmount | undefined = useTotalUniEarned()
+  const feswBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, fesw)
+  const feswToClaim: TokenAmount | undefined = useTotalUniEarned()
 
-  const totalSupply: TokenAmount | undefined = useTotalSupply(uni)
-  const uniPrice = useUSDCPrice(uni)
+  const totalSupply: TokenAmount | undefined = useTotalSupply(fesw)
+  const feswPrice = useUSDCPrice(fesw)
   const blockTimestamp = useCurrentBlockTimestamp()
-  const unclaimedUni = useTokenBalance(useMerkleDistributorContract()?.address, uni)
+  const unclaimedFESW = useTokenBalance(useMerkleDistributorContract()?.address, fesw)
   const circulation: TokenAmount | undefined = useMemo(
     () =>
-      blockTimestamp && uni && chainId === ChainId.MAINNET
-        ? computeUniCirculation(uni, blockTimestamp, unclaimedUni)
+      blockTimestamp && fesw && chainId === ChainId.MAINNET
+        ? computeUniCirculation(fesw, blockTimestamp, unclaimedFESW)
         : totalSupply,
-    [blockTimestamp, chainId, totalSupply, unclaimedUni, uni]
+    [blockTimestamp, chainId, totalSupply, unclaimedFESW, fesw]
   )
 
   return (
     <ContentWrapper gap="lg">
       <ModalUpper>
-        <CardBGImage />
-        <CardNoise />
         <CardSection gap="md">
           <RowBetween>
             <TYPE.white color="white">Your FESW Breakdown</TYPE.white>
@@ -84,14 +81,14 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <AutoColumn gap="md">
                 <RowBetween>
                   <TYPE.white color="white">Balance:</TYPE.white>
-                  <TYPE.white color="white">{uniBalance?.toFixed(2, { groupSeparator: ',' })}</TYPE.white>
+                  <TYPE.white color="white">{feswBalance?.toFixed(2, { groupSeparator: ',' })}</TYPE.white>
                 </RowBetween>
                 <RowBetween>
                   <TYPE.white color="white">Unclaimed:</TYPE.white>
                   <TYPE.white color="white">
-                    {uniToClaim?.toFixed(4, { groupSeparator: ',' })}{' '}
-                    {uniToClaim && uniToClaim.greaterThan('0') && (
-                      <StyledInternalLink onClick={() => setShowUniBalanceModal(false)} to="/uni">
+                    {feswToClaim?.toFixed(4, { groupSeparator: ',' })}{' '}
+                    {feswToClaim && feswToClaim.greaterThan('0') && (
+                      <StyledInternalLink onClick={() => setShowUniBalanceModal(false)} to="/fesw">
                         (claim)
                       </StyledInternalLink>
                     )}
@@ -106,7 +103,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
           <AutoColumn gap="md">
             <RowBetween>
               <TYPE.white color="white">FESW price:</TYPE.white>
-              <TYPE.white color="white">${uniPrice?.toFixed(2) ?? '-'}</TYPE.white>
+              <TYPE.white color="white">${feswPrice?.toFixed(2) ?? '-'}</TYPE.white>
             </RowBetween>
             <RowBetween>
               <TYPE.white color="white">FESW in circulation:</TYPE.white>
@@ -116,8 +113,8 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <TYPE.white color="white">Total Supply</TYPE.white>
               <TYPE.white color="white">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.white>
             </RowBetween>
-            {uni && uni.chainId === ChainId.MAINNET ? (
-              <ExternalLink href={`https://uniswap.info/token/${uni.address}`}>View FESW Analytics</ExternalLink>
+            {fesw && fesw.chainId === ChainId.MAINNET ? (
+              <ExternalLink href={`https://uniswap.info/token/${fesw.address}`}>View FESW Analytics</ExternalLink>
             ) : null}
           </AutoColumn>
         </CardSection>

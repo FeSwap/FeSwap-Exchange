@@ -16,7 +16,7 @@ import { CardNoise } from '../earn/styled'
 import { CountUp } from 'use-count-up'
 import { TYPE, ExternalLink } from '../../theme'
 
-import { YellowCard } from '../Card'
+import { BlueCard } from '../Card'
 import Settings from '../Settings'
 import Menu from '../Menu'
 
@@ -115,7 +115,7 @@ const AccountElement = styled.div<{ active: boolean }>`
   flex-direction: row;
   align-items: center;
   background-color: ${({ theme, active }) => (!active ? theme.bg1 : theme.bg3)};
-  border-radius: 12px;
+  border-radius: 8px;
   white-space: nowrap;
   width: 100%;
   cursor: pointer;
@@ -130,8 +130,9 @@ const UNIAmount = styled(AccountElement)`
   padding: 4px 8px;
   height: 36px;
   font-weight: 500;
+  border-radius: 8px;
   background-color: ${({ theme }) => theme.bg3};
-  background: radial-gradient(174.47% 188.91% at 1.84% 0%, #ff007a 0%, #2172e5 100%), #edeef2;
+  background: radial-gradient(174.47% 188.91% at 1.84% 0%, #ff007a 10%, #2172e5 90%), #edeef2;
 `
 
 const UNIWrapper = styled.span`
@@ -154,9 +155,9 @@ const HideSmall = styled.span`
   `};
 `
 
-const NetworkCard = styled(YellowCard)`
-  border-radius: 12px;
-  padding: 8px 12px;
+const NetworkCard = styled(BlueCard)`
+  border-radius: 8px;
+  padding: 8px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 0;
     margin-right: 0.5rem;

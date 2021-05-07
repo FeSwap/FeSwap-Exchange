@@ -19,7 +19,7 @@ import TradePrice from '../../components/swap/TradePrice'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
 import PageHeader from '../../components/PageHeader'
-import Settings from '../../components/Settings'
+import {SettingsIcon} from '../../components/Settings'
 
 import { BETTER_TRADE_LINK_THRESHOLD, INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
 import { getTradeVersion } from '../../data/V1'
@@ -291,7 +291,7 @@ export default function Swap() {
         onConfirm={handleConfirmTokenWarning}
       />
       <AppBody>
-        <PageHeader header={'SWAP'}> <Settings /> </PageHeader>
+        <PageHeader header={'SWAP'}> <SettingsIcon /> </PageHeader>
         <Wrapper id="swap-page">
           <ConfirmSwapModal
             isOpen={showConfirm}

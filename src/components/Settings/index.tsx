@@ -124,6 +124,18 @@ const ModalContentWrapper = styled.div`
   border-radius: 20px;
 `
 
+export function SettingsIcon() {
+  const toggle = useToggleSettingsMenu()
+
+  return (
+    <StyledMenu>
+      <StyledMenuButton onClick={toggle} id="open-settings-dialog-button">
+        <StyledMenuIcon />
+      </StyledMenuButton>
+    </StyledMenu>
+  )
+}
+
 export default function SettingsTab() {
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.SETTINGS)
