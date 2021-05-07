@@ -10,7 +10,6 @@ import Blocklist from './components/Blocklist'
 import { NetworkContextName } from './constants'
 import './i18n'
 import App from './pages/App'
-import reportWebVitals from './reportWebVitals'
 import store from './state'
 import ApplicationUpdater from './state/application/updater'
 import ListsUpdater from './state/lists/updater'
@@ -76,8 +75,3 @@ ReactDOM.render(
   </StrictMode>,
   document.getElementById('root')
 )
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()

@@ -1,23 +1,15 @@
-import { Trade, TradeType, JSBI, Fraction, CurrencyAmount,Rounding } from '@uniswap/sdk'
-import React, { useContext, useMemo, useState } from 'react'
+import { Rounding } from '@uniswap/sdk'
+import React, { useContext, useState } from 'react'
 import { RefreshCcw } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
-import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
-import {
-  computeSlippageAdjustedAmounts,
-  computeTradePriceBreakdown,
-  formatExecutionPrice,
-  warningSeverity
-} from '../../utils/prices'
 import { ButtonError } from '../Button'
 import { AutoColumn } from '../Column'
 import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { StyledBalanceMaxMini, SwapCallbackError } from '../swap/styleds'
 import {SponsorTrade} from '../../state/sponsor/hooks'
-import { isAddress, calculateGasMargin, WEI_DENOM , ZERO,  ONE  } from '../../utils'
 
 export default function SponsorModalFooter({
   sponsor,

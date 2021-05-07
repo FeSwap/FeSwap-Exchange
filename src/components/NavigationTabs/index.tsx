@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import { darken } from 'polished'
-import { useTranslation } from 'react-i18next'
-import { NavLink, Link as HistoryLink } from 'react-router-dom'
+//import { darken } from 'polished'
+//import { useTranslation } from 'react-i18next'
+import { Link as HistoryLink } from 'react-router-dom'
 
 import { ArrowLeft } from 'react-feather'
 import { RowBetween } from '../Row'
@@ -14,7 +14,7 @@ const Tabs = styled.div`
   border-radius: 3rem;
   justify-content: space-evenly;
 `
-
+/*
 const activeClassName = 'ACTIVE'
 
 const StyledNavLink = styled(NavLink).attrs({
@@ -42,6 +42,7 @@ const StyledNavLink = styled(NavLink).attrs({
     color: ${({ theme }) => darken(0.1, theme.text1)};
   }
 `
+*/
 
 const ActiveText = styled.div`
   font-weight: 500;

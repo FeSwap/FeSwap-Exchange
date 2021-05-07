@@ -1,35 +1,23 @@
-import { Currency, CurrencyAmount, JSBI, Token, Trade, ETHER } from '@uniswap/sdk'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { Currency, CurrencyAmount, ETHER } from '@uniswap/sdk'
+import React, { useCallback, useContext, useState } from 'react'
 import { ArrowDown } from 'react-feather'
-import ReactGA from 'react-ga'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import AddressInputPanel from '../../components/AddressInputPanel'
-import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
-import Card, { GreyCard } from '../../components/Card'
-import Column, { AutoColumn } from '../../components/Column'
+import { ButtonError, ButtonLight } from '../../components/Button'
+import Card  from '../../components/Card'
+import { AutoColumn } from '../../components/Column'
 import ConfirmSponsorModal from '../../components/Sponsor/ConfirmSponsorModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
-import AdvancedSwapDetailsDropdown from '../../components/swap/AdvancedSwapDetailsDropdown'
-import BetterTradeLink, { DefaultVersionLink } from '../../components/swap/BetterTradeLink'
-import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
 import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
 import TradePrice from '../../components/swap/TradePrice'
 import SponsorWarningModal from '../../components/Sponsor'
-import ProgressSteps from '../../components/ProgressSteps'
 import PageHeader from '../../components/PageHeader'
-
-import { BETTER_TRADE_LINK_THRESHOLD, INITIAL_ALLOWED_SLIPPAGE, FESW } from '../../constants'
-import { getTradeVersion } from '../../data/V1'
+import { FESW } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
-import { useCurrency } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallbackFromTrade } from '../../hooks/useApproveCallback'
-import useENSAddress from '../../hooks/useENSAddress'
-import { useSwapCallback } from '../../hooks/useSwapCallback'
-import useToggledVersion, { DEFAULT_VERSION, Version } from '../../hooks/useToggledVersion'
-import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
-import { useToggleSettingsMenu, useWalletModalToggle } from '../../state/application/hooks'
+//import useENSAddress from '../../hooks/useENSAddress'
+import { useWalletModalToggle } from '../../state/application/hooks'
 import { Field } from '../../state/swap/actions'
 import {
   SponsorTrade,
@@ -37,21 +25,16 @@ import {
   useSponsorActionHandlers,
   useSponsorState
 } from '../../state/sponsor/hooks'
-import { useExpertModeManager, useUserSlippageTolerance, useUserSingleHopOnly } from '../../state/user/hooks'
-import { LinkStyledButton, TYPE } from '../../theme'
+import { useExpertModeManager } from '../../state/user/hooks'
+import { LinkStyledButton } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { computeTradePriceBreakdown, warningSeverity } from '../../utils/prices'
 import AppBody from '../AppBody'
-import { ClickableText } from '../Pool/styleds'
-import Loader from '../../components/Loader'
-import { Contract, BigNumber, constants, utils, providers, ContractFactory } from 'ethers'
-import { ethers } from "ethers";
-import FeswapByteCode from '../../constants/abis/Fesw.json'
+import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useSponsorContract, useFeswContract } from '../../hooks/useContract'
+import { useSponsorContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
-import { isAddress, calculateGasMargin, FIVE_FRACTION } from '../../utils'
-import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
+import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
+
 
 export default function Sponsor() {
 
@@ -89,7 +72,7 @@ export default function Sponsor() {
 
   const sponsor: SponsorTrade = {parsedAmounts, feswGiveRate}
   
-  const { address: recipientAddress } = useENSAddress(recipient)
+//  const { address: recipientAddress } = useENSAddress(recipient)
 
   const { onUserInput, onChangeRecipient } = useSponsorActionHandlers()
   const isValid = !SponsorInputError
@@ -310,13 +293,15 @@ export default function Sponsor() {
                   }
                 }}
                 id="sponsor-button"
-                disabled={!isValid}
+                disabled={!isValid || !willSponsor}
                 error={ isValid && isHighValueSponsor}
               >
                 <Text fontSize={20} fontWeight={500}>
-                  {SponsorInputError
-                    ? SponsorInputError
-                    : `Sponosor${isHighValueSponsor ? ' Anyway' : ''}`}
+                  { !willSponsor
+                    ? 'NOT Sponsor'
+                    : SponsorInputError
+                      ? SponsorInputError
+                      : `Sponosor${isHighValueSponsor ? ' Anyway' : ''}`}
                 </Text>
               </ButtonError>
               </AutoColumn>              

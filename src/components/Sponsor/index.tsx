@@ -1,23 +1,23 @@
-import { Token } from '@uniswap/sdk'
-import { transparentize } from 'polished'
-import React, { useCallback, useMemo, useState } from 'react'
+
+//import { transparentize } from 'polished'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
-import { useActiveWeb3React } from '../../hooks'
-import { useAllTokens } from '../../hooks/Tokens'
-import { ExternalLink, TYPE } from '../../theme'
-import { getEtherscanLink, shortenAddress } from '../../utils'
-import CurrencyLogo from '../CurrencyLogo'
+
+import { TYPE } from '../../theme'
+
 import Modal from '../Modal'
 import { AutoRow, RowBetween } from '../Row'
 import { AutoColumn } from '../Column'
 import { Award, CheckSquare, XSquare } from 'react-feather'
 import { ButtonError } from '../Button'
 
+/*
 const Wrapper = styled.div<{ error: boolean }>`
   background: ${({ theme }) => transparentize(0.6, theme.bg3)};
   padding: 0.75rem;
   border-radius: 20px;
 `
+*/
 
 const WarningContainer = styled.div`
   max-width: 420px;

@@ -123,7 +123,6 @@ export default function Pool() {
     )
   })
 
-  //        <SwapPoolTabs active={'pool'} />
   return (
     <>
       <PageWrapper>

@@ -93,7 +93,6 @@ export default function TokenWarningModal({
   tokens: Token[]
   onConfirm: () => void
 }) {
-//  isOpen =true
   const [understandChecked, setUnderstandChecked] = useState(false)
   const toggleUnderstand = useCallback(() => setUnderstandChecked(uc => !uc), [])
 
