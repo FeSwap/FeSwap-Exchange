@@ -83,7 +83,7 @@ export default function SponsorWarningModal({
                 borderRadius: '6px'
               }}
               onClick={() => {
-                onConfirm(true)
+                onConfirm(false)
               }}
             >
               <XSquareIcon />
@@ -98,7 +98,7 @@ export default function SponsorWarningModal({
                 borderRadius: '6px'
               }}
               onClick={() => {
-                onConfirm(false)
+                onConfirm(true)
               }}
             >
               <CheckSquareIcon />

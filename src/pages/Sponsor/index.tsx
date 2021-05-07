@@ -257,7 +257,7 @@ export default function Sponsor() {
                   {isHighValueSponsor && (
                     <RowBetween align="center">
                       <Text fontWeight={500} fontSize={14} color={theme.red2}>
-                        High Sponsor
+                        High-Value Sponsor:
                       </Text>
                       { SponsorInputError === 'Insufficient ETH balance'
                         ? (<Text fontWeight={500} fontSize={14} color={theme.red2}>
