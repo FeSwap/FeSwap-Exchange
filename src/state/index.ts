@@ -6,6 +6,7 @@ import { updateVersion } from './global/actions'
 import user from './user/reducer'
 import transactions from './transactions/reducer'
 import swap from './swap/reducer'
+import nft from './nft/reducer'
 import sponsor from './sponsor/reducer'
 import mint from './mint/reducer'
 import lists from './lists/reducer'
@@ -20,6 +21,7 @@ const store = configureStore({
     user,
     transactions,
     swap,
+    nft,
     sponsor,
     mint,
     burn,

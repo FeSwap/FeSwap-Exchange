@@ -74,7 +74,7 @@ export default function Sponsor() {
   
 //  const { address: recipientAddress } = useENSAddress(recipient)
 
-  const { onUserInput, onChangeRecipient } = useSponsorActionHandlers()
+  const { onUserInput, onChangeSponsorRecipient } = useSponsorActionHandlers()
   const isValid = !SponsorInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
@@ -209,7 +209,7 @@ export default function Sponsor() {
                   />
                 </ArrowWrapper>
                 {recipient === null && isExpertMode ? (
-                  <LinkStyledButton id="add-recipient-button" onClick={() => onChangeRecipient('')}>
+                  <LinkStyledButton id="add-recipient-button" onClick={() => onChangeSponsorRecipient('')}>
                     + Add a send (optional)
                   </LinkStyledButton>
                 ) : null}
@@ -232,11 +232,11 @@ export default function Sponsor() {
                   <ArrowWrapper clickable={false}>
                     <ArrowDown size="16" color={theme.primary1} />
                   </ArrowWrapper>
-                  <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeRecipient(null)}>
+                  <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeSponsorRecipient(null)}>
                     - Remove send
                   </LinkStyledButton>
                 </AutoRow>
-                <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
+                <AddressInputPanel id="recipient" value={recipient} onChange={onChangeSponsorRecipient} />
               </>
             )}
             {

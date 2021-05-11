@@ -1,16 +1,16 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent
 } from '../TransactionConfirmationModal'
-import SponsorModalHeader from './SponsorModalHeader'
-import SponsorModalFooter from './SponsorModalFooter'
-import {SponsorTrade} from '../../state/sponsor/hooks'
-import { Field } from '../../state/swap/actions'
+import NftModalHeader from './NftModalHeader'
+import NftModalFooter from './NftModalFooter'
+import {NftBidTrade} from '../../state/nft/hooks'
+// import { Field } from '../../state/nft/actions'
 
-export default function ConfirmSponsorModal({
-  sponsor,
-  originalSponsor,
+export default function ConfirmNftModal({
+  nftBid,
+  originalNftBid,
   onAcceptChanges,
   onConfirm,
   onDismiss,
@@ -22,8 +22,8 @@ export default function ConfirmSponsorModal({
   highSponsor
 }: {
   isOpen: boolean
-  sponsor: SponsorTrade | undefined
-  originalSponsor: SponsorTrade | undefined
+  nftBid: NftBidTrade | undefined
+  originalNftBid: NftBidTrade | undefined
   attemptingTxn: boolean
   txHash: string | undefined
   recipient: string | null
@@ -33,38 +33,42 @@ export default function ConfirmSponsorModal({
   onDismiss: () => void
   highSponsor: boolean
 }) {
-  const showAcceptChanges = useMemo(
-    () => Boolean(sponsor?.feswGiveRate && originalSponsor?.feswGiveRate && 
-                  !sponsor.feswGiveRate.equalTo(originalSponsor.feswGiveRate)),
-    [originalSponsor, sponsor]
-  )
+
+//  const showAcceptChanges = useMemo(
+//    () => Boolean(nftBid?.feswGiveRate && originalNftBid?.feswGiveRate && 
+//                  !nftBid.feswGiveRate.equalTo(originalNftBid.feswGiveRate)),
+//    [originalNftBid, nftBid]
+//  )
+  const showAcceptChanges = false
 
   const modalHeader = useCallback(() => {
-    return sponsor ? (
-      <SponsorModalHeader
-        sponsor={sponsor}
+    return nftBid ? (
+      <NftModalHeader
+        nftBid={nftBid}
         recipient={recipient}
         showAcceptChanges={showAcceptChanges}
         onAcceptChanges={onAcceptChanges}
       />
     ) : null
-  }, [ onAcceptChanges, recipient, showAcceptChanges, sponsor])
+  }, [ onAcceptChanges, recipient, showAcceptChanges, nftBid])
 
   const modalBottom = useCallback(() => {
-    return sponsor ? (
-      <SponsorModalFooter
+    return nftBid ? (
+      <NftModalFooter
         onConfirm={onConfirm}
-        sponsor={sponsor}
+        nftBid={nftBid}
         disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
         highSponsor = {highSponsor}
       />
     ) : null
-  }, [ onConfirm, showAcceptChanges, swapErrorMessage, sponsor])
+  }, [ onConfirm, showAcceptChanges, swapErrorMessage, nftBid, highSponsor])
 
   // text to show while loading
-  const pendingText = `Sponsoring ${sponsor?.parsedAmounts[Field.INPUT]?.toSignificant(6)} ETH,
-                      and will receive ${sponsor?.parsedAmounts[Field.OUTPUT]?.toSignificant(6)} FESW as the giveaway`
+  const pendingText = 'TO DO'
+  
+//  `Sponsoring ${nftBid?.pairTokens[Field.TOKEN_A]?.toSignificant(6)} ETH,
+//                      and will receive ${nftBid?.pairTokens[Field.TOKEN_B]?.toSignificant(6)} FESW as the giveaway`
 
   const confirmationContent = useCallback(
     () =>

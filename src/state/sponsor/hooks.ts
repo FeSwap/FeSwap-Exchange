@@ -7,7 +7,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { setRecipient, typeInput } from './actions'
+import { setSponsorRecipient, typeSponsorInput } from './actions'
 import { FESW } from '../../constants'
 import { NEVER_RELOAD, useSingleCallResult } from '../multicall/hooks'
 import { Field } from '../swap/actions'
@@ -53,27 +53,27 @@ export function useUserVotes(): TokenAmount | undefined {
 
 export function useSponsorActionHandlers(): {
   onUserInput: (field: Field, typedValue: string) => void
-  onChangeRecipient: (recipient: string | null) => void
+  onChangeSponsorRecipient: (recipient: string | null) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
   const onUserInput = useCallback(
     (independentField: Field, typedValue: string) => {
-      dispatch(typeInput({independentField, typedValue }))
+      dispatch(typeSponsorInput({independentField, typedValue }))
     },
     [dispatch]
   )
 
-  const onChangeRecipient = useCallback(
+  const onChangeSponsorRecipient = useCallback(
     (recipient: string | null) => {
-      dispatch(setRecipient({ recipient }))
+      dispatch(setSponsorRecipient({ recipient }))
     },
     [dispatch]
   )
 
   return {
     onUserInput,
-    onChangeRecipient
+    onChangeSponsorRecipient
   }
 }
 

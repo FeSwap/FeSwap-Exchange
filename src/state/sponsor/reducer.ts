@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { replaceSponsorState, setRecipient, typeInput } from './actions'
+import { replaceSponsorState, setSponsorRecipient, typeSponsorInput } from './actions'
 import { Field } from '../swap/actions'
 
 export interface SponsorState {
@@ -27,14 +27,14 @@ export default createReducer<SponsorState>(initialState, builder =>
         }
       }
     )
-    .addCase(typeInput, (state, { payload: {independentField, typedValue } }) => {
+    .addCase(typeSponsorInput, (state, { payload: {independentField, typedValue } }) => {
       return {
         ...state,
         independentField,
         typedValue
       }
     })
-    .addCase(setRecipient, (state, { payload: { recipient } }) => {
+    .addCase(setSponsorRecipient, (state, { payload: { recipient } }) => {
       state.recipient = recipient
     })
 )
