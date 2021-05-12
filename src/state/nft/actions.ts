@@ -1,8 +1,18 @@
 import { createAction } from '@reduxjs/toolkit'
 
+//export enum Field {
+//  TOKEN_A = 'TOKEN_A',
+//  TOKEN_B = 'TOKEN_B'
+//}
+
 export enum Field {
-  TOKEN_A = 'TOKEN_A',
-  TOKEN_B = 'TOKEN_B'
+  TOKEN_A,
+  TOKEN_B
+}
+
+export enum WALLET_BALANCE {
+  ETH,
+  FESW
 }
 
 export const selectNftCurrency = createAction<{ field: Field; currencyId: string }>('swap/selectNftCurrency')

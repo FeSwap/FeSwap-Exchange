@@ -60,7 +60,7 @@ export default function ConfirmSponsorModal({
         highSponsor = {highSponsor}
       />
     ) : null
-  }, [ onConfirm, showAcceptChanges, swapErrorMessage, sponsor])
+  }, [ onConfirm, showAcceptChanges, swapErrorMessage, sponsor, highSponsor])
 
   // text to show while loading
   const pendingText = `Sponsoring ${sponsor?.parsedAmounts[Field.INPUT]?.toSignificant(6)} ETH,

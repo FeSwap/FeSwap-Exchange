@@ -10,13 +10,14 @@ import { useCurrencyBalances } from '../wallet/hooks'
 import { setNftRecipient, typeNftInput, selectNftCurrency } from './actions'
 import { FESW } from '../../constants'
 import { useSingleCallResult } from '../multicall/hooks'
-import { Field } from './actions'
+import { Field, WALLET_BALANCE } from './actions'
 import { tryParseAmount } from '../swap/hooks'
 import { useMemo } from 'react'
 import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useCurrency } from '../../hooks/Tokens'
 import { ZERO_ADDRESS } from '../../constants'
+import { wrappedCurrency } from '../../utils/wrappedCurrency'
 
 export interface NftBidTrade {
   readonly pairTokens: { [field in Field]?: Currency | null }
@@ -98,8 +99,8 @@ export function useNftActionHandlers(): {
 
 // from the current sponsor inputs, compute the best trade and return it.
 export function useDerivedNftInfo(): {
-  pairTokens: { [field in Field]?: Currency | null }
-  WalletBalances : (CurrencyAmount | undefined)[]
+  pairTokens: { [field in Field]?: Token | null }
+  WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
   parsedAmounts:   (CurrencyAmount | undefined)[]
   inputError?: string
 } {
@@ -111,13 +112,16 @@ export function useDerivedNftInfo(): {
     [Field.TOKEN_B]: tokenBId
   } = useNftState()
 
-  const tokenA = useCurrency(tokenAId.currencyId)
-  const tokenB = useCurrency(tokenBId.currencyId)
+  const currencyA = useCurrency(tokenAId.currencyId)
+  const currencyB = useCurrency(tokenBId.currencyId)
+
+  const tokenA = wrappedCurrency(currencyA ?? undefined, chainId)
+  const tokenB = wrappedCurrency(currencyB ?? undefined, chainId)
 
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
 
-  const WalletBalances = useCurrencyBalances(account ?? undefined, [
+  const walletBalances = useCurrencyBalances(account ?? undefined, [
     ETHER,
     chainId ? FESW[chainId] : undefined
   ])
@@ -125,6 +129,12 @@ export function useDerivedNftInfo(): {
   const pairTokens =  { [Field.TOKEN_A]: tokenA,
                         [Field.TOKEN_B]: tokenB
                       }
+
+  const WalletBalances =  { [WALLET_BALANCE.ETH]:   walletBalances[0],
+                            [WALLET_BALANCE.FESW]:  walletBalances[1],
+                          }     
+                          
+  console.log('pairTokens', pairTokens)                                         
 
   const nftBidContract = useNftBidContract()
   const pairTokenAddress= [ (tokenA instanceof Token) ? (tokenA as Token).address : ZERO_ADDRESS ,
@@ -163,8 +173,8 @@ export function useDerivedNftInfo(): {
 
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
-    WalletBalances[0],
-    parsedAmounts[0]
+    WalletBalances[WALLET_BALANCE.ETH],
+    parsedAmounts[WALLET_BALANCE.ETH]
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {

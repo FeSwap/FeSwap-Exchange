@@ -2,21 +2,26 @@ import React from 'react'
 import styled from 'styled-components'
 import { escapeRegExp } from '../../utils'
 
+//background-color: ${({ theme }) => theme.primary5};
+
 const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: string }>`
   color: ${({ error, theme }) => (error ? theme.red1 : theme.text1)};
   width: 0;
   position: relative;
   font-weight: 500;
+  height: 2.2rem;
   outline: none;
   border: none;
+  border-radius: 8px;
   flex: 1 1 auto;
-  background-color: ${({ theme }) => theme.bg1};
+  background-color: ${({ theme }) => theme.primary5};
   font-size: ${({ fontSize }) => fontSize ?? '24px'};
   text-align: ${({ align }) => align && align};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0px;
+  padding: 4px;
+  margin: 0 8px 0 0;
   -webkit-appearance: textfield;
 
   ::-webkit-search-decoration {

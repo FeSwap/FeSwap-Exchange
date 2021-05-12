@@ -12,14 +12,13 @@ import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import TokenPairSelectPanel from '../../components/TokenPairSelectPanel'
 import { AutoRow, RowBetween } from '../../components/Row'
 import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
-import NftWarningModal from '../../components/Nft'
 import PageHeader from '../../components/PageHeader'
 //import { FESW } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
-//import useENSAddress from '../../hooks/useENSAddress'
+import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
-import { Field } from '../../state/nft/actions'
+import { Field, WALLET_BALANCE } from '../../state/nft/actions'
 import {
   NftBidTrade,
   useDerivedNftInfo,
@@ -32,30 +31,21 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
 import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useSponsorContract } from '../../hooks/useContract'
+import { useNftBidContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
 
 export default function Nft() {
-
   const { account, chainId, library } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
-  const sponsorContract = useSponsorContract()
+  const nftBidContract = useNftBidContract()
   const addTransaction = useTransactionAdder()
-
-  const [showSponsorWarning, clearShowSponsorWarning] = useState<boolean>(true)
-  
-  const [willSponsor, setWillSponsor] = useState<boolean>(false)
-  const handleWillSponsor = useCallback((yesOrNo: boolean) => {
-    setWillSponsor(yesOrNo)
-    clearShowSponsorWarning(false)
-  }, [setWillSponsor, clearShowSponsorWarning])
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
   const [isExpertMode] = useExpertModeManager()
 
-  // sponsor state
+  // NFT Bidding state
   const {
     typedValue,
     recipient,
@@ -64,35 +54,30 @@ export default function Nft() {
   const {
     pairTokens,
     parsedAmounts,
-    inputError: SponsorInputError
+    inputError: NftBidInputError
   } = useDerivedNftInfo()
 
+  const { address: recipientAddress } = useENSAddress(recipient)
+
   const nftBid: NftBidTrade = { pairTokens, parsedAmounts }
- 
-//  const { address: recipientAddress } = useENSAddress(recipient)
-
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
-  const isValid = !SponsorInputError
-
   const handleTypeInput = useCallback(
-    (value: string) => {
-      onNftUserInput(value)
-    },
+    (value: string) => { onNftUserInput(value) },
     [onNftUserInput]
   )
 
   // modal and loading
-  const [{ showConfirm, nftBidToConfirm, spnosorErrorMessage, attemptingTxn, txHash }, setSponsorState] = useState<{
+  const [{ showConfirm, nftBidToConfirm, nftBidErrorMessage, attemptingTxn, txHash }, setNftBidState] = useState<{
     showConfirm: boolean
     nftBidToConfirm: NftBidTrade | undefined
     attemptingTxn: boolean
-    spnosorErrorMessage: string | undefined
+    nftBidErrorMessage: string | undefined
     txHash: string | undefined
   }>({
     showConfirm: false,
     nftBidToConfirm: undefined,
     attemptingTxn: false,
-    spnosorErrorMessage: undefined,
+    nftBidErrorMessage: undefined,
     txHash: undefined
   })
 
@@ -100,49 +85,56 @@ export default function Nft() {
   const {maxAmountInput, atMaxAmountInput} = useMemo(()=>{
       if( !account || !ethBalance ) return {undefined, boolean: false}
       const maxAmountInput = maxAmountSpend(ethBalance[account])
-      const atMaxAmountInput = Boolean(maxAmountInput && ethBalance[account]?.equalTo(maxAmountInput))
+      const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[WALLET_BALANCE.ETH]?.equalTo(maxAmountInput))
       return { maxAmountInput, atMaxAmountInput}
-    }, [account, ethBalance] )
+    }, [account, ethBalance, parsedAmounts] )
   
-  async function handleSponsor(){
-    const sponsorAmount = parsedAmounts[0]
+  async function handleNftBidding(){
+    const nftBidderAmount = parsedAmounts[WALLET_BALANCE.ETH]
   
-    if (!sponsorAmount || !account || !library || !chainId|| !sponsorContract ) return
-  
-    setSponsorState({ attemptingTxn: true, nftBidToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: undefined })
-    await sponsorContract.estimateGas['Sponsor'](account, {value: BigNumber.from(sponsorAmount.raw.toString())})
+    if (!nftBidderAmount || !account || !library || !chainId || !nftBidContract || !pairTokens ) return
+    if (!pairTokens[Field.TOKEN_A] || !pairTokens[Field.TOKEN_B] ) return
+
+    const tokenAddressA = pairTokens[Field.TOKEN_A]?.address
+    const tokenAddressB = pairTokens[Field.TOKEN_B]?.address
+    const toAddess = recipientAddress === null ? account : recipientAddress
+      
+    setNftBidState({ attemptingTxn: true, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: undefined })
+    await nftBidContract.estimateGas['BidFeswaPair']( tokenAddressA, tokenAddressB, toAddess, 
+                                      { value: BigNumber.from(nftBidderAmount.raw.toString()) })
       .then(async(estimatedGasLimit) => {
-        await sponsorContract.Sponsor(account, { value: BigNumber.from(sponsorAmount.raw.toString()), gasLimit: calculateGasMargin(estimatedGasLimit) })
+        await nftBidContract.BidFeswaPair(tokenAddressA, tokenAddressB, toAddess, 
+                                          { value: BigNumber.from(nftBidderAmount.raw.toString()), gasLimit: calculateGasMargin(estimatedGasLimit) })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
-            summary: `Sponsored ${sponsorAmount?.toSignificant(6)} ETH`,
+            summary: `NFT bidding ${nftBidderAmount?.toSignificant(6)} ETH`,
           })
-          setSponsorState({ attemptingTxn: false, nftBidToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: response.hash })
+          setNftBidState({ attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: response.hash })
         })
         .catch((error: any) => {
             // if the user rejected the tx, pass this along
             if (error?.code === 4001) {
-                throw new Error(`Sponsor failed: You denied transaction signature.`)
+                throw new Error(`NFT Bidding failed: You denied transaction signature.`)
             } else {
               // otherwise, the error was unexpected and we need to convey that
-              throw new Error(`Sponsor failed: ${error.message}`)
+              throw new Error(`NFT Bidding failed: ${error.message}`)
             }
         })
       })
       .catch((error: any) => {
-        setSponsorState({attemptingTxn: false, nftBidToConfirm, showConfirm, spnosorErrorMessage: error.message, txHash: undefined })
+        setNftBidState({attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: error.message, txHash: undefined })
       })
   }
 
-  const isHighValueSponsor: boolean = parsedAmounts[0] ? !parsedAmounts[0]?.lessThan(FIVE_FRACTION) : false
+  const isHighValueNftBidder: boolean = parsedAmounts[WALLET_BALANCE.ETH] ? (!parsedAmounts[WALLET_BALANCE.ETH]?.lessThan(FIVE_FRACTION)) : false
 
   const handleConfirmDismiss = useCallback(() => {
-    setSponsorState({ showConfirm: false, nftBidToConfirm, attemptingTxn, spnosorErrorMessage, txHash })
+    setNftBidState({ showConfirm: false, nftBidToConfirm, attemptingTxn, nftBidErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onNftUserInput('')
     }
-  }, [attemptingTxn, onNftUserInput, spnosorErrorMessage, nftBidToConfirm, txHash])
+  }, [attemptingTxn, onNftUserInput, nftBidErrorMessage, nftBidToConfirm, txHash])
 
   const handleInputSelect = useCallback(
     inputCurrency => { onNftCurrencySelection(Field.TOKEN_A, inputCurrency)},
@@ -155,8 +147,8 @@ export default function Nft() {
   )
 
   const handleAcceptChanges = useCallback(() => {
-    setSponsorState({ nftBidToConfirm: nftBid, spnosorErrorMessage, txHash, attemptingTxn, showConfirm })
-  }, [attemptingTxn, showConfirm, spnosorErrorMessage, nftBid, txHash])
+    setNftBidState({ nftBidToConfirm: nftBid, nftBidErrorMessage, txHash, attemptingTxn, showConfirm })
+  }, [attemptingTxn, showConfirm, nftBidErrorMessage, nftBid, txHash])
 
   const handleMaxInput = useCallback(() => {
     maxAmountInput && onNftUserInput(maxAmountInput.toExact())
@@ -165,13 +157,9 @@ export default function Nft() {
 
   return (
     <>
-      <NftWarningModal
-        isOpen={showSponsorWarning}
-        onConfirm={handleWillSponsor}
-      />
       <AppBody>
         <PageHeader header="Nft Bid" />
-        <Wrapper id="sponsor-page">
+        <Wrapper id="nft-bid-page">
           <ConfirmNftModal
             isOpen={showConfirm}
             nftBid={nftBid}
@@ -180,10 +168,10 @@ export default function Nft() {
             attemptingTxn={attemptingTxn}
             txHash={txHash}
             recipient={recipient}
-            onConfirm={handleSponsor}
-            swapErrorMessage={spnosorErrorMessage}
+            onConfirm={handleNftBidding}
+            swapErrorMessage={nftBidErrorMessage}
             onDismiss={handleConfirmDismiss}
-            highSponsor = {isHighValueSponsor}
+            highSponsor = {isHighValueNftBidder}
           />
           <AutoColumn gap={'md'}>
             <TokenPairSelectPanel
@@ -193,7 +181,7 @@ export default function Nft() {
               onMax={handleMaxInput}
               onCurrencySelectA={handleInputSelect}
               onCurrencySelectB={handleOutputSelect}
-              id="sponsor-currency-input"
+              id="NFT-bid-currency-input"
               customBalanceText = 'Balance: '
             />
             <CurrencyInputPanel
@@ -204,7 +192,7 @@ export default function Nft() {
               onUserInput={handleTypeInput}
               onMax={handleMaxInput}
               disableCurrencySelect = {true}
-              id="sponsor-currency-input"
+              id="NFT-bid-currency-input"
               customBalanceText = 'Balance: '
             />
             <AutoColumn justify="space-between">
@@ -239,17 +227,17 @@ export default function Nft() {
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
                 <AutoColumn gap="10px">
-                  {isHighValueSponsor && (
+                  {isHighValueNftBidder && (
                     <RowBetween align="center">
                       <Text fontWeight={500} fontSize={14} color={theme.red2}>
-                        High-Value Sponsor:
+                        High-Value NFT Bid:
                       </Text>
-                      { SponsorInputError === 'Insufficient ETH balance'
+                      { NftBidInputError === 'Insufficient ETH balance'
                         ? (<Text fontWeight={500} fontSize={14} color={theme.red2}>
                             Insufficient ETH
                           </Text>)
                         : (<Text fontWeight={500} fontSize={14} color={theme.red2}>
-                            {parsedAmounts[0]?.toSignificant(6)} ETH
+                            {parsedAmounts[WALLET_BALANCE.ETH]?.toSignificant(6)} ETH
                           </Text>)
                       }
                     </RowBetween>
@@ -266,32 +254,30 @@ export default function Nft() {
               <ButtonError
                 onClick={() => {
                   if (isExpertMode) {
-                    handleSponsor()
+                    handleNftBidding()
                   } else {
-                    setSponsorState({
+                    setNftBidState({
                       nftBidToConfirm: nftBid,
                       attemptingTxn: false,
-                      spnosorErrorMessage: undefined,
+                      nftBidErrorMessage: undefined,
                       showConfirm: true,
                       txHash: undefined
                     })
                   }
                 }}
-                id="sponsor-button"
-                disabled={!isValid || !willSponsor}
-                error={ isValid && isHighValueSponsor}
+                id="NFT-bid-button"
+                disabled={!!NftBidInputError}
+                error={ !NftBidInputError && isHighValueNftBidder}
               >
                 <Text fontSize={20} fontWeight={500}>
-                  { !willSponsor
-                    ? 'NOT Sponsor'
-                    : SponsorInputError
-                      ? SponsorInputError
-                      : `Sponosor${isHighValueSponsor ? ' Anyway' : ''}`}
+                  { NftBidInputError
+                      ? NftBidInputError
+                      : `Sponosor${isHighValueNftBidder ? ' Anyway' : ''}`}
                 </Text>
               </ButtonError>
               </AutoColumn>              
             )}
-            {spnosorErrorMessage && !showConfirm ? <SwapCallbackError error={spnosorErrorMessage} /> : null}
+            {nftBidErrorMessage && !showConfirm ? <SwapCallbackError error={nftBidErrorMessage} /> : null}
            </BottomGrouping>
         </Wrapper>
       </AppBody>

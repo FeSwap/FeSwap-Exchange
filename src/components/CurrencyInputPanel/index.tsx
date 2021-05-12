@@ -17,10 +17,13 @@ import { useTranslation } from 'react-i18next'
 const InputRow = styled.div<{ selected: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: center;
-  padding: ${({ selected }) => (selected ? '0.75rem 0.5rem 0.75rem 1rem' : '0.75rem 0.75rem 0.75rem 1rem')};
+  padding: ${({ selected }) => (selected ? '0.75rem 0.6rem 0.75rem 0.6rem' : '0.75rem 0.6rem 0.75rem 0.6rem')};
 `
 
-const CurrencySelect = styled.button<{ selected: boolean }>`
+// ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
+// padding: 0 0.5rem;
+
+const CurrencySelect = styled.button<{ selected: boolean, disableSelect: boolean }>`
   align-items: center;
   height: 2.2rem;
   font-size: 20px;
@@ -30,14 +33,14 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
   border-radius: 10px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
-  cursor: pointer;
+  cursor: disableSelect ? default : pointer;
   user-select: none;
   border: none;
-  padding: 0 0.5rem;
+  padding: ${({ disableSelect }) => (disableSelect ? '0 0.1rem' : '0 0.5rem')};
 
   :focus,
   :hover {
-    background-color: ${({ selected, theme }) => (selected ? theme.bg2 : darken(0.05, theme.primary1))};
+    background-color: ${({ selected, disableSelect, theme }) => (selected ? (disableSelect ? theme.bg1: theme.bg2) : darken(0.05, theme.primary1))};
   }
 `
 
@@ -201,6 +204,7 @@ export default function CurrencyInputPanel({
           <CurrencySelect
             selected={!!currency}
             className="open-currency-select-button"
+            disableSelect = {disableCurrencySelect}
             onClick={() => {
               if (!disableCurrencySelect) {
                 setModalOpen(true)
