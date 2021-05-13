@@ -1,8 +1,10 @@
-import React, { useContext, useCallback } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+//import React, { useContext, useCallback } from 'react'
+//import styled, { ThemeContext } from 'styled-components'
+import React, {  useCallback } from 'react'
+import styled from 'styled-components'
 import useENS from '../../hooks/useENS'
 import { useActiveWeb3React } from '../../hooks'
-import { ExternalLink, TYPE } from '../../theme'
+import { ExternalLink } from '../../theme'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
 import { getEtherscanLink } from '../../utils'
@@ -77,7 +79,7 @@ export default function AddressInputPanel({
   onChange: (value: string) => void
 }) {
   const { chainId } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+//  const theme = useContext(ThemeContext)
 
   const { address, loading, name } = useENS(value)
 
@@ -92,15 +94,16 @@ export default function AddressInputPanel({
 
   const error = Boolean(value.length > 0 && !loading && !address)
 
+//  <TYPE.black color={theme.text2} fontWeight={500} fontSize={15}>
+//  Recipient
+//  </TYPE.black>
+
   return (
     <InputPanel id={id}>
       <ContainerRow error={error}>
         <InputContainer>
           <AutoColumn gap="md">
             <RowBetween>
-              <TYPE.black color={theme.text2} fontWeight={500} fontSize={15}>
-                Recipient
-              </TYPE.black>
               {address && chainId && (
                 <ExternalLink href={getEtherscanLink(chainId, name ?? address, 'address')} style={{ fontSize: '15px' }}>
                   (View on Etherscan)

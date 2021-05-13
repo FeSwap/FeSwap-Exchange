@@ -1,6 +1,6 @@
 import { ETHER } from '@uniswap/sdk'
 import React, { useCallback, useContext, useState, useMemo } from 'react'
-import { ArrowDown } from 'react-feather'
+//import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import AddressInputPanel from '../../components/AddressInputPanel'
@@ -11,7 +11,7 @@ import ConfirmNftModal from '../../components/Nft/ConfirmNftModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import TokenPairSelectPanel from '../../components/TokenPairSelectPanel'
 import { AutoRow, RowBetween } from '../../components/Row'
-import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
+import { BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
 import PageHeader from '../../components/PageHeader'
 //import { FESW } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
@@ -34,6 +34,7 @@ import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useNftBidContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
+import DoubleCurrencyLogo from '../../components/DoubleLogo'
 
 export default function Nft() {
   const { account, chainId, library } = useActiveWeb3React()
@@ -195,28 +196,21 @@ export default function Nft() {
               id="NFT-bid-currency-input"
               customBalanceText = 'Balance: '
             />
-            <AutoColumn justify="space-between">
+            { (recipient === null && isExpertMode) && (
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
-                <ArrowWrapper clickable={false}>
-                  <ArrowDown
-                    size="16"
-                    color={theme.primary1}
-                  />
-                </ArrowWrapper>
-                {recipient === null && isExpertMode ? (
-                  <LinkStyledButton id="add-recipient-button" onClick={() => onChangeNftRecipient('')}>
-                    + Add a send (optional)
-                  </LinkStyledButton>
-                ) : null}
+                <div></div>
+                <LinkStyledButton id="add-recipient-button" onClick={() => onChangeNftRecipient('')}>
+                  + Add a send (optional)
+                </LinkStyledButton>
               </AutoRow>
-            </AutoColumn>
+            )}
 
             {recipient !== null && (
               <>
                 <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
-                  <ArrowWrapper clickable={false}>
-                    <ArrowDown size="16" color={theme.primary1} />
-                  </ArrowWrapper>
+                  <Text fontWeight={500} fontSize={16} color={theme.primary1}>
+                    High-Value NFT Bid:
+                  </Text>
                   <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeNftRecipient(null)}>
                     - Remove send
                   </LinkStyledButton>
@@ -224,6 +218,50 @@ export default function Nft() {
                 <AddressInputPanel id="recipient" value={recipient} onChange={onChangeNftRecipient} />
               </>
             )}
+
+        <AutoColumn gap="12px">
+          <RowBetween style = {{height: '24px'}}>
+          <AutoRow gap="8px">
+            <DoubleCurrencyLogo currency0={pairTokens[Field.TOKEN_A]} currency1={pairTokens[Field.TOKEN_B]} size={20} />
+            <Text fontWeight={500} fontSize={20}>
+              {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}/${currency1.symbol}`}
+            </Text>
+            {!!stakedBalance && (
+              <ButtonUNIGradient as={Link} to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}>
+                <HideExtraSmall>Earning UNI</HideExtraSmall>
+                <ExtraSmallOnly>
+                  <span role="img" aria-label="bolt">
+                    ⚡
+                  </span>
+                </ExtraSmallOnly>
+              </ButtonUNIGradient>
+            )}
+          </AutoRow>
+
+          <RowFixed gap="8px">
+            <ButtonEmpty
+              padding="6px 8px"
+              borderRadius="12px"
+              width="fit-content"
+              onClick={() => setShowMore(!showMore)}
+            >
+              {showMore ? (
+                <>
+                  Manage
+                  <ChevronUp size="20" style={{ marginLeft: '10px' }} />
+                </>
+              ) : (
+                <>
+                  Manage
+                  <ChevronDown size="20" style={{ marginLeft: '10px' }} />
+                </>
+              )}
+            </ButtonEmpty>
+          </RowFixed>
+          </RowBetween>
+      </AutoColumn>
+
+
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
                 <AutoColumn gap="10px">
@@ -284,3 +322,158 @@ export default function Nft() {
     </>
   )
 }
+
+/*
+<AutoColumn gap="12px">
+        <FixedHeightRow>
+          <AutoRow gap="8px">
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
+            <Text fontWeight={500} fontSize={20}>
+              {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}/${currency1.symbol}`}
+            </Text>
+            {!!stakedBalance && (
+              <ButtonUNIGradient as={Link} to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}>
+                <HideExtraSmall>Earning UNI</HideExtraSmall>
+                <ExtraSmallOnly>
+                  <span role="img" aria-label="bolt">
+                    ⚡
+                  </span>
+                </ExtraSmallOnly>
+              </ButtonUNIGradient>
+            )}
+          </AutoRow>
+
+          <RowFixed gap="8px">
+            <ButtonEmpty
+              padding="6px 8px"
+              borderRadius="12px"
+              width="fit-content"
+              onClick={() => setShowMore(!showMore)}
+            >
+              {showMore ? (
+                <>
+                  Manage
+                  <ChevronUp size="20" style={{ marginLeft: '10px' }} />
+                </>
+              ) : (
+                <>
+                  Manage
+                  <ChevronDown size="20" style={{ marginLeft: '10px' }} />
+                </>
+              )}
+            </ButtonEmpty>
+          </RowFixed>
+        </FixedHeightRow>
+
+        {showMore && (
+          <AutoColumn gap="8px">
+            <FixedHeightRow>
+              <Text fontSize={16} fontWeight={500}>
+                Your total pool tokens:
+              </Text>
+              <Text fontSize={16} fontWeight={500}>
+                {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}
+              </Text>
+            </FixedHeightRow>
+            {stakedBalance && (
+              <FixedHeightRow>
+                <Text fontSize={16} fontWeight={500}>
+                  Pool tokens in rewards pool:
+                </Text>
+                <Text fontSize={16} fontWeight={500}>
+                  {stakedBalance.toSignificant(4)}
+                </Text>
+              </FixedHeightRow>
+            )}
+            <FixedHeightRow>
+              <RowFixed>
+                <Text fontSize={16} fontWeight={500}>
+                  Pooled {currency0.symbol}:
+                </Text>
+              </RowFixed>
+              {token0Deposited ? (
+                <RowFixed>
+                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                    {token0Deposited?.toSignificant(6)}
+                  </Text>
+                  <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={currency0} />
+                </RowFixed>
+              ) : (
+                '-'
+              )}
+            </FixedHeightRow>
+
+            <FixedHeightRow>
+              <RowFixed>
+                <Text fontSize={16} fontWeight={500}>
+                  Pooled {currency1.symbol}:
+                </Text>
+              </RowFixed>
+              {token1Deposited ? (
+                <RowFixed>
+                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                    {token1Deposited?.toSignificant(6)}
+                  </Text>
+                  <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={currency1} />
+                </RowFixed>
+              ) : (
+                '-'
+              )}
+            </FixedHeightRow>
+
+            <FixedHeightRow>
+              <Text fontSize={16} fontWeight={500}>
+                Your pool share:
+              </Text>
+              <Text fontSize={16} fontWeight={500}>
+                {poolTokenPercentage
+                  ? (poolTokenPercentage.toFixed(2) === '0.00' ? '<0.01' : poolTokenPercentage.toFixed(2)) + '%'
+                  : '-'}
+              </Text>
+            </FixedHeightRow>
+
+            <ButtonSecondary padding="8px" borderRadius="8px">
+              <ExternalLink
+                style={{ width: '100%', textAlign: 'center' }}
+                href={`https://uniswap.info/account/${account}`}
+              >
+                View accrued fees and analytics<span style={{ fontSize: '11px' }}>↗</span>
+              </ExternalLink>
+            </ButtonSecondary>
+            {userDefaultPoolBalance && JSBI.greaterThan(userDefaultPoolBalance.raw, BIG_INT_ZERO) && (
+              <RowBetween marginTop="10px">
+                <ButtonPrimary
+                  padding="8px"
+                  borderRadius="8px"
+                  as={Link}
+                  to={`/add/${currencyId(currency0)}/${currencyId(currency1)}`}
+                  width="48%"
+                >
+                  Add
+                </ButtonPrimary>
+                <ButtonPrimary
+                  padding="8px"
+                  borderRadius="8px"
+                  as={Link}
+                  width="48%"
+                  to={`/remove/${currencyId(currency0)}/${currencyId(currency1)}`}
+                >
+                  Remove
+                </ButtonPrimary>
+              </RowBetween>
+            )}
+            {stakedBalance && JSBI.greaterThan(stakedBalance.raw, BIG_INT_ZERO) && (
+              <ButtonPrimary
+                padding="8px"
+                borderRadius="8px"
+                as={Link}
+                to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}
+                width="100%"
+              >
+                Manage Liquidity in Rewards Pool
+              </ButtonPrimary>
+            )}
+          </AutoColumn>
+        )}
+      </AutoColumn>
+*/
