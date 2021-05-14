@@ -18,15 +18,19 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useCurrency } from '../../hooks/Tokens'
 import { ZERO_ADDRESS } from '../../constants'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
+import { FeswaPairInfo } from './reducer'
+//import { FeswaPairInfo, PairBidInfo } from './reducer'
+import { BigNumber } from 'ethers'
+// import { BigNumber } from '@ethersproject/bignumber'
 
 export interface NftBidTrade {
-  readonly pairTokens: { [field in Field]?: Currency | null }
+  readonly pairCurrencies: { [field in Field]?: Currency | null }
   readonly parsedAmounts: (CurrencyAmount | undefined)[]
 }
 
 export interface NftBidPairInfo {
-  readonly addressTokenA: string | undefined
-  readonly addressTokenB: string | undefined
+  readonly tokenA: string | undefined
+  readonly tokenB: string | undefined
   readonly currentPrice:  JSBI
   readonly timeCreated:   JSBI
   readonly lastBidTime:   JSBI
@@ -99,7 +103,9 @@ export function useNftActionHandlers(): {
 
 // from the current sponsor inputs, compute the best trade and return it.
 export function useDerivedNftInfo(): {
-  pairTokens: { [field in Field]?: Token | null }
+  feswaPairBidInfo:  FeswaPairInfo
+  numberOfToken: BigNumber | undefined
+  pairCurrencies: { [field in Field]?: Currency }
   WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
   parsedAmounts:   (CurrencyAmount | undefined)[]
   inputError?: string
@@ -115,9 +121,6 @@ export function useDerivedNftInfo(): {
   const currencyA = useCurrency(tokenAId.currencyId)
   const currencyB = useCurrency(tokenBId.currencyId)
 
-  const tokenA = wrappedCurrency(currencyA ?? undefined, chainId)
-  const tokenB = wrappedCurrency(currencyB ?? undefined, chainId)
-
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
 
@@ -126,24 +129,54 @@ export function useDerivedNftInfo(): {
     chainId ? FESW[chainId] : undefined
   ])
 
-  const pairTokens =  { [Field.TOKEN_A]: tokenA,
-                        [Field.TOKEN_B]: tokenB
-                      }
+  const pairCurrencies =  { [Field.TOKEN_A]: currencyA ?? undefined,
+                            [Field.TOKEN_B]: currencyB ?? undefined
+                          }
 
   const WalletBalances =  { [WALLET_BALANCE.ETH]:   walletBalances[0],
                             [WALLET_BALANCE.FESW]:  walletBalances[1],
                           }     
                           
-  console.log('pairTokens', pairTokens)                                         
+  const tokenA = wrappedCurrency(currencyA ?? undefined, chainId)
+  const tokenB = wrappedCurrency(currencyB ?? undefined, chainId)          
 
   const nftBidContract = useNftBidContract()
   const pairTokenAddress= [ (tokenA instanceof Token) ? (tokenA as Token).address : ZERO_ADDRESS ,
                             (tokenB instanceof Token) ? (tokenB as Token).address : ZERO_ADDRESS]
 
   const feswaPairINfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
-  
-  console.log("feswaPairINfo", feswaPairINfo)
- 
+//  const _feswaPairID = feswaPairINfo?.tokenID??undefined
+//  console.log("feswaPairINfo", feswaPairINfo)
+//  console.log("_feswaPairID", _feswaPairID, _feswaPairID?.toString(), _feswaPairID?.toHexString())
+//  const _feswaPairInfo :PairBidInfo = feswaPairINfo?.pairInfo??undefined
+//  console.log("_feswaPairInfo", _feswaPairInfo)
+
+//  console.log("_feswaPairInfo.tokenA:", _feswaPairInfo?.tokenA??undefined)
+//  console.log("_feswaPairInfo.tokenB:", _feswaPairInfo?.tokenB??undefined)
+//  console.log("_feswaPairInfo.currentPrice:", _feswaPairInfo?.currentPrice??undefined)
+//  console.log("_feswaPairInfo.timeCreated:", _feswaPairInfo?.timeCreated??undefined)
+//  console.log("_feswaPairInfo.lastBidTime:", _feswaPairInfo?.lastBidTime??undefined)
+//  console.log("_feswaPairInfo.poolState:", _feswaPairInfo?.poolState??undefined)
+
+  /////////////////////////////////
+
+  const numberOfToken = useSingleCallResult(nftBidContract, 'balanceOf', [account ?? ZERO_ADDRESS])?.result?.[0] ?? BigNumber.from(0)
+//  const ownerOfPairNFT = useSingleCallResult(nftBidContract, 'ownerOf', [ feswaPairINfo?.tokenID?.toHexString() ?? '0x00'])?.result?.[0] ?? ZERO_ADDRESS
+
+// const ownerOfPairNFT = useSingleCallResult(nftBidContract, 'ownerOf', [_feswaPairID?.toHexString() ?? '0x0000'])?.result?.[0] ?? ZERO_ADDRESS
+// const ownerOfPairNFT = useSingleCallResult(nftBidContract, 'ownerOf', [ZERO_ADDRESS]) ?.result?.[0] ?? ZERO_ADDRESS
+//  console.log("_feswaPairID?.toHexString():", _feswaPairID?.toHexString())
+//  console.log("ownerOf", ownerOfPairNFT)
+
+  const feswaPairBidInfo : FeswaPairInfo = {
+    tokenIDPairNft:  feswaPairINfo?.tokenID,
+    pairBidInfo:     feswaPairINfo?.pairInfo,
+  }
+
+  console.log("feswaPairBidInfo", feswaPairBidInfo)
+
+  ///////////////////////////
+
   const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER) ?? undefined
   const feswGiveRate = new Fraction( '1', '20000')   // 1ETH -> 20000 FESW Giveaway
   const feswToken = chainId ? FESW[chainId] : undefined
@@ -182,7 +215,9 @@ export function useDerivedNftInfo(): {
   }
 
   return {
-    pairTokens,
+    feswaPairBidInfo, 
+    numberOfToken,
+    pairCurrencies,
     WalletBalances,
     parsedAmounts,
     inputError,

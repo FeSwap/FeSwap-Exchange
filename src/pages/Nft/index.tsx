@@ -2,15 +2,17 @@ import { ETHER } from '@uniswap/sdk'
 import React, { useCallback, useContext, useState, useMemo } from 'react'
 //import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
-import { ThemeContext } from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
+import { darken } from 'polished'
+//import { ThemeContext } from 'styled-components'
 import AddressInputPanel from '../../components/AddressInputPanel'
 import { ButtonError, ButtonLight } from '../../components/Button'
 import Card  from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import ConfirmNftModal from '../../components/Nft/ConfirmNftModal'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
+import CurrencyInputPanel, { Container } from '../../components/CurrencyInputPanel'
 import TokenPairSelectPanel from '../../components/TokenPairSelectPanel'
-import { AutoRow, RowBetween } from '../../components/Row'
+import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
 import { BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
 import PageHeader from '../../components/PageHeader'
 //import { FESW } from '../../constants'
@@ -26,7 +28,7 @@ import {
   useNftState
 } from '../../state/nft/hooks'
 import { useExpertModeManager } from '../../state/user/hooks'
-import { LinkStyledButton } from '../../theme'
+import { LinkStyledButton, TYPE } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
 import { BigNumber } from 'ethers'
@@ -35,6 +37,21 @@ import { useNftBidContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
+import { wrappedCurrency } from '../../utils/wrappedCurrency'
+
+
+const LabelRow = styled.div`
+  ${({ theme }) => theme.flexRowNoWrap}
+  align-items: center;
+  color: ${({ theme }) => theme.text1};
+  font-size: 0.75rem;
+  line-height: 1rem;
+  padding: 0.75rem 1rem 0 1rem;
+  span:hover {
+    cursor: pointer;
+    color: ${({ theme }) => darken(0.2, theme.text2)};
+  }
+`
 
 export default function Nft() {
   const { account, chainId, library } = useActiveWeb3React()
@@ -53,14 +70,14 @@ export default function Nft() {
   } = useNftState()
 
   const {
-    pairTokens,
+    pairCurrencies,
     parsedAmounts,
     inputError: NftBidInputError
   } = useDerivedNftInfo()
 
   const { address: recipientAddress } = useENSAddress(recipient)
 
-  const nftBid: NftBidTrade = { pairTokens, parsedAmounts }
+  const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts }
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
   const handleTypeInput = useCallback(
     (value: string) => { onNftUserInput(value) },
@@ -92,7 +109,11 @@ export default function Nft() {
   
   async function handleNftBidding(){
     const nftBidderAmount = parsedAmounts[WALLET_BALANCE.ETH]
-  
+
+    const pairTokens =  { [Field.TOKEN_A]: wrappedCurrency(pairCurrencies[Field.TOKEN_A], chainId),
+                          [Field.TOKEN_B]: wrappedCurrency(pairCurrencies[Field.TOKEN_B], chainId) 
+                        }
+ 
     if (!nftBidderAmount || !account || !library || !chainId || !nftBidContract || !pairTokens ) return
     if (!pairTokens[Field.TOKEN_A] || !pairTokens[Field.TOKEN_B] ) return
 
@@ -177,8 +198,8 @@ export default function Nft() {
           <AutoColumn gap={'md'}>
             <TokenPairSelectPanel
               label='NFT Bid'
-              currencyA={pairTokens[Field.TOKEN_A]}
-              currencyB={pairTokens[Field.TOKEN_B]}              
+              currencyA={pairCurrencies[Field.TOKEN_A]}
+              currencyB={pairCurrencies[Field.TOKEN_B]}              
               onMax={handleMaxInput}
               onCurrencySelectA={handleInputSelect}
               onCurrencySelectB={handleOutputSelect}
@@ -219,48 +240,35 @@ export default function Nft() {
               </>
             )}
 
-        <AutoColumn gap="12px">
-          <RowBetween style = {{height: '24px'}}>
-          <AutoRow gap="8px">
-            <DoubleCurrencyLogo currency0={pairTokens[Field.TOKEN_A]} currency1={pairTokens[Field.TOKEN_B]} size={20} />
-            <Text fontWeight={500} fontSize={20}>
-              {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}/${currency1.symbol}`}
-            </Text>
-            {!!stakedBalance && (
-              <ButtonUNIGradient as={Link} to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}>
-                <HideExtraSmall>Earning UNI</HideExtraSmall>
-                <ExtraSmallOnly>
-                  <span role="img" aria-label="bolt">
-                    ⚡
-                  </span>
-                </ExtraSmallOnly>
-              </ButtonUNIGradient>
+            { (pairCurrencies[Field.TOKEN_A] && pairCurrencies[Field.TOKEN_B]) && (
+              <Container hideInput={false}>
+                <LabelRow>
+                  <RowBetween style={{ margin: '0 6px 0 6px' }}>
+                      <RowFixed>
+                        <DoubleCurrencyLogo currency0={pairCurrencies[Field.TOKEN_A]} currency1={pairCurrencies[Field.TOKEN_B]} size={24} />
+                        <Text fontWeight={500} fontSize={20} style={{ margin: '0 0 0 6px' }} >
+                          {pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
+                        </Text>
+                      </RowFixed>
+                      <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
+                        <strong>You are the owner</strong>
+                      </TYPE.body>
+                  </RowBetween>
+                </LabelRow>
+                <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 6px 6px' }}>
+                  <TYPE.italic textAlign="left" style={{ width: '100%' }}>
+                    The giveaway FESW amount is estimated, which may be less than the value above 
+                    if your tranaction confirmatoin is delayed in the Ethereum blockchain
+                  </TYPE.italic>
+                  <TYPE.body color={theme.text2} fontWeight={500} fontSize={15}>
+                    You will be the firt bidder, and the Initial price is 0.2 ETH. 
+                  </TYPE.body>
+                  <TYPE.body color={theme.text2} fontWeight={500} fontSize={15}>
+                    The bid price shold be moer than 1.2 ETH. 
+                  </TYPE.body>
+                </AutoColumn>
+              </Container>
             )}
-          </AutoRow>
-
-          <RowFixed gap="8px">
-            <ButtonEmpty
-              padding="6px 8px"
-              borderRadius="12px"
-              width="fit-content"
-              onClick={() => setShowMore(!showMore)}
-            >
-              {showMore ? (
-                <>
-                  Manage
-                  <ChevronUp size="20" style={{ marginLeft: '10px' }} />
-                </>
-              ) : (
-                <>
-                  Manage
-                  <ChevronDown size="20" style={{ marginLeft: '10px' }} />
-                </>
-              )}
-            </ButtonEmpty>
-          </RowFixed>
-          </RowBetween>
-      </AutoColumn>
-
 
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
@@ -284,6 +292,9 @@ export default function Nft() {
               </Card>
             }
           </AutoColumn>
+
+
+
           <BottomGrouping>
             {!account ? (
               <ButtonLight onClick={toggleWalletModal}>Connect Wallet</ButtonLight>
@@ -477,3 +488,11 @@ export default function Nft() {
         )}
       </AutoColumn>
 */
+
+//<Text fontWeight={500} fontSize={20}>
+//You are the owner
+//</Text>
+
+//<Text fontWeight={500} fontSize={20}>
+//{pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
+//</Text>

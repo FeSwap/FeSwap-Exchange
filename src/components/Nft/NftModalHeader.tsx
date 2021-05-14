@@ -30,13 +30,13 @@ export default function SponsorModalHeader({
     <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
       <RowBetween align="flex-end">
         <RowFixed gap={'0px'}>
-          <CurrencyLogo currency={nftBid?.pairTokens[Field.TOKEN_A]??undefined} size={'24px'} style={{ marginRight: '12px' }} />
+          <CurrencyLogo currency={nftBid?.pairCurrencies[Field.TOKEN_A]??undefined} size={'24px'} style={{ marginRight: '12px' }} />
           <TruncatedText
             fontSize={24}
             fontWeight={500}
             color={showAcceptChanges ? theme.primary1 : ''}
           >
-            {` To Do: nftBid?.pairTokens[Field.TOKEN_A]?.toSignificant(6) `}
+            {` To Do: nftBid?.pairCurrencies[Field.TOKEN_A]?.toSignificant(6) `}
           </TruncatedText>
         </RowFixed>
         <RowFixed gap={'0px'}>
@@ -49,7 +49,7 @@ export default function SponsorModalHeader({
       </RowFixed>
       <RowBetween align="flex-end">
         <RowFixed gap={'0px'}>
-          <CurrencyLogo currency={nftBid?.pairTokens[Field.TOKEN_B]??undefined} size={'24px'} style={{ marginRight: '12px' }} />
+          <CurrencyLogo currency={nftBid?.pairCurrencies[Field.TOKEN_B]??undefined} size={'24px'} style={{ marginRight: '12px' }} />
           <TruncatedText
             fontSize={24}
             fontWeight={500}

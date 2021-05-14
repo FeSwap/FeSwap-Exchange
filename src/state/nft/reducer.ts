@@ -1,6 +1,21 @@
 import { createReducer } from '@reduxjs/toolkit'
+import { BigNumber } from '@ethersproject/bignumber'
 import { replaceNftState, setNftRecipient, typeNftInput, selectNftCurrency } from './actions'
 import { Field } from './actions'
+
+export interface PairBidInfo {
+  readonly tokenA: string
+  readonly tokenB: string
+  readonly currentPrice: BigNumber
+  readonly timeCreated: BigNumber
+  readonly lastBidTime: BigNumber
+  readonly poolState: BigNumber 
+}
+
+export interface FeswaPairInfo {
+  readonly tokenIDPairNft:  BigNumber
+  readonly pairBidInfo:     PairBidInfo 
+}
 
 export interface NftState {
   readonly typedValue: string
