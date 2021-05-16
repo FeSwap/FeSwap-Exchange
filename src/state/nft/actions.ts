@@ -15,6 +15,15 @@ export enum WALLET_BALANCE {
   FESW
 }
 
+export enum NFT_BID_PHASE {
+  BidToStart,
+  BidPhase, 
+  BidDelaying,
+  BidSettled,
+  PoolHolding, 
+  PoolForSale
+}
+
 export const selectNftCurrency = createAction<{ field: Field; currencyId: string }>('swap/selectNftCurrency')
 export const typeNftInput = createAction<{ typedValue: string }>('nft/typeNftInput')
 export const replaceNftState = createAction<{

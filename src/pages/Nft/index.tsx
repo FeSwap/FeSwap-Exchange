@@ -1,4 +1,4 @@
-import { ETHER } from '@uniswap/sdk'
+import { ETHER, Fraction, Rounding } from '@uniswap/sdk'
 import React, { useCallback, useContext, useState, useMemo } from 'react'
 //import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -20,7 +20,7 @@ import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
-import { Field, WALLET_BALANCE } from '../../state/nft/actions'
+import { Field, WALLET_BALANCE, NFT_BID_PHASE } from '../../state/nft/actions'
 import {
   NftBidTrade,
   useDerivedNftInfo,
@@ -35,9 +35,13 @@ import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useNftBidContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
-import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
+import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ZERO_FRACTION, 
+  ONE_TENTH_FRACTION, TEN_PERCENT_MORE } from '../../utils'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
+import { DateTime } from 'luxon'
+
+// import { ZERO_ADDRESS } from '../../constants'
 
 
 const LabelRow = styled.div`
@@ -69,7 +73,12 @@ export default function Nft() {
     recipient,
   } = useNftState()
 
+//  WalletBalances,
+//  numberOfToken,
+
   const {
+    feswaPairBidInfo,
+    numberOfToken,
     pairCurrencies,
     parsedAmounts,
     inputError: NftBidInputError
@@ -77,6 +86,48 @@ export default function Nft() {
 
   const { address: recipientAddress } = useENSAddress(recipient)
 
+  console.log("feswaPairBidInfo",feswaPairBidInfo)
+
+  const nftStatusPrompt = useMemo(()=>{
+    if (!feswaPairBidInfo.pairBidInfo) return ''
+//    if (feswaPairBidInfo.pairBidInfo.tokenA === ZERO_ADDRESS) return "Waiting for a bid"
+    if (feswaPairBidInfo.ownerPairNft === account) return "Your are the owner"
+    
+    switch (feswaPairBidInfo.pairBidInfo.poolState) {
+      case NFT_BID_PHASE.BidToStart: return 'Waiting for a bid'
+      case NFT_BID_PHASE.BidPhase: return 'Bid ongoing'
+      case NFT_BID_PHASE.BidDelaying: return 'Bid in overtime'
+      case NFT_BID_PHASE.BidSettled: return 'Bid completed'
+      case NFT_BID_PHASE.PoolHolding: return 'NFT in holding'
+      case NFT_BID_PHASE.PoolForSale: return 'Pair NFT on sale'
+    }  
+    return ''
+    },[feswaPairBidInfo, account])
+
+  const nftStatus: number = useMemo(()=>{
+      if (!feswaPairBidInfo.pairBidInfo) return -1
+      return feswaPairBidInfo.pairBidInfo.poolState
+      },[feswaPairBidInfo])
+  
+  const [ nftBidPriceString, newNftBidPriceString ] = useMemo(()=>{
+      if (!feswaPairBidInfo.pairBidInfo) return ['_', '_']
+      const nftBidPrice = new Fraction(feswaPairBidInfo.pairBidInfo.currentPrice.toString(), WEI_DENOM)
+      const newNftBidPrice =  nftBidPrice.lessThan(ZERO_FRACTION) 
+                              ? nftBidPrice.add(ONE_TENTH_FRACTION) 
+                              : nftBidPrice.multiply(TEN_PERCENT_MORE)
+      return [ nftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}), 
+               newNftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}) ]
+    },[feswaPairBidInfo])
+
+  const nftBidEndTime = useMemo(()=>{
+      if (!feswaPairBidInfo.pairBidInfo) return '_'
+      return DateTime.fromSeconds(feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()).toFormat("LLL-dd HH:MM:ss"); 
+      },[feswaPairBidInfo])
+
+  console.log('nftBidEndTime', nftBidEndTime )
+  console.log('nftBidPriceString', nftBidPriceString )
+  console.log('newNftBidPriceString', newNftBidPriceString )
+  
   const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts }
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
   const handleTypeInput = useCallback(
@@ -243,7 +294,7 @@ export default function Nft() {
             { (pairCurrencies[Field.TOKEN_A] && pairCurrencies[Field.TOKEN_B]) && (
               <Container hideInput={false}>
                 <LabelRow>
-                  <RowBetween style={{ margin: '0 6px 0 6px' }}>
+                  <RowBetween style={{ margin: '0 6px 0 6px', alignItems: 'center' }}>
                       <RowFixed>
                         <DoubleCurrencyLogo currency0={pairCurrencies[Field.TOKEN_A]} currency1={pairCurrencies[Field.TOKEN_B]} size={24} />
                         <Text fontWeight={500} fontSize={20} style={{ margin: '0 0 0 6px' }} >
@@ -251,21 +302,72 @@ export default function Nft() {
                         </Text>
                       </RowFixed>
                       <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
-                        <strong>You are the owner</strong>
+                        <strong>{nftStatusPrompt}</strong>
                       </TYPE.body>
                   </RowBetween>
                 </LabelRow>
-                <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 6px 6px' }}>
-                  <TYPE.italic textAlign="left" style={{ width: '100%' }}>
-                    The giveaway FESW amount is estimated, which may be less than the value above 
-                    if your tranaction confirmatoin is delayed in the Ethereum blockchain
-                  </TYPE.italic>
-                  <TYPE.body color={theme.text2} fontWeight={500} fontSize={15}>
-                    You will be the firt bidder, and the Initial price is 0.2 ETH. 
-                  </TYPE.body>
-                  <TYPE.body color={theme.text2} fontWeight={500} fontSize={15}>
-                    The bid price shold be moer than 1.2 ETH. 
-                  </TYPE.body>
+                <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 12px 6px' }}>
+                  { (nftStatus === NFT_BID_PHASE.BidToStart) && (
+                    <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
+                      You will be the first bidder. <br />
+                      Minimum Bid price: <strong> 0.2 ETH.</strong>
+                    </TYPE.italic>
+                  )}
+                  { (nftStatus === NFT_BID_PHASE.BidPhase) && (
+                    <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
+                      Current price: <strong> {nftBidPriceString} ETH. </strong>
+                      End Time: <strong> {nftBidEndTime} </strong>  <br />
+                      Minimum Bid price: <strong> {newNftBidPriceString} ETH.</strong>
+                    </TYPE.italic>
+                  )}
+                  { (nftStatus === NFT_BID_PHASE.BidDelaying) && (
+                    <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
+                      Current price: <strong> {nftBidPriceString} ETH. </strong>
+                      End Time: <strong>{nftBidEndTime}</strong>  <br />
+                      Minimum Bid price: <strong> {newNftBidPriceString} ETH.</strong>
+                    </TYPE.italic>
+                  )}
+                  { (nftStatus === NFT_BID_PHASE.BidSettled) && (
+                    <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
+                      Final bid price: <strong> {nftBidPriceString} ETH. </strong>
+                    </TYPE.italic>
+                  )}
+                  { (nftStatus === NFT_BID_PHASE.PoolHolding) && (
+                    <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
+                      Final bid price: <strong> {nftBidPriceString} ETH. </strong>
+                    </TYPE.italic>
+                  )}
+                  { (nftStatus === NFT_BID_PHASE.PoolForSale) && (
+                    <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
+                      Token-pair NFT Sale price: <strong> {nftBidPriceString} ETH. </strong>
+                    </TYPE.italic>
+                  )}
+                </AutoColumn>
+              </Container>
+            )}
+
+            { (numberOfToken !== 0) && (
+              <Container hideInput={false}>
+                <LabelRow>
+                  <RowBetween style={{ margin: '0 6px 0 6px', alignItems: 'center' }}>
+                      <RowFixed>
+                        <DoubleCurrencyLogo currency0={pairCurrencies[Field.TOKEN_A]} currency1={pairCurrencies[Field.TOKEN_B]} size={24} />
+                        <Text fontWeight={500} fontSize={20} style={{ margin: '0 0 0 6px' }} >
+                          {pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
+                        </Text>
+                      </RowFixed>
+                      <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
+                        <strong>{nftStatusPrompt}</strong>
+                      </TYPE.body>
+                  </RowBetween>
+                </LabelRow>
+                <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 12px 6px' }}>
+                  { (nftStatus === NFT_BID_PHASE.BidToStart) && (
+                    <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
+                      You will be the first bidder. <br />
+                      Minimum Bid price: <strong> 0.2 ETH.</strong>
+                    </TYPE.italic>
+                  )}
                 </AutoColumn>
               </Container>
             )}
@@ -333,166 +435,3 @@ export default function Nft() {
     </>
   )
 }
-
-/*
-<AutoColumn gap="12px">
-        <FixedHeightRow>
-          <AutoRow gap="8px">
-            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
-            <Text fontWeight={500} fontSize={20}>
-              {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}/${currency1.symbol}`}
-            </Text>
-            {!!stakedBalance && (
-              <ButtonUNIGradient as={Link} to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}>
-                <HideExtraSmall>Earning UNI</HideExtraSmall>
-                <ExtraSmallOnly>
-                  <span role="img" aria-label="bolt">
-                    ⚡
-                  </span>
-                </ExtraSmallOnly>
-              </ButtonUNIGradient>
-            )}
-          </AutoRow>
-
-          <RowFixed gap="8px">
-            <ButtonEmpty
-              padding="6px 8px"
-              borderRadius="12px"
-              width="fit-content"
-              onClick={() => setShowMore(!showMore)}
-            >
-              {showMore ? (
-                <>
-                  Manage
-                  <ChevronUp size="20" style={{ marginLeft: '10px' }} />
-                </>
-              ) : (
-                <>
-                  Manage
-                  <ChevronDown size="20" style={{ marginLeft: '10px' }} />
-                </>
-              )}
-            </ButtonEmpty>
-          </RowFixed>
-        </FixedHeightRow>
-
-        {showMore && (
-          <AutoColumn gap="8px">
-            <FixedHeightRow>
-              <Text fontSize={16} fontWeight={500}>
-                Your total pool tokens:
-              </Text>
-              <Text fontSize={16} fontWeight={500}>
-                {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}
-              </Text>
-            </FixedHeightRow>
-            {stakedBalance && (
-              <FixedHeightRow>
-                <Text fontSize={16} fontWeight={500}>
-                  Pool tokens in rewards pool:
-                </Text>
-                <Text fontSize={16} fontWeight={500}>
-                  {stakedBalance.toSignificant(4)}
-                </Text>
-              </FixedHeightRow>
-            )}
-            <FixedHeightRow>
-              <RowFixed>
-                <Text fontSize={16} fontWeight={500}>
-                  Pooled {currency0.symbol}:
-                </Text>
-              </RowFixed>
-              {token0Deposited ? (
-                <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
-                    {token0Deposited?.toSignificant(6)}
-                  </Text>
-                  <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={currency0} />
-                </RowFixed>
-              ) : (
-                '-'
-              )}
-            </FixedHeightRow>
-
-            <FixedHeightRow>
-              <RowFixed>
-                <Text fontSize={16} fontWeight={500}>
-                  Pooled {currency1.symbol}:
-                </Text>
-              </RowFixed>
-              {token1Deposited ? (
-                <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
-                    {token1Deposited?.toSignificant(6)}
-                  </Text>
-                  <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={currency1} />
-                </RowFixed>
-              ) : (
-                '-'
-              )}
-            </FixedHeightRow>
-
-            <FixedHeightRow>
-              <Text fontSize={16} fontWeight={500}>
-                Your pool share:
-              </Text>
-              <Text fontSize={16} fontWeight={500}>
-                {poolTokenPercentage
-                  ? (poolTokenPercentage.toFixed(2) === '0.00' ? '<0.01' : poolTokenPercentage.toFixed(2)) + '%'
-                  : '-'}
-              </Text>
-            </FixedHeightRow>
-
-            <ButtonSecondary padding="8px" borderRadius="8px">
-              <ExternalLink
-                style={{ width: '100%', textAlign: 'center' }}
-                href={`https://uniswap.info/account/${account}`}
-              >
-                View accrued fees and analytics<span style={{ fontSize: '11px' }}>↗</span>
-              </ExternalLink>
-            </ButtonSecondary>
-            {userDefaultPoolBalance && JSBI.greaterThan(userDefaultPoolBalance.raw, BIG_INT_ZERO) && (
-              <RowBetween marginTop="10px">
-                <ButtonPrimary
-                  padding="8px"
-                  borderRadius="8px"
-                  as={Link}
-                  to={`/add/${currencyId(currency0)}/${currencyId(currency1)}`}
-                  width="48%"
-                >
-                  Add
-                </ButtonPrimary>
-                <ButtonPrimary
-                  padding="8px"
-                  borderRadius="8px"
-                  as={Link}
-                  width="48%"
-                  to={`/remove/${currencyId(currency0)}/${currencyId(currency1)}`}
-                >
-                  Remove
-                </ButtonPrimary>
-              </RowBetween>
-            )}
-            {stakedBalance && JSBI.greaterThan(stakedBalance.raw, BIG_INT_ZERO) && (
-              <ButtonPrimary
-                padding="8px"
-                borderRadius="8px"
-                as={Link}
-                to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}
-                width="100%"
-              >
-                Manage Liquidity in Rewards Pool
-              </ButtonPrimary>
-            )}
-          </AutoColumn>
-        )}
-      </AutoColumn>
-*/
-
-//<Text fontWeight={500} fontSize={20}>
-//You are the owner
-//</Text>
-
-//<Text fontWeight={500} fontSize={20}>
-//{pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
-//</Text>

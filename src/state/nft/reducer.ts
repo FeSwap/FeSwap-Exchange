@@ -9,11 +9,12 @@ export interface PairBidInfo {
   readonly currentPrice: BigNumber
   readonly timeCreated: BigNumber
   readonly lastBidTime: BigNumber
-  readonly poolState: BigNumber 
+  readonly poolState: number 
 }
 
 export interface FeswaPairInfo {
   readonly tokenIDPairNft:  BigNumber
+  readonly ownerPairNft:    string
   readonly pairBidInfo:     PairBidInfo 
 }
 
