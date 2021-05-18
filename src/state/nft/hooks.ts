@@ -20,8 +20,8 @@ import { ZERO_ADDRESS } from '../../constants'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { FeswaPairInfo } from './reducer'
 //import { FeswaPairInfo, PairBidInfo } from './reducer'
-// import { BigNumber } from 'ethers'
-// import { BigNumber } from '@ethersproject/bignumber'
+import { WEI_DENOM } from '../../utils'
+import { BigNumber } from '@ethersproject/bignumber'
 
 export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
@@ -35,6 +35,10 @@ export interface NftBidPairInfo {
   readonly timeCreated:   JSBI
   readonly lastBidTime:   JSBI
   readonly poolState:     JSBI
+}
+
+export function bigNumberToFractionInETH(bigNumber: BigNumber): Fraction {
+  return new Fraction (bigNumber.toString(), WEI_DENOM)
 }
 
 export function useNftState(): AppState['nft'] {

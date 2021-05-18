@@ -1,6 +1,7 @@
 import { ETHER, Fraction, Rounding } from '@uniswap/sdk'
-import React, { useCallback, useContext, useState, useMemo } from 'react'
-//import { ArrowDown } from 'react-feather'
+import React, { useCallback, useContext, useState, useMemo, useRef } from 'react'
+// import { useDispatch } from 'react-redux'
+import { PlusCircle } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { darken } from 'polished'
@@ -27,7 +28,7 @@ import {
   useNftActionHandlers,
   useNftState
 } from '../../state/nft/hooks'
-import { useExpertModeManager } from '../../state/user/hooks'
+import { useExpertModeManager, useTrackedNFTTokenPairs } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
@@ -40,9 +41,14 @@ import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ZERO_FRACTION,
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
-
+import { Separator } from '../../components/SearchModal/styleds'
+import AutoSizer from 'react-virtualized-auto-sizer'
 // import { ZERO_ADDRESS } from '../../constants'
-
+import NftList from '../../components/Nft/NftList'
+import { FixedSizeList } from 'react-window'
+// import { AppDispatch } from '../../state'
+import { useNFTPairAdder } from '../../state/user/hooks'
+// import { SerializedPair } from '../../state/user/actions'
 
 const LabelRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -75,10 +81,10 @@ export default function Nft() {
 
 //  WalletBalances,
 //  numberOfToken,
+//numberOfToken
 
   const {
     feswaPairBidInfo,
-    numberOfToken,
     pairCurrencies,
     parsedAmounts,
     inputError: NftBidInputError
@@ -127,6 +133,10 @@ export default function Nft() {
   console.log('nftBidEndTime', nftBidEndTime )
   console.log('nftBidPriceString', nftBidPriceString )
   console.log('newNftBidPriceString', newNftBidPriceString )
+
+  const nftTrackedList = useTrackedNFTTokenPairs()
+
+  console.log("nftTrackedList CCCCCCCCCCCCC", nftTrackedList)
   
   const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts }
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
@@ -219,6 +229,15 @@ export default function Nft() {
     [onNftCurrencySelection] 
   )
 
+  const handleNftSelect = useCallback(
+    ([CurrencyA, CurrencyB]) => {
+      onNftCurrencySelection(Field.TOKEN_A, CurrencyA)
+      onNftCurrencySelection(Field.TOKEN_B, CurrencyB)
+    },       
+    [onNftCurrencySelection] 
+  )
+
+
   const handleAcceptChanges = useCallback(() => {
     setNftBidState({ nftBidToConfirm: nftBid, nftBidErrorMessage, txHash, attemptingTxn, showConfirm })
   }, [attemptingTxn, showConfirm, nftBidErrorMessage, nftBid, txHash])
@@ -227,6 +246,22 @@ export default function Nft() {
     maxAmountInput && onNftUserInput(maxAmountInput.toExact())
   }, [maxAmountInput, onNftUserInput])
 
+  const fixedList = useRef<FixedSizeList>()
+
+  const adderNftList = useNFTPairAdder()
+  const handleAddNftToTrackList = useCallback(() => {
+        adderNftList( wrappedCurrency(pairCurrencies[Field.TOKEN_A], chainId),
+                      wrappedCurrency(pairCurrencies[Field.TOKEN_B], chainId))
+    }, [adderNftList, pairCurrencies, chainId])
+  
+//  (tokenA:Token, tokenB:Token) {
+//      const serializedNFTPair: SerializedPair = {
+//          token0: serializeToken(tokenA),
+//          token1: serializeToken(tokenB)
+//        }
+//        adderNftList(serializedNFTPair)
+//   )
+//  }
 
   return (
     <>
@@ -296,14 +331,17 @@ export default function Nft() {
                 <LabelRow>
                   <RowBetween style={{ margin: '0 6px 0 6px', alignItems: 'center' }}>
                       <RowFixed>
-                        <DoubleCurrencyLogo currency0={pairCurrencies[Field.TOKEN_A]} currency1={pairCurrencies[Field.TOKEN_B]} size={24} />
-                        <Text fontWeight={500} fontSize={20} style={{ margin: '0 0 0 6px' }} >
+                        <DoubleCurrencyLogo currency0={pairCurrencies[Field.TOKEN_A]} currency1={pairCurrencies[Field.TOKEN_B]} size={20} />
+                        <Text fontWeight={500} fontSize={18} style={{ margin: '0 0 0 6px' }} >
                           {pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
                         </Text>
                       </RowFixed>
-                      <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
-                        <strong>{nftStatusPrompt}</strong>
-                      </TYPE.body>
+                      <RowFixed style={{  margin: '0 0 0 6px', alignItems: 'left' }}>
+                        <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
+                          <strong>{nftStatusPrompt}</strong>
+                        </TYPE.body>
+                        <PlusCircle color={theme.primary1} size={20} onClick={handleAddNftToTrackList}/>
+                      </RowFixed>
                   </RowBetween>
                 </LabelRow>
                 <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 12px 6px' }}>
@@ -346,31 +384,22 @@ export default function Nft() {
               </Container>
             )}
 
-            { (numberOfToken !== 0) && (
-              <Container hideInput={false}>
-                <LabelRow>
-                  <RowBetween style={{ margin: '0 6px 0 6px', alignItems: 'center' }}>
-                      <RowFixed>
-                        <DoubleCurrencyLogo currency0={pairCurrencies[Field.TOKEN_A]} currency1={pairCurrencies[Field.TOKEN_B]} size={24} />
-                        <Text fontWeight={500} fontSize={20} style={{ margin: '0 0 0 6px' }} >
-                          {pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
-                        </Text>
-                      </RowFixed>
-                      <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
-                        <strong>{nftStatusPrompt}</strong>
-                      </TYPE.body>
-                  </RowBetween>
-                </LabelRow>
-                <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 12px 6px' }}>
-                  { (nftStatus === NFT_BID_PHASE.BidToStart) && (
-                    <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
-                      You will be the first bidder. <br />
-                      Minimum Bid price: <strong> 0.2 ETH.</strong>
-                    </TYPE.italic>
-                  )}
-                </AutoColumn>
-              </Container>
-            )}
+            <Separator />
+            { 
+                <div style={{ flex: '1', height: '300px' }}>
+                   <AutoSizer disableWidth>
+                  {({ height }) => (
+                      <NftList
+                        height={height}
+                        nftList={nftTrackedList}
+                        onNftTokenSelect={handleNftSelect}
+                        fixedListRef={fixedList}
+                      />
+                      )}
+                  </AutoSizer>
+                </div>
+            }
+            <Separator />
 
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
@@ -394,8 +423,6 @@ export default function Nft() {
               </Card>
             }
           </AutoColumn>
-
-
 
           <BottomGrouping>
             {!account ? (

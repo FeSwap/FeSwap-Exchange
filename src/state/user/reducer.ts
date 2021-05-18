@@ -14,7 +14,9 @@ import {
   updateUserSlippageTolerance,
   updateUserDeadline,
   toggleURLWarning,
-  updateUserSingleHopOnly
+  updateUserSingleHopOnly,
+  addSerializedNFTPair,
+  removeSerializedNFTPair
 } from './actions'
 
 const currentTimestamp = () => new Date().getTime()
@@ -49,12 +51,19 @@ export interface UserState {
     }
   }
 
+  nftPairs: {
+    [chainId: number]: {
+      // keyed by token0Address:token1Address
+      [key: string]: SerializedPair
+    }
+  }
+
   timestamp: number
   URLWarningVisible: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
-  return `${token0Address};${token1Address}`
+  return `${token0Address}:${token1Address}`
 }
 
 export const initialState: UserState = {
@@ -66,6 +75,7 @@ export const initialState: UserState = {
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
   tokens: {},
   pairs: {},
+  nftPairs: {},
   timestamp: currentTimestamp(),
   URLWarningVisible: true
 }
@@ -136,6 +146,37 @@ export default createReducer(initialState, builder =>
         // just delete both keys if either exists
         delete state.pairs[chainId][pairKey(tokenAAddress, tokenBAddress)]
         delete state.pairs[chainId][pairKey(tokenBAddress, tokenAAddress)]
+      }
+      state.timestamp = currentTimestamp()
+    })
+    .addCase(addSerializedNFTPair, (state, { payload: { serializedNFTPair } }) => {
+      if (
+        serializedNFTPair.token0.chainId === serializedNFTPair.token1.chainId &&
+        serializedNFTPair.token0.address !== serializedNFTPair.token1.address
+      ) {
+        const chainId = serializedNFTPair.token0.chainId
+        console.log("Object.keys(state)AAAAAAAAAAAAAAA", Object.keys(state), state.nftPairs)
+        console.log("Object.keys(state)BBBBBBBBBBBBBBB", state.nftPairs)
+        state.nftPairs[chainId] = state.nftPairs[chainId] || {}
+        if(serializedNFTPair.token0.address.toLowerCase() < serializedNFTPair.token1.address.toLowerCase() ){
+          state.nftPairs[chainId][pairKey(serializedNFTPair.token0.address, serializedNFTPair.token1.address)] = serializedNFTPair
+        }
+        else{
+          state.nftPairs[chainId][pairKey(serializedNFTPair.token1.address, serializedNFTPair.token0.address)] = {
+              token0: serializedNFTPair.token1,
+              token1: serializedNFTPair.token0
+            }
+        }
+      }
+      state.timestamp = currentTimestamp()
+    })
+    .addCase(removeSerializedNFTPair, (state, { payload: { chainId, tokenAAddress, tokenBAddress } }) => {
+      if (state.nftPairs[chainId]) {
+        if(tokenAAddress.toLowerCase() < tokenBAddress.toLowerCase()){
+          delete state.nftPairs[chainId][pairKey(tokenAAddress, tokenBAddress)]
+        } else {
+          delete state.nftPairs[chainId][pairKey(tokenBAddress, tokenAAddress)]
+        }
       }
       state.timestamp = currentTimestamp()
     })

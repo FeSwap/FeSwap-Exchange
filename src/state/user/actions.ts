@@ -27,4 +27,8 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair'
 )
+export const addSerializedNFTPair = createAction<{ serializedNFTPair: SerializedPair }>('user/addSerializedNFTPair')
+export const removeSerializedNFTPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
+  'user/removeSerializedNFTPair'
+)
 export const toggleURLWarning = createAction<void>('app/toggleURLWarning')

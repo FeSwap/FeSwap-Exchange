@@ -19,10 +19,11 @@ import {
   updateUserExpertMode,
   updateUserSlippageTolerance,
   toggleURLWarning,
-  updateUserSingleHopOnly
+  updateUserSingleHopOnly,
+  addSerializedNFTPair
 } from './actions'
 
-function serializeToken(token: Token): SerializedToken {
+export function serializeToken(token: Token): SerializedToken {
   return {
     chainId: token.chainId,
     address: token.address,
@@ -173,12 +174,31 @@ function serializePair(pair: Pair): SerializedPair {
   }
 }
 
+function serializTokens(tokenA: Token, tokenB: Token): SerializedPair {
+  return {
+    token0: serializeToken(tokenA),
+    token1: serializeToken(tokenB)
+  }
+}
+
 export function usePairAdder(): (pair: Pair) => void {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
     (pair: Pair) => {
       dispatch(addSerializedPair({ serializedPair: serializePair(pair) }))
+    },
+    [dispatch]
+  )
+}
+
+export function useNFTPairAdder(): (tokenA?: Token , tokenB?: Token) => void {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(
+    (tokenA?: Token , tokenB?: Token) => {
+      if (!tokenA || !tokenB) return
+      dispatch(addSerializedNFTPair({ serializedNFTPair: serializTokens(tokenA, tokenB) }))
     },
     [dispatch]
   )
@@ -200,6 +220,26 @@ export function useURLWarningToggle(): () => void {
  */
 export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
   return new Token(tokenA.chainId, Pair.getAddress(tokenA, tokenB), 18, 'FESW', 'FeSwap DAO')
+}
+
+/**
+ * Returns all the token pairs of NFTs that are tracked by the user for the current chain ID.
+ */
+ export function useTrackedNFTTokenPairs(): [Token, Token][] {
+  const { chainId } = useActiveWeb3React()
+
+  // NFT pairs saved by users
+  const savedSerializedNFTPairs = useSelector<AppState, AppState['user']['nftPairs']>(({ user: { nftPairs } }) => nftPairs)
+  
+  return useMemo(() => {
+    if (!chainId || !savedSerializedNFTPairs) return []
+    const forChain = savedSerializedNFTPairs[chainId]
+    if (!forChain) return []
+
+    return Object.keys(forChain).map(nftPairId => {
+      return [deserializeToken(forChain[nftPairId].token0), deserializeToken(forChain[nftPairId].token1)]
+    })
+  }, [savedSerializedNFTPairs, chainId])
 }
 
 /**
