@@ -40,11 +40,14 @@ function nftTokenKey([tokenA, tokenB]: [Token, Token]): string {
 }
 
 
-const StyledBalanceText = styled(Text)`
+const StyledNFTPrice = styled(Text)`
   white-space: nowrap;
   overflow: hidden;
-  max-width: 5rem;
+  max-width: 16rem;
   text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 600;
+  padding-left: 3px;
 `
 
 /*
@@ -72,19 +75,18 @@ function NftStatus({ nftInfo, account, ownerPairNft }: { nftInfo: PairBidInfo; a
   return  (ownerPairNft === ZERO_ADDRESS) 
           ? (
               <>
-                <StyledBalanceText >
-                  ≥0.2ETH
-                </StyledBalanceText>
+                <StyledNFTPrice >
+                  {`>=0.2 ETH`}
+                </StyledNFTPrice>
               </>
             )
           : (
             <>
               <Lock size={14} />
-              <StyledBalanceText>
-                {nftPrice.toSignificant(6)}ETH
-              </StyledBalanceText>
-              {(account === ownerPairNft) && <User size={14} />}
-            </>
+              <StyledNFTPrice>
+                {nftPrice.toSignificant(6)}{` ETH`}
+              </StyledNFTPrice>
+             </>
            )
 
 }
@@ -207,10 +209,10 @@ const Container = styled.div`
 `
 
 const NftItem = styled(RowBetween)`
-  padding: 4px 20px;
+  padding: 4px 10px 4px 20px;
   height: 56px;
   display: grid;
-  grid-template-columns: auto minmax(0, 72px);
+  grid-template-columns: auto minmax(0, 150px);
   grid-gap: 16px;
   cursor: ${({ disabled }) => !disabled && 'pointer'};
   pointer-events: ${({ disabled }) => disabled && 'none'};
@@ -272,6 +274,9 @@ function NftTokenRow({
         </Text>
         { (feswaPairInfo) && (feswaPairInfo?.nftOwner === ZERO_ADDRESS) &&
           <Coffee size={14} />
+        }   
+        { (feswaPairInfo) && (feswaPairInfo?.nftOwner === account) &&
+          <User size={14} />
         }   
       </RowFixed>
       <RowFixed style={{ justifySelf: 'flex-end' }}>

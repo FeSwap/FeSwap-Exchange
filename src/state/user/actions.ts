@@ -13,6 +13,10 @@ export interface SerializedPair {
   token1: SerializedToken
 }
 
+export interface SerializedNFTPair extends SerializedPair{
+  bidStatus:  boolean
+}
+
 export const updateMatchesDarkMode = createAction<{ matchesDarkMode: boolean }>('user/updateMatchesDarkMode')
 export const updateUserDarkMode = createAction<{ userDarkMode: boolean }>('user/updateUserDarkMode')
 export const updateUserExpertMode = createAction<{ userExpertMode: boolean }>('user/updateUserExpertMode')
