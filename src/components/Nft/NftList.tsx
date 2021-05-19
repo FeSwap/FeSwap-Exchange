@@ -1,9 +1,9 @@
 // import { Currency, CurrencyAmount, currencyEquals, ETHER, Token } from '@uniswap/sdk'
 import { Token } from '@uniswap/sdk'
-import React, { CSSProperties, MutableRefObject, useCallback } from 'react'
+import React, { CSSProperties, MutableRefObject, useCallback, useContext } from 'react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
 //import { useSelectedTokenList, WrappedTokenInfo } from '../../state/lists/hooks'
 //import { useAddUserToken, useRemoveUserAddedToken } from '../../state/user/hooks'
@@ -12,11 +12,11 @@ import { useActiveWeb3React } from '../../hooks'
 //import { useIsUserAddedToken } from '../../hooks/Tokens'
 //import Column from '../Column'
 import { bigNumberToFractionInETH } from '../../state/nft/hooks'
-import { RowFixed } from '../Row'
+import { RowFixed, RowBetween } from '../Row'
 import DoubleCurrencyLogo from '../DoubleLogo'
 //import { MouseoverTooltip } from '../Tooltip'
 //import { FadedSpan, MenuItem } from '../SearchModal/styleds'
-import { MenuItem } from '../SearchModal/styleds'
+import { Separator } from '../SearchModal/styleds'
 import Loader from '../Loader'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { useNftBidContract } from '../../hooks/useContract'
@@ -24,7 +24,8 @@ import { useSingleCallResult } from '../../state/multicall/hooks'
 import { PairBidInfo } from '../../state/nft/reducer'
 import { ZERO_ADDRESS } from '../../constants'
 //import { isTokenOnList } from '../../utils'
-import { Lock, Unlock, User } from 'react-feather'
+import { Lock, User, Coffee } from 'react-feather'
+// import { Container } from '../CurrencyInputPanel'
 
 //function nftTokenKey(nftTokenPair: [Currency, Currency]): string {
 //  const tokenA = nftTokenPair[0] instanceof Token ? nftTokenPair[0].address : nftTokenPair[0] === ETHER ? 'ETHER' : ''
@@ -71,7 +72,6 @@ function NftStatus({ nftInfo, account, ownerPairNft }: { nftInfo: PairBidInfo; a
   return  (ownerPairNft === ZERO_ADDRESS) 
           ? (
               <>
-                <Unlock size={14} />
                 <StyledBalanceText >
                   ≥0.2ETH
                 </StyledBalanceText>
@@ -199,6 +199,43 @@ function CurrencyRow({
 }
 */
 
+const Container = styled.div`
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.bg1};
+  margin: 0 16px 0 16px;
+`
+
+const NftItem = styled(RowBetween)`
+  padding: 4px 20px;
+  height: 56px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 72px);
+  grid-gap: 16px;
+  cursor: ${({ disabled }) => !disabled && 'pointer'};
+  pointer-events: ${({ disabled }) => disabled && 'none'};
+  :hover {
+    background-color: ${({ theme, disabled }) => !disabled && theme.bg2};
+  }
+  opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
+`
+
+const NFTWatchListFooter = styled.div<{ show: boolean }>`
+  padding-top: calc(16px + 2rem);
+  padding-bottom: 16px;
+  margin-top: -2rem;
+  width: 100%;
+  max-width: 420px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  color: ${({ theme }) => theme.text2};
+  background-color: ${({ theme }) => theme.advancedBG};
+  z-index: -1;
+
+  transform: ${({ show }) => (show ? 'translateY(0%)' : 'translateY(-100%)')};
+  transition: transform 300ms ease-in-out;
+`
+
 function NftTokenRow({
   nftTokenPair,
   onSelect,
@@ -215,46 +252,57 @@ function NftTokenRow({
   const pairTokenAddress= [tokenA.address, tokenB.address]
 
   const currencyA = unwrappedToken(tokenA)
-  const currencyB = unwrappedToken(tokenB)     
+  const currencyB = unwrappedToken(tokenB)  
 
   const feswaPairInfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
   const ownerPairNft = feswaPairInfo?.nftOwner?? ZERO_ADDRESS
   const pairBidInfo = feswaPairInfo?.pairInfo
+  console.log('nftTokenPair, feswaPairInfo', nftTokenPair, feswaPairInfo)
 
   return (
-    <MenuItem
+    <NftItem
       style={style}
       onClick={() => onSelect()}
       height={"40px"}
     >
-      <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} size={24} margin={true} />
-      { feswaPairInfo && feswaPairInfo?.nftOwner !== ZERO_ADDRESS && (
-        <RowFixed style={{ justifySelf: 'flex-end' }}>
-          { (ownerPairNft !== ZERO_ADDRESS) 
-            ? <NftStatus nftInfo={pairBidInfo} account={account??ZERO_ADDRESS} ownerPairNft={ownerPairNft}/> 
-            : account ? <Loader /> : null}
-        </RowFixed>
-      )}
-    </MenuItem>
+      <RowFixed>
+        <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} size={20} margin={false} />
+        <Text fontWeight={600} fontSize={14} style={{margin:'0px 3px 0px 6px'}}>
+          {currencyA.symbol}/{currencyB.symbol}
+        </Text>
+        { (feswaPairInfo) && (feswaPairInfo?.nftOwner === ZERO_ADDRESS) &&
+          <Coffee size={14} />
+        }   
+      </RowFixed>
+      <RowFixed style={{ justifySelf: 'flex-end' }}>
+      { (feswaPairInfo)
+        ? ( 
+            <RowFixed style={{ justifySelf: 'flex-end' }}>
+              <NftStatus nftInfo={pairBidInfo} account={account??ZERO_ADDRESS} ownerPairNft={ownerPairNft}/> 
+            </RowFixed>
+          )
+        : (account ? <Loader /> : null)
+      }
+      </RowFixed>
+    </NftItem>
   )
 }
 
 export default function NftList({
-  height,
   nftList,
   onNftTokenSelect,
   fixedListRef,
 }: {
-  height: number
   nftList: [Token, Token][] 
   onNftTokenSelect: (nftTokenPair: [Token, Token]) => void
   fixedListRef?: MutableRefObject<FixedSizeList | undefined>
 }) {
+  const theme = useContext(ThemeContext)
+
   const Row = useCallback(
     ({ data, index, style }) => {
       const nftTokenPair: [Token, Token] = data[index]
       const handleSelect = () => onNftTokenSelect(nftTokenPair)
-      console.log( 'index, data:', index, data)
       return (
         <NftTokenRow
           style={style}
@@ -268,18 +316,25 @@ export default function NftList({
 
   const itemKey = useCallback((index: number, data: any) => nftTokenKey(data[index]), [])
 
-//  height={height}
   return (
-    <FixedSizeList
-      height={900}
-      ref={fixedListRef as any}
-      width="100%"
-      itemData={nftList}
-      itemCount={nftList.length}
-      itemSize={32}
-      itemKey={itemKey}
-    >
-      {Row}
-    </FixedSizeList>
+    <NFTWatchListFooter show={true}>
+      <Container>
+        <Text fontWeight={500} fontSize={16} color={theme.primary1} style={{margin:'6px 20px 2px 20px'}} >
+          Concerned NFT tokens:
+        </Text>
+        <Separator />
+          <FixedSizeList
+            height={112}
+            ref={fixedListRef as any}
+            width="100%"
+            itemData={nftList}
+            itemCount={nftList.length}
+            itemSize={28}
+            itemKey={itemKey}
+          >
+            {Row}
+          </FixedSizeList>
+      </Container>
+    </NFTWatchListFooter>
   )
 }

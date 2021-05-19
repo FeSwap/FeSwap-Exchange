@@ -8,6 +8,7 @@ import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { useAllTokens } from '../../hooks/Tokens'
 import { AppDispatch, AppState } from '../index'
+import { WETH_ONLY, SUGGESTED_BASES } from '../../constants'
 import {
   addSerializedPair,
   addSerializedToken,
@@ -237,6 +238,13 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
     if (!forChain) return []
 
     return Object.keys(forChain).map(nftPairId => {
+      if( SUGGESTED_BASES[chainId].some((baseToken) => (baseToken.address === forChain[nftPairId].token1.address)) &&
+          (forChain[nftPairId].token0.address !== WETH_ONLY[chainId][0].address)) {
+        return [deserializeToken(forChain[nftPairId].token0), deserializeToken(forChain[nftPairId].token1)]
+      }    
+      if( SUGGESTED_BASES[chainId].some((baseToken) => (baseToken.address === forChain[nftPairId].token0.address))) {
+        return [deserializeToken(forChain[nftPairId].token1), deserializeToken(forChain[nftPairId].token0)]
+      }    
       return [deserializeToken(forChain[nftPairId].token0), deserializeToken(forChain[nftPairId].token1)]
     })
   }, [savedSerializedNFTPairs, chainId])

@@ -41,8 +41,8 @@ import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ZERO_FRACTION,
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
-import { Separator } from '../../components/SearchModal/styleds'
-import AutoSizer from 'react-virtualized-auto-sizer'
+// import { Separator } from '../../components/SearchModal/styleds'
+// import AutoSizer from 'react-virtualized-auto-sizer'
 // import { ZERO_ADDRESS } from '../../constants'
 import NftList from '../../components/Nft/NftList'
 import { FixedSizeList } from 'react-window'
@@ -384,22 +384,7 @@ export default function Nft() {
               </Container>
             )}
 
-            <Separator />
-            { 
-                <div style={{ flex: '1', height: '300px' }}>
-                   <AutoSizer disableWidth>
-                  {({ height }) => (
-                      <NftList
-                        height={height}
-                        nftList={nftTrackedList}
-                        onNftTokenSelect={handleNftSelect}
-                        fixedListRef={fixedList}
-                      />
-                      )}
-                  </AutoSizer>
-                </div>
-            }
-            <Separator />
+ 
 
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>
@@ -459,6 +444,7 @@ export default function Nft() {
            </BottomGrouping>
         </Wrapper>
       </AppBody>
+      <NftList nftList={nftTrackedList} onNftTokenSelect={handleNftSelect} fixedListRef={fixedList} />
     </>
   )
 }
