@@ -1,4 +1,4 @@
-import { ETHER, Fraction, Rounding } from '@uniswap/sdk'
+import { Currency, ETHER, Fraction, Rounding } from '@uniswap/sdk'
 import React, { useCallback, useContext, useState, useMemo, useRef } from 'react'
 // import { useDispatch } from 'react-redux'
 import { PlusCircle } from 'react-feather'
@@ -41,10 +41,7 @@ import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ZERO_FRACTION,
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
-// import { Separator } from '../../components/SearchModal/styleds'
-// import AutoSizer from 'react-virtualized-auto-sizer'
-// import { ZERO_ADDRESS } from '../../constants'
-import NftList from '../../components/Nft/NftList'
+import NftList, { StyledNFTButton } from '../../components/Nft/NftList'
 import { FixedSizeList } from 'react-window'
 // import { AppDispatch } from '../../state'
 import { useNFTPairAdder } from '../../state/user/hooks'
@@ -79,20 +76,15 @@ export default function Nft() {
     recipient,
   } = useNftState()
 
-//  WalletBalances,
-//  numberOfToken,
-//numberOfToken
-
   const {
     feswaPairBidInfo,
     pairCurrencies,
     parsedAmounts,
+    nftPairToSave,
     inputError: NftBidInputError
   } = useDerivedNftInfo()
 
   const { address: recipientAddress } = useENSAddress(recipient)
-
-  console.log("feswaPairBidInfo",feswaPairBidInfo)
 
   const nftStatusPrompt = useMemo(()=>{
     if (!feswaPairBidInfo.pairBidInfo) return ''
@@ -125,19 +117,32 @@ export default function Nft() {
                newNftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}) ]
     },[feswaPairBidInfo])
 
-  const nftBidEndTime = useMemo(()=>{
-      if (!feswaPairBidInfo.pairBidInfo) return '_'
-      return DateTime.fromSeconds(feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()).toFormat("LLL-dd HH:MM:ss"); 
-      },[feswaPairBidInfo])
+  const nftLastBidTime = useMemo(()=>{
+      if (!feswaPairBidInfo.pairBidInfo) return ''
+      return DateTime.fromSeconds(feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()).toFormat("yyyy-LLL-dd HH:MM:ss"); 
+    },[feswaPairBidInfo])
 
-  console.log('nftBidEndTime', nftBidEndTime )
-  console.log('nftBidPriceString', nftBidPriceString )
-  console.log('newNftBidPriceString', newNftBidPriceString )
+  const nftBidEndingTime = useMemo(()=>{
+      if (!feswaPairBidInfo.pairBidInfo) return ''
+      const timeNftCreation: number = feswaPairBidInfo.pairBidInfo.timeCreated.toNumber()
+      const timeNftLastBid: number = feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()
+
+      const now = DateTime.now().toSeconds()
+      const timeNormalEnd = timeNftCreation + 3600 * 10       // Normal: 3600 * 24 * 14
+
+      if(timeNftLastBid < (timeNormalEnd - 3600 * 2)){
+        if(now > timeNftLastBid){
+          return 'Ended'.concat(DateTime.fromSeconds(timeNormalEnd).toFormat("yyyy-LLL-dd HH:MM:ss"))      
+        }
+        return DateTime.fromSeconds(timeNormalEnd).toFormat("yyyy-LLL-dd HH:MM:ss")
+      } 
+      if(now < (timeNftLastBid + 3600 * 2)) {
+        return DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:MM:ss")   
+      }
+      return 'Extra'.concat(DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:MM:ss"))     
+    },[feswaPairBidInfo])
 
   const nftTrackedList = useTrackedNFTTokenPairs()
-
-  console.log("nftTrackedList CCCCCCCCCCCCC", nftTrackedList)
-  
   const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts }
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
   const handleTypeInput = useCallback(
@@ -230,13 +235,12 @@ export default function Nft() {
   )
 
   const handleNftSelect = useCallback(
-    ([CurrencyA, CurrencyB]) => {
+    ([CurrencyA, CurrencyB]: [Currency, Currency]) => {
       onNftCurrencySelection(Field.TOKEN_A, CurrencyA)
       onNftCurrencySelection(Field.TOKEN_B, CurrencyB)
     },       
     [onNftCurrencySelection] 
   )
-
 
   const handleAcceptChanges = useCallback(() => {
     setNftBidState({ nftBidToConfirm: nftBid, nftBidErrorMessage, txHash, attemptingTxn, showConfirm })
@@ -250,19 +254,13 @@ export default function Nft() {
 
   const adderNftList = useNFTPairAdder()
   const handleAddNftToTrackList = useCallback(() => {
-        adderNftList( wrappedCurrency(pairCurrencies[Field.TOKEN_A], chainId),
-                      wrappedCurrency(pairCurrencies[Field.TOKEN_B], chainId))
+        const tokenA = wrappedCurrency(pairCurrencies[Field.TOKEN_A], chainId)
+        const tokenB = wrappedCurrency(pairCurrencies[Field.TOKEN_B], chainId)
+
+        if (!tokenA || !tokenB) return       
+        adderNftList( tokenA, tokenB,  false)
     }, [adderNftList, pairCurrencies, chainId])
   
-//  (tokenA:Token, tokenB:Token) {
-//      const serializedNFTPair: SerializedPair = {
-//          token0: serializeToken(tokenA),
-//          token1: serializeToken(tokenB)
-//        }
-//        adderNftList(serializedNFTPair)
-//   )
-//  }
-
   return (
     <>
       <AppBody>
@@ -336,11 +334,17 @@ export default function Nft() {
                           {pairCurrencies[Field.TOKEN_A]?.symbol}/{pairCurrencies[Field.TOKEN_B]?.symbol}
                         </Text>
                       </RowFixed>
-                      <RowFixed style={{  margin: '0 0 0 6px', alignItems: 'left' }}>
+                      <RowFixed gap={'6px'} style={{  margin: '0 0 0 6px', alignItems: 'left' }}>
                         <TYPE.body color={theme.primary1} fontWeight={500} fontSize={15}>
                           <strong>{nftStatusPrompt}</strong>
                         </TYPE.body>
-                        <PlusCircle color={theme.primary1} size={20} onClick={handleAddNftToTrackList}/>
+                        { nftPairToSave && (
+                          <StyledNFTButton  onClick={handleAddNftToTrackList} >
+                            <RowFixed color={theme.primary1}> 
+                              <PlusCircle size={14} />
+                            </RowFixed>        
+                          </StyledNFTButton>
+                        )}       
                       </RowFixed>
                   </RowBetween>
                 </LabelRow>
@@ -353,21 +357,29 @@ export default function Nft() {
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidPhase) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Current price: <strong> {nftBidPriceString} ETH. </strong>
-                      End Time: <strong> {nftBidEndTime} </strong>  <br />
-                      Minimum Bid price: <strong> {newNftBidPriceString} ETH.</strong>
+                      Current price: <strong> {nftBidPriceString} ETH. </strong>  <br />
+                      Last Bid Time: <strong> {nftLastBidTime} </strong>  <br />
+                      {nftBidEndingTime.startsWith('Ended')
+                      ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> </span>
+                      : <span>  Bid Ending Time: <strong> {nftBidEndingTime} </strong>  <br /> 
+                                Minimum Bid price: <strong> {newNftBidPriceString} ETH.</strong> 
+                        </span> }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidDelaying) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Current price: <strong> {nftBidPriceString} ETH. </strong>
-                      End Time: <strong>{nftBidEndTime}</strong>  <br />
+                      Current price: <strong> {nftBidPriceString} ETH. </strong> <br />
+                      Last Bid Time: <strong>{nftLastBidTime}</strong>  <br />
+                      {nftBidEndingTime.startsWith('Extra')} 
+                      ? `Bid Completed, <strong> {nftBidEndingTime} </strong>  <br />`
+                      : `Bid Extra Ending Time: <strong> {nftBidEndingTime} </strong>  <br />`
                       Minimum Bid price: <strong> {newNftBidPriceString} ETH.</strong>
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidSettled) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Final bid price: <strong> {nftBidPriceString} ETH. </strong>
+                      Final bid price: <strong> {nftBidPriceString} ETH. </strong> <br />
+                      Bid Time Window is <strong>CLosed</strong>
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.PoolHolding) && (
@@ -383,8 +395,6 @@ export default function Nft() {
                 </AutoColumn>
               </Container>
             )}
-
- 
 
             {
               <Card padding={'.25rem .75rem 0 .75rem'} borderRadius={'20px'}>

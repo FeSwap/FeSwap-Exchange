@@ -8,6 +8,7 @@ import {
   removeSerializedToken,
   SerializedPair,
   SerializedToken,
+  SerializedNFTPair,
   updateMatchesDarkMode,
   updateUserDarkMode,
   updateUserExpertMode,
@@ -54,7 +55,7 @@ export interface UserState {
   nftPairs: {
     [chainId: number]: {
       // keyed by token0Address:token1Address
-      [key: string]: SerializedPair
+      [key: string]: SerializedNFTPair
     }
   }
 
@@ -62,7 +63,7 @@ export interface UserState {
   URLWarningVisible: boolean
 }
 
-function pairKey(token0Address: string, token1Address: string) {
+export function pairKey(token0Address: string, token1Address: string) {
   return `${token0Address}:${token1Address}`
 }
 
@@ -155,8 +156,6 @@ export default createReducer(initialState, builder =>
         serializedNFTPair.token0.address !== serializedNFTPair.token1.address
       ) {
         const chainId = serializedNFTPair.token0.chainId
-        console.log("Object.keys(state)AAAAAAAAAAAAAAA", Object.keys(state), state.nftPairs)
-        console.log("Object.keys(state)BBBBBBBBBBBBBBB", state.nftPairs)
         state.nftPairs[chainId] = state.nftPairs[chainId] || {}
         if(serializedNFTPair.token0.address.toLowerCase() < serializedNFTPair.token1.address.toLowerCase() ){
           state.nftPairs[chainId][pairKey(serializedNFTPair.token0.address, serializedNFTPair.token1.address)] = serializedNFTPair
@@ -164,7 +163,8 @@ export default createReducer(initialState, builder =>
         else{
           state.nftPairs[chainId][pairKey(serializedNFTPair.token1.address, serializedNFTPair.token0.address)] = {
               token0: serializedNFTPair.token1,
-              token1: serializedNFTPair.token0
+              token1: serializedNFTPair.token0,
+              bidStatus: serializedNFTPair.bidStatus
             }
         }
       }

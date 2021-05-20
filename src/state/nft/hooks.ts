@@ -22,6 +22,7 @@ import { FeswaPairInfo } from './reducer'
 //import { FeswaPairInfo, PairBidInfo } from './reducer'
 import { WEI_DENOM } from '../../utils'
 import { BigNumber } from '@ethersproject/bignumber'
+import { useNFTPairAdded } from '../user/hooks'
 
 export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
@@ -112,6 +113,7 @@ export function useDerivedNftInfo(): {
   pairCurrencies: { [field in Field]?: Currency }
   WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
   parsedAmounts:   (CurrencyAmount | undefined)[]
+  nftPairToSave: boolean
   inputError?: string
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -145,6 +147,8 @@ export function useDerivedNftInfo(): {
   const tokenB = wrappedCurrency(currencyB ?? undefined, chainId)          
 
   const nftBidContract = useNftBidContract()
+  const nftPairToSave = useNFTPairAdded(tokenA, tokenB) === false
+
   const pairTokenAddress= [ (tokenA instanceof Token) ? (tokenA as Token).address : ZERO_ADDRESS ,
                             (tokenB instanceof Token) ? (tokenB as Token).address : ZERO_ADDRESS]
 
@@ -158,7 +162,7 @@ export function useDerivedNftInfo(): {
     pairBidInfo:    feswaPairINfo?.pairInfo,
   }
 
-//  console.log("feswaPairBidInfo", feswaPairBidInfo)
+  console.log("nftPairToSaveA", nftPairToSave, !!nftPairToSave)
 
   const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER) ?? undefined
   const feswGiveRate = new Fraction( '1', '20000')   // 1ETH -> 20000 FESW Giveaway
@@ -203,6 +207,7 @@ export function useDerivedNftInfo(): {
     pairCurrencies,
     WalletBalances,
     parsedAmounts,
+    nftPairToSave,
     inputError,
   }
 }

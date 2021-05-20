@@ -14,6 +14,7 @@ import {
   addSerializedToken,
   removeSerializedToken,
   SerializedPair,
+  SerializedNFTPair,
   SerializedToken,
   updateUserDarkMode,
   updateUserDeadline,
@@ -21,8 +22,11 @@ import {
   updateUserSlippageTolerance,
   toggleURLWarning,
   updateUserSingleHopOnly,
-  addSerializedNFTPair
+  addSerializedNFTPair,
+  removeSerializedNFTPair
 } from './actions'
+
+import { pairKey } from './reducer'
 
 export function serializeToken(token: Token): SerializedToken {
   return {
@@ -175,10 +179,11 @@ function serializePair(pair: Pair): SerializedPair {
   }
 }
 
-function serializTokens(tokenA: Token, tokenB: Token): SerializedPair {
+function serializNFTPar(tokenA: Token, tokenB: Token, bidStatus: boolean): SerializedNFTPair {
   return {
     token0: serializeToken(tokenA),
-    token1: serializeToken(tokenB)
+    token1: serializeToken(tokenB),
+    bidStatus: bidStatus
   }
 }
 
@@ -193,17 +198,52 @@ export function usePairAdder(): (pair: Pair) => void {
   )
 }
 
-export function useNFTPairAdder(): (tokenA?: Token , tokenB?: Token) => void {
+export function useNFTPairAdder(): (tokenA: Token , tokenB: Token, bidStatus: boolean) => void {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (tokenA?: Token , tokenB?: Token) => {
-      if (!tokenA || !tokenB) return
-      dispatch(addSerializedNFTPair({ serializedNFTPair: serializTokens(tokenA, tokenB) }))
+    (tokenA: Token , tokenB: Token, bidStatus: boolean) => {
+       dispatch(addSerializedNFTPair({ serializedNFTPair: serializNFTPar(tokenA, tokenB, bidStatus) }))
     },
     [dispatch]
   )
 }
+
+export function useNFTPairRemover(): ( tokenA: Token , tokenB: Token, chainId: number) => void {
+  const dispatch = useDispatch<AppDispatch>()
+
+  return useCallback(
+    (tokenA: Token, tokenB: Token, chainId: number) => {
+       dispatch(removeSerializedNFTPair({
+         chainId, 
+         tokenAAddress: tokenA.address, 
+         tokenBAddress: tokenB.address}))
+    },
+    [dispatch]
+  )
+}
+
+export function useNFTPairAdded(tokenA?: Token, tokenB?: Token): boolean | undefined {
+  const { chainId } = useActiveWeb3React()
+
+  // NFT pairs saved by users
+  const serializedNFTPair = useSelector<AppState, AppState['user']['nftPairs']>(({ user: { nftPairs } }) => nftPairs)
+ 
+  return useMemo(() => {
+    if ( !tokenA || !tokenB) return undefined
+    if (!chainId || !serializedNFTPair) return undefined
+    const forChain = serializedNFTPair[chainId]
+    if (!forChain) return undefined
+
+    let keyNFTPair 
+    if(tokenA.address.toLowerCase() < tokenB.address.toLowerCase()){
+      keyNFTPair = pairKey(tokenA.address, tokenB.address) 
+    } else {
+      keyNFTPair = pairKey(tokenB.address, tokenA.address) 
+    }
+    return serializedNFTPair[chainId][keyNFTPair] ? true :false
+  }, [serializedNFTPair, chainId, tokenA, tokenB])
+}  
 
 export function useURLWarningVisible(): boolean {
   return useSelector((state: AppState) => state.user.URLWarningVisible)
@@ -226,7 +266,7 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
 /**
  * Returns all the token pairs of NFTs that are tracked by the user for the current chain ID.
  */
- export function useTrackedNFTTokenPairs(): [Token, Token][] {
+ export function useTrackedNFTTokenPairs(): [Token, Token, boolean][] {
   const { chainId } = useActiveWeb3React()
 
   // NFT pairs saved by users
@@ -240,12 +280,18 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
     return Object.keys(forChain).map(nftPairId => {
       if( SUGGESTED_BASES[chainId].some((baseToken) => (baseToken.address === forChain[nftPairId].token1.address)) &&
           (forChain[nftPairId].token0.address !== WETH_ONLY[chainId][0].address)) {
-        return [deserializeToken(forChain[nftPairId].token0), deserializeToken(forChain[nftPairId].token1)]
+        return  [ deserializeToken(forChain[nftPairId].token0), 
+                  deserializeToken(forChain[nftPairId].token1),
+                  forChain[nftPairId].bidStatus]
       }    
       if( SUGGESTED_BASES[chainId].some((baseToken) => (baseToken.address === forChain[nftPairId].token0.address))) {
-        return [deserializeToken(forChain[nftPairId].token1), deserializeToken(forChain[nftPairId].token0)]
+        return  [ deserializeToken(forChain[nftPairId].token1),
+                  deserializeToken(forChain[nftPairId].token0),
+                  forChain[nftPairId].bidStatus]
       }    
-      return [deserializeToken(forChain[nftPairId].token0), deserializeToken(forChain[nftPairId].token1)]
+      return  [ deserializeToken(forChain[nftPairId].token0), 
+                deserializeToken(forChain[nftPairId].token1),
+                forChain[nftPairId].bidStatus]
     })
   }, [savedSerializedNFTPairs, chainId])
 }
