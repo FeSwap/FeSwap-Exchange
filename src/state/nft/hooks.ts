@@ -162,8 +162,6 @@ export function useDerivedNftInfo(): {
     pairBidInfo:    feswaPairINfo?.pairInfo,
   }
 
-  console.log("nftPairToSaveA", nftPairToSave, !!nftPairToSave)
-
   const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER) ?? undefined
   const feswGiveRate = new Fraction( '1', '20000')   // 1ETH -> 20000 FESW Giveaway
   const feswToken = chainId ? FESW[chainId] : undefined

@@ -235,7 +235,8 @@ export default function Nft() {
   )
 
   const handleNftSelect = useCallback(
-    ([CurrencyA, CurrencyB]: [Currency, Currency]) => {
+    ([CurrencyA, CurrencyB]: [Currency|undefined, Currency|undefined]) => {
+      if(!CurrencyA || !CurrencyB) return
       onNftCurrencySelection(Field.TOKEN_A, CurrencyA)
       onNftCurrencySelection(Field.TOKEN_B, CurrencyB)
     },       

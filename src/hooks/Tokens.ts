@@ -1,5 +1,5 @@
 import { parseBytes32String } from '@ethersproject/strings'
-import { Currency, ETHER, Token, currencyEquals } from '@uniswap/sdk'
+import { Currency, ETHER, Token, currencyEquals, WETH } from '@uniswap/sdk'
 import { useMemo } from 'react'
 import { useSelectedTokenList } from '../state/lists/hooks'
 import { NEVER_RELOAD, useSingleCallResult } from '../state/multicall/hooks'
@@ -108,4 +108,10 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
   const isETH = currencyId?.toUpperCase() === 'ETH'
   const token = useToken(isETH ? undefined : currencyId)
   return isETH ? ETHER : token
+}
+
+export function useCurrencyFromToken(token: Token): Currency | null | undefined {
+  const isETH = token.equals(WETH[token.chainId])
+  const curreny = useToken(isETH ? undefined : token.address)
+  return isETH ? ETHER : curreny
 }

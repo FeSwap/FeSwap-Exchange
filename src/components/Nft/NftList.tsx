@@ -9,7 +9,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { useNFTPairRemover } from '../../state/user/hooks'
 //import { useCurrencyBalance } from '../../state/wallet/hooks'
 //import { LinkStyledButton, TYPE } from '../../theme'
-//import { useIsUserAddedToken } from '../../hooks/Tokens'
+import { useCurrencyFromToken } from '../../hooks/Tokens'
 //import Column from '../Column'
 import { bigNumberToFractionInETH } from '../../state/nft/hooks'
 import { RowFixed, RowBetween } from '../Row'
@@ -18,7 +18,7 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 //import { FadedSpan, MenuItem } from '../SearchModal/styleds'
 import { Separator } from '../SearchModal/styleds'
 import Loader from '../Loader'
-import { unwrappedToken } from '../../utils/wrappedCurrency'
+// import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { useNftBidContract } from '../../hooks/useContract'
 import { useSingleCallResult } from '../../state/multicall/hooks'
 import { PairBidInfo } from '../../state/nft/reducer'
@@ -127,7 +127,7 @@ function NftTokenRow({
   style
 }: {
   nftTokenPair: [Token, Token]
-  onSelect: (nftTokenPair: [Currency, Currency]) => void
+  onSelect: (nftTokenPair: [Currency|undefined, Currency|undefined]) => void
   style: CSSProperties
 }) {
   const { account, chainId } = useActiveWeb3React()
@@ -135,10 +135,9 @@ function NftTokenRow({
  
   const nftBidContract = useNftBidContract()
   const pairTokenAddress= [tokenA.address, tokenB.address]
-
-  const currencyA = unwrappedToken(tokenA)
-  const currencyB = unwrappedToken(tokenB)  
-
+  const currencyA = useCurrencyFromToken(tokenA)??undefined
+  const currencyB = useCurrencyFromToken(tokenB)??undefined
+  
   const feswaPairInfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
   const ownerPairNft = feswaPairInfo?.nftOwner?? ZERO_ADDRESS
   const pairBidInfo = feswaPairInfo?.pairInfo
@@ -149,7 +148,7 @@ function NftTokenRow({
       handlerRemoveNFTPair(tokenA, tokenB, chainId)
     }, [handlerRemoveNFTPair, tokenA, tokenB, chainId])
 
-  return (
+  return ( 
     <NftItem
       style={style}
       onClick={() => onSelect([currencyA, currencyB])}
@@ -157,9 +156,12 @@ function NftTokenRow({
     >
       <RowFixed>
         <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} size={20} margin={false} />
-        <Text fontWeight={600} fontSize={14} style={{margin:'0px 3px 0px 6px'}}>
-          {currencyA.symbol}/{currencyB.symbol}
-        </Text>
+        { (currencyA && currencyB) 
+          ? (
+            <Text fontWeight={600} fontSize={14} style={{margin:'0px 3px 0px 6px'}}>
+              {currencyA?.symbol}/{currencyB?.symbol}
+            </Text>)
+          : null }
       </RowFixed>
       <RowFixed> 
         <StyledNFTButton  onClick={ (event) => {
@@ -198,7 +200,7 @@ export default function NftList({
   fixedListRef,
 }: {
   nftList: [Token, Token, boolean][] 
-  onNftTokenSelect: (nftTokenPair: [Currency, Currency]) => void
+  onNftTokenSelect: (nftTokenPair: [Currency|undefined, Currency|undefined]) => void
   fixedListRef?: MutableRefObject<FixedSizeList | undefined>
 }) {
   const theme = useContext(ThemeContext)
@@ -232,7 +234,7 @@ export default function NftList({
             width="100%"
             itemData={nftList}
             itemCount={nftList.length}
-            itemSize={32}
+            itemSize={28}
             itemKey={itemKey}
           >
             {Row}
