@@ -7,7 +7,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { setNftRecipient, typeNftInput, selectNftCurrency } from './actions'
+import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID } from './actions'
 import { FESW } from '../../constants'
 import { useSingleCallResult } from '../multicall/hooks'
 import { Field, WALLET_BALANCE } from './actions'
@@ -36,6 +36,10 @@ export interface NftBidPairInfo {
   readonly timeCreated:   JSBI
   readonly lastBidTime:   JSBI
   readonly poolState:     JSBI
+}
+
+export function setBidButtonID(curID: USER_BUTTON_ID, newID: USER_BUTTON_ID){
+  return (newID < curID) ?  newID : curID
 }
 
 export function bigNumberToFractionInETH(bigNumber: BigNumber): Fraction {
@@ -114,7 +118,7 @@ export function useDerivedNftInfo(): {
   WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
   parsedAmounts:   (CurrencyAmount | undefined)[]
   nftPairToSave: boolean
-  inputError?: string
+  inputError: USER_BUTTON_ID
 } {
   const { account, chainId } = useActiveWeb3React()
   const {
@@ -174,19 +178,22 @@ export function useDerivedNftInfo(): {
   )
 
   const parsedAmounts = [parsedAmount, parsedAmountInduced]
+  
 
-  let inputError: string | undefined
+  //let inputError: string | undefined
+  let inputError: USER_BUTTON_ID = USER_BUTTON_ID.OK_STATUS
+
   if (!account) {
-    inputError = 'Connect Wallet'
+    inputError = USER_BUTTON_ID.ERR_NO_WALLET
   }
 
   if (!parsedAmount) {
-    inputError = inputError ?? 'Enter an amount'
+    inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_INPUT_VALUE)
   }
 
   const formattedTo = isAddress(to)
   if (!to || !formattedTo) {
-    inputError = inputError ?? 'Enter a recipient'
+    inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_NO_RECIPIENT)
   } 
 
   // compare input balance to max input based on version
@@ -196,7 +203,7 @@ export function useDerivedNftInfo(): {
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
-    inputError = 'Insufficient ' + amountIn.currency.symbol + ' balance'
+    inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_BALANCE)
   }
 
   return {

@@ -21,12 +21,14 @@ import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
-import { Field, WALLET_BALANCE, NFT_BID_PHASE } from '../../state/nft/actions'
+import { Field, WALLET_BALANCE, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
+//import { Field, WALLET_BALANCE, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
 import {
   NftBidTrade,
   useDerivedNftInfo,
   useNftActionHandlers,
-  useNftState
+  useNftState,
+  setBidButtonID
 } from '../../state/nft/hooks'
 import { useExpertModeManager, useTrackedNFTTokenPairs } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
@@ -81,28 +83,66 @@ export default function Nft() {
     pairCurrencies,
     parsedAmounts,
     nftPairToSave,
-    inputError: NftBidInputError
+    inputError
   } = useDerivedNftInfo()
 
   const { address: recipientAddress } = useENSAddress(recipient)
 
-  const nftStatusPrompt = useMemo(()=>{
-    if (!feswaPairBidInfo.pairBidInfo) return ''
-//    if (feswaPairBidInfo.pairBidInfo.tokenA === ZERO_ADDRESS) return "Waiting for a bid"
-    if (feswaPairBidInfo.ownerPairNft === account) return "Your are the owner"
-    
-    switch (feswaPairBidInfo.pairBidInfo.poolState) {
-      case NFT_BID_PHASE.BidToStart: return 'Waiting for a bid'
-      case NFT_BID_PHASE.BidPhase: return 'Bid ongoing'
-      case NFT_BID_PHASE.BidDelaying: return 'Bid in overtime'
-      case NFT_BID_PHASE.BidSettled: return 'Bid completed'
-      case NFT_BID_PHASE.PoolHolding: return 'NFT in holding'
-      case NFT_BID_PHASE.PoolForSale: return 'Pair NFT on sale'
-    }  
-    return ''
-    },[feswaPairBidInfo, account])
+  const [buttonID, nftStatusPrompt] = useMemo(()=>{
+    if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...']
 
-  const nftStatus: number = useMemo(()=>{
+    let NftBidStatus: USER_BUTTON_ID
+    let nftStatusString: string | undefined
+    if (feswaPairBidInfo.ownerPairNft === account) {
+      nftStatusString = "Your are the owner"
+    }
+     
+    switch (feswaPairBidInfo.pairBidInfo.poolState) {
+      case NFT_BID_PHASE.BidToStart: 
+        NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_INIT_BID)
+        nftStatusString = nftStatusString??'Waiting for a bid'
+        break
+      case NFT_BID_PHASE.BidPhase: 
+        NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
+        nftStatusString = nftStatusString??'Bid ongoing'
+        break
+      case NFT_BID_PHASE.BidDelaying: 
+        NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
+        nftStatusString = nftStatusString??'Bid in overtime'
+        break
+      case NFT_BID_PHASE.BidSettled:
+        NftBidStatus =  (feswaPairBidInfo.ownerPairNft === account)
+                        ? setBidButtonID(inputError, USER_BUTTON_ID.OK_FOR_SALE)
+                        : setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)   
+        nftStatusString = nftStatusString??'Bid completed'
+        break
+      case NFT_BID_PHASE.PoolHolding: 
+          NftBidStatus =  (feswaPairBidInfo.ownerPairNft === account)
+                          ? setBidButtonID(inputError, USER_BUTTON_ID.OK_FOR_SALE)
+                          : setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)     
+        nftStatusString = nftStatusString??'NFT in holding'
+        break
+      case NFT_BID_PHASE.PoolForSale: 
+          if(feswaPairBidInfo.ownerPairNft === account){
+            if(!parsedAmounts[WALLET_BALANCE.ETH]) {
+              NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_CLOSE_SALE) 
+            }else{
+              NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_CHANGE_PRICE)
+            }
+          } else {
+            NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_BUY_NFT)    
+          }
+          nftStatusString = nftStatusString??'Pair NFT on sale'
+          break
+        default:
+          NftBidStatus = inputError
+          nftStatusString = nftStatusString??'Unknown Status'
+      }  
+      return [NftBidStatus, nftStatusString]
+
+    },[feswaPairBidInfo, account, inputError, parsedAmounts])
+
+   const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
       return feswaPairBidInfo.pairBidInfo.poolState
       },[feswaPairBidInfo])
@@ -405,7 +445,7 @@ export default function Nft() {
                       <Text fontWeight={500} fontSize={14} color={theme.red2}>
                         High-Value NFT Bid:
                       </Text>
-                      { NftBidInputError === 'Insufficient ETH balance'
+                      { (buttonID === USER_BUTTON_ID.ERR_LOW_BALANCE)
                         ? (<Text fontWeight={500} fontSize={14} color={theme.red2}>
                             Insufficient ETH
                           </Text>)
@@ -440,14 +480,15 @@ export default function Nft() {
                   }
                 }}
                 id="NFT-bid-button"
-                disabled={!!NftBidInputError}
-                error={ !NftBidInputError && isHighValueNftBidder}
+                disabled={ buttonID < USER_BUTTON_ID.OK_INIT_BID}
+                error={ isHighValueNftBidder && (buttonID >= USER_BUTTON_ID.OK_INIT_BID) && (buttonID >= USER_BUTTON_ID.OK_CHANGE_PRICE)}
               >
                 <Text fontSize={20} fontWeight={500}>
-                  { NftBidInputError
-                      ? NftBidInputError
-                      : `Sponosor${isHighValueNftBidder ? ' Anyway' : ''}`}
+                  { `${BidButtonPrompt[buttonID]} 
+                     ${ (isHighValueNftBidder && (buttonID >= USER_BUTTON_ID.OK_INIT_BID) && (buttonID >= USER_BUTTON_ID.OK_CHANGE_PRICE)) 
+                      ? ' Anyway' : ''}`}
                 </Text>
+
               </ButtonError>
               </AutoColumn>              
             )}
@@ -459,3 +500,13 @@ export default function Nft() {
     </>
   )
 }
+
+//id="NFT-bid-button"
+//disabled={!!NftBidInputError}
+//error={ !NftBidInputError && isHighValueNftBidder}
+//>
+//<Text fontSize={20} fontWeight={500}>
+//  { NftBidInputError
+//      ? NftBidInputError
+//      : `Sponosor${isHighValueNftBidder ? ' Anyway' : ''}`}
+//</Text>
