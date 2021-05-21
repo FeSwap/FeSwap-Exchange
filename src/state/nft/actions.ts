@@ -26,6 +26,7 @@ export enum NFT_BID_PHASE {
 
 export enum USER_BUTTON_ID {
   ERR_NO_WALLET,
+  ERR_NO_TOKENS,
   ERR_BID_ENDED,
   ERR_INPUT_VALUE,
   ERR_LOW_BALANCE,
@@ -42,7 +43,8 @@ export enum USER_BUTTON_ID {
 }
 
 export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
-  [USER_BUTTON_ID.ERR_NO_WALLET]: 'Connect Wallet',
+  [USER_BUTTON_ID.ERR_NO_WALLET ]: 'Connect Wallet',
+  [USER_BUTTON_ID.ERR_NO_TOKENS ]: 'Select Token Pair',
   [USER_BUTTON_ID.ERR_BID_ENDED]: 'Bid Completed',
   [USER_BUTTON_ID.ERR_INPUT_VALUE]: 'Enter an Amount',
   [USER_BUTTON_ID.ERR_LOW_BALANCE]: 'Insufficient ETH  Balance',

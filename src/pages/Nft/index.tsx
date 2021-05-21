@@ -19,7 +19,7 @@ import PageHeader from '../../components/PageHeader'
 //import { FESW } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
-import { useWalletModalToggle } from '../../state/application/hooks'
+import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
 import { Field, WALLET_BALANCE, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
 //import { Field, WALLET_BALANCE, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
@@ -38,7 +38,7 @@ import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useNftBidContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
-import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ZERO_FRACTION, 
+import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ONE_FRACTION, 
   ONE_TENTH_FRACTION, TEN_PERCENT_MORE } from '../../utils'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
@@ -71,6 +71,7 @@ export default function Nft() {
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
   const [isExpertMode] = useExpertModeManager()
+  const currentBlock = useBlockNumber()
 
   // NFT Bidding state
   const {
@@ -88,7 +89,7 @@ export default function Nft() {
 
   const { address: recipientAddress } = useENSAddress(recipient)
 
-  const [buttonID, nftStatusPrompt] = useMemo(()=>{
+   const [buttonID, nftStatusPrompt] = useMemo(()=>{
     if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...']
 
     let NftBidStatus: USER_BUTTON_ID
@@ -96,6 +97,12 @@ export default function Nft() {
     if (feswaPairBidInfo.ownerPairNft === account) {
       nftStatusString = "Your are the owner"
     }
+
+    const timeNftCreation: number = feswaPairBidInfo.pairBidInfo.timeCreated.toNumber()
+    const timeNftLastBid: number = feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()
+
+    const now = DateTime.now().toSeconds()
+    const timeNormalEnd = timeNftCreation + 3600 * 10       // Normal: 3600 * 24 * 14
      
     switch (feswaPairBidInfo.pairBidInfo.poolState) {
       case NFT_BID_PHASE.BidToStart: 
@@ -103,12 +110,30 @@ export default function Nft() {
         nftStatusString = nftStatusString??'Waiting for a bid'
         break
       case NFT_BID_PHASE.BidPhase: 
-        NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
-        nftStatusString = nftStatusString??'Bid ongoing'
+        if(now >= timeNormalEnd){
+          if (feswaPairBidInfo.ownerPairNft === account) {
+            NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_CLAIM, true)
+          } else {
+            NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)
+          }
+          nftStatusString = nftStatusString??'Bid completed'
+        }else {
+          NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
+          nftStatusString = nftStatusString??'Bid ongoing'
+        }
         break
       case NFT_BID_PHASE.BidDelaying: 
-        NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
-        nftStatusString = nftStatusString??'Bid in overtime'
+        if(now >= (timeNftLastBid + 3600 * 2)) {
+          if (feswaPairBidInfo.ownerPairNft === account) {
+            NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_CLAIM, true)
+          } else {
+            NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)
+          }
+          nftStatusString = nftStatusString??'Bid completed'
+        } else {
+          NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
+          nftStatusString = nftStatusString??'Bid in overtime'
+        }
         break
       case NFT_BID_PHASE.BidSettled:
         NftBidStatus =  (feswaPairBidInfo.ownerPairNft === account)
@@ -140,7 +165,7 @@ export default function Nft() {
       }  
       return [NftBidStatus, nftStatusString]
 
-    },[feswaPairBidInfo, account, inputError, parsedAmounts])
+    },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock])
 
    const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
@@ -150,7 +175,7 @@ export default function Nft() {
   const [ nftBidPriceString, newNftBidPriceString ] = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return ['_', '_']
       const nftBidPrice = new Fraction(feswaPairBidInfo.pairBidInfo.currentPrice.toString(), WEI_DENOM)
-      const newNftBidPrice =  nftBidPrice.lessThan(ZERO_FRACTION) 
+      const newNftBidPrice =  nftBidPrice.lessThan(ONE_FRACTION) 
                               ? nftBidPrice.add(ONE_TENTH_FRACTION) 
                               : nftBidPrice.multiply(TEN_PERCENT_MORE)
       return [ nftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}), 
@@ -301,6 +326,8 @@ export default function Nft() {
         if (!tokenA || !tokenB) return       
         adderNftList( tokenA, tokenB,  false)
     }, [adderNftList, pairCurrencies, chainId])
+
+  console.log( 'buttonID, BidButtonPrompt[buttonID]:',  buttonID, BidButtonPrompt[buttonID])
   
   return (
     <>
@@ -500,13 +527,3 @@ export default function Nft() {
     </>
   )
 }
-
-//id="NFT-bid-button"
-//disabled={!!NftBidInputError}
-//error={ !NftBidInputError && isHighValueNftBidder}
-//>
-//<Text fontSize={20} fontWeight={500}>
-//  { NftBidInputError
-//      ? NftBidInputError
-//      : `Sponosor${isHighValueNftBidder ? ' Anyway' : ''}`}
-//</Text>

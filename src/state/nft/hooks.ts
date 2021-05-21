@@ -38,8 +38,12 @@ export interface NftBidPairInfo {
   readonly poolState:     JSBI
 }
 
-export function setBidButtonID(curID: USER_BUTTON_ID, newID: USER_BUTTON_ID){
-  return (newID < curID) ?  newID : curID
+export function setBidButtonID(curID: USER_BUTTON_ID, newID: USER_BUTTON_ID, force: boolean = false){
+  if(force) {
+    return (curID === USER_BUTTON_ID.ERR_NO_WALLET) ? curID : newID
+  } else {
+    return (newID < curID) ?  newID : curID
+  }
 }
 
 export function bigNumberToFractionInETH(bigNumber: BigNumber): Fraction {
@@ -179,12 +183,15 @@ export function useDerivedNftInfo(): {
 
   const parsedAmounts = [parsedAmount, parsedAmountInduced]
   
-
   //let inputError: string | undefined
   let inputError: USER_BUTTON_ID = USER_BUTTON_ID.OK_STATUS
 
   if (!account) {
     inputError = USER_BUTTON_ID.ERR_NO_WALLET
+  }
+
+  if (!pairCurrencies[Field.TOKEN_A] || !pairCurrencies[Field.TOKEN_B]) {
+    inputError = USER_BUTTON_ID.ERR_NO_TOKENS
   }
 
   if (!parsedAmount) {
