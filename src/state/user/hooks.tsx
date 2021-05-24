@@ -278,12 +278,14 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
     if (!forChain) return []
 
     return Object.keys(forChain).map(nftPairId => {
+      // select the pair with BASE as the second token
       if( SUGGESTED_BASES[chainId].some((baseToken) => (baseToken.address === forChain[nftPairId].token1.address)) &&
           (forChain[nftPairId].token0.address !== WETH_ONLY[chainId][0].address)) {
         return  [ deserializeToken(forChain[nftPairId].token0), 
                   deserializeToken(forChain[nftPairId].token1),
                   forChain[nftPairId].bidStatus]
       }    
+      // swap token address while token0 is BASE token
       if( SUGGESTED_BASES[chainId].some((baseToken) => (baseToken.address === forChain[nftPairId].token0.address))) {
         return  [ deserializeToken(forChain[nftPairId].token1),
                   deserializeToken(forChain[nftPairId].token0),

@@ -4,7 +4,7 @@ import { useSponsorContract, useFeswContract, useNftBidContract } from '../../ho
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '../../hooks'
-import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION } from '../../utils'
+import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION, ONE_OVER_HUNDREAD } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID } from './actions'
@@ -190,6 +190,10 @@ export function useDerivedNftInfo(): {
     inputError = USER_BUTTON_ID.ERR_NO_WALLET
   }
 
+  if (!feswaPairINfo?.pairInfo) {
+    inputError = USER_BUTTON_ID.ERR_NO_SERVICE
+  }
+  
   if (!pairCurrencies[Field.TOKEN_A] || !pairCurrencies[Field.TOKEN_B]) {
     inputError = USER_BUTTON_ID.ERR_NO_TOKENS
   }
@@ -209,7 +213,7 @@ export function useDerivedNftInfo(): {
     parsedAmounts[WALLET_BALANCE.ETH]
   ]
 
-  if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
+  if (balanceIn && amountIn && balanceIn.lessThan(ONE_OVER_HUNDREAD.add(amountIn))) {
     inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_BALANCE)
   }
 

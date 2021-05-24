@@ -11,14 +11,18 @@ import { TokenAddressMap } from '../state/lists/hooks'
 export const WEI_DENOM = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))
 export const ZERO = JSBI.BigInt(0)
 export const ONE = JSBI.BigInt(1)
+export const TWO = JSBI.BigInt(2)
 export const FIVE = JSBI.BigInt(5)
 export const TEN = JSBI.BigInt(10)
+export const HUNDREAD = JSBI.BigInt(100)
 export const ELEVEN = JSBI.BigInt(11)
 export const ZERO_FRACTION = new Fraction(ZERO, ONE)
 export const ONE_FRACTION = new Fraction(ONE, ONE)
 export const FIVE_FRACTION = new Fraction(FIVE, ONE)
 export const ONE_TENTH_FRACTION = new Fraction(ONE, TEN)
+export const TWO_TENTH_FRACTION = new Fraction(TWO, TEN)
 export const TEN_PERCENT_MORE = new Fraction(ELEVEN, TEN)
+export const ONE_OVER_HUNDREAD = new Fraction(ONE, HUNDREAD)
 export const WEI_DENOM_FRACTION = new Fraction(WEI_DENOM, ONE)
 
 
