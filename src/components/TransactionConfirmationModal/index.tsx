@@ -10,6 +10,7 @@ import { AlertTriangle, ArrowUpCircle } from 'react-feather'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn, ColumnCenter } from '../Column'
 import Circle from '../../assets/images/blue-loader.svg'
+// import { Separator } from '../SearchModal/styleds'
 
 import { getEtherscanLink } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
@@ -188,7 +189,7 @@ export default function TransactionConfirmationModal({
 
   // confirmation screen
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90}>
+    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={120}>
       {attemptingTxn ? (
         <ConfirmationPendingContent pendingTitle={pendingTitle} onDismiss={onDismiss} pendingText={pendingText} />
       ) : hash ? (

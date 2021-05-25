@@ -230,10 +230,10 @@ export function useNFTPairAdded(tokenA?: Token, tokenB?: Token): boolean | undef
   const serializedNFTPair = useSelector<AppState, AppState['user']['nftPairs']>(({ user: { nftPairs } }) => nftPairs)
  
   return useMemo(() => {
-    if ( !tokenA || !tokenB) return undefined
-    if (!chainId || !serializedNFTPair) return undefined
+    if ( !tokenA || !tokenB || !chainId) return undefined
+    if (!serializedNFTPair) return false
     const forChain = serializedNFTPair[chainId]
-    if (!forChain) return undefined
+    if (!forChain) return false
 
     let keyNFTPair 
     if(tokenA.address.toLowerCase() < tokenB.address.toLowerCase()){

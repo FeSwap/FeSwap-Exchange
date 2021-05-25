@@ -41,9 +41,9 @@ import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
 import NftList, { StyledNFTButton } from '../../components/Nft/NftList'
 import { FixedSizeList } from 'react-window'
-// import { AppDispatch } from '../../state'
 import { useNFTPairAdder } from '../../state/user/hooks'
-// import { SerializedPair } from '../../state/user/actions'
+import { ZERO_ADDRESS } from '../../constants'
+
 
 const LabelRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -85,7 +85,7 @@ export default function Nft() {
 
   const { address: recipientAddress } = useENSAddress(recipient)
 
-   const [buttonID, nftStatusPrompt] = useMemo(()=>{
+  const [buttonID, nftStatusPrompt] = useMemo(()=>{
     if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...']
 
     let NftBidStatus: USER_BUTTON_ID|undefined
@@ -137,7 +137,9 @@ export default function Nft() {
           }
           nftStatusString = nftStatusString??'Bid completed'
         } else {
-          NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
+          NftBidStatus =  parsedAmounts[WALLET_BALANCE.ETH]?.lessThan(newNftBidPrice)
+                          ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
+                          : setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
           nftStatusString = nftStatusString??'Bid in overtime'
         }
         break
@@ -176,7 +178,7 @@ export default function Nft() {
 //  console.log( 'buttonID, BidButtonPrompt[buttonID]:',  buttonID, BidButtonPrompt[buttonID], 
 //                parsedAmounts[WALLET_BALANCE.ETH], TWO_TENTH_FRACTION)
 
-   const nftStatus: number = useMemo(()=>{
+  const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
       return feswaPairBidInfo.pairBidInfo.poolState
       },[feswaPairBidInfo])
@@ -220,7 +222,7 @@ export default function Nft() {
   const nftTrackedList = useTrackedNFTTokenPairs()
 //  console.log("nftTrackedList", nftTrackedList)
 
-  const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts }
+  const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts, firtBidder: (feswaPairBidInfo?.ownerPairNft === ZERO_ADDRESS) }
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
   const handleTypeInput = useCallback(
     (value: string) => { onNftUserInput(value) },
@@ -355,7 +357,8 @@ export default function Nft() {
             onConfirm={handleNftBidding}
             swapErrorMessage={nftBidErrorMessage}
             onDismiss={handleConfirmDismiss}
-            highSponsor = {isHighValueNftBidder}
+            highNftPrice = {isHighValueNftBidder}
+            buttonID = {buttonID}
           />
           <AutoColumn gap={'md'}>
             <TokenPairSelectPanel
@@ -440,17 +443,18 @@ export default function Nft() {
                       { nftBidEndingTime.startsWith('Ended')
                         ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> </span>
                         : <span color='red' >  Bid Ending Time: <strong> {nftBidEndingTime} </strong>  <br /> 
-                                  Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong> 
-                          </span> }
+                                  Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong> </span> 
+                      }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidDelaying) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
                       Current price: <strong> {nftBidPriceString} ETH </strong> <br />
                       Last Bid Time: <strong>{nftLastBidTime}</strong>  <br />
-                      {nftBidEndingTime.startsWith('Extra')} 
-                      ? `Bid Completed, <strong> {nftBidEndingTime} </strong>  <br />`
-                      : `Bid Extra Ending Time: <strong> {nftBidEndingTime} </strong>  <br />`
+                      { nftBidEndingTime.startsWith('Extra')
+                        ? <span> Bid Completed, <strong> {nftBidEndingTime} </strong> <br /> </span>
+                        : <span> Bid Extra Ending Time: <strong> {nftBidEndingTime} </strong> <br /> </span>
+                      }
                       Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong>
                     </TYPE.italic>
                   )}

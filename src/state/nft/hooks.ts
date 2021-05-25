@@ -19,7 +19,6 @@ import { useCurrency } from '../../hooks/Tokens'
 import { ZERO_ADDRESS } from '../../constants'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { FeswaPairInfo } from './reducer'
-//import { FeswaPairInfo, PairBidInfo } from './reducer'
 import { WEI_DENOM } from '../../utils'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useNFTPairAdded } from '../user/hooks'
@@ -27,15 +26,7 @@ import { useNFTPairAdded } from '../user/hooks'
 export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
   readonly parsedAmounts: (CurrencyAmount | undefined)[]
-}
-
-export interface NftBidPairInfo {
-  readonly tokenA: string | undefined
-  readonly tokenB: string | undefined
-  readonly currentPrice:  JSBI
-  readonly timeCreated:   JSBI
-  readonly lastBidTime:   JSBI
-  readonly poolState:     JSBI
+  readonly firtBidder: boolean
 }
 
 export function setBidButtonID(curID: USER_BUTTON_ID, newID: USER_BUTTON_ID, force: boolean = false){
@@ -171,7 +162,7 @@ export function useDerivedNftInfo(): {
   }
 
   const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER) ?? undefined
-  const feswGiveRate = new Fraction( '1', '20000')   // 1ETH -> 20000 FESW Giveaway
+  const feswGiveRate = new Fraction( '20000', '1')   // 1ETH -> 20000 FESW Giveaway
   const feswToken = chainId ? FESW[chainId] : undefined
 
   const parsedAmountInduced : CurrencyAmount | undefined = useMemo(() => {
@@ -181,7 +172,9 @@ export function useDerivedNftInfo(): {
     [feswToken, parsedAmount, feswGiveRate] 
   )
 
-  const parsedAmounts = [parsedAmount, parsedAmountInduced]
+  const nftBidPrice = feswaPairINfo ? CurrencyAmount.ether(feswaPairINfo?.pairInfo.currentPrice.toString()) : undefined
+  
+  const parsedAmounts = [parsedAmount, parsedAmountInduced, nftBidPrice]
   
   //let inputError: string | undefined
   let inputError: USER_BUTTON_ID = USER_BUTTON_ID.OK_STATUS

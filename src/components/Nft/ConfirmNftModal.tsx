@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent
@@ -6,7 +6,7 @@ import TransactionConfirmationModal, {
 import NftModalHeader from './NftModalHeader'
 import NftModalFooter from './NftModalFooter'
 import {NftBidTrade} from '../../state/nft/hooks'
-// import { Field } from '../../state/nft/actions'
+import { Field, WALLET_BALANCE, USER_BUTTON_ID } from '../../state/nft/actions'
 
 export default function ConfirmNftModal({
   nftBid,
@@ -19,7 +19,8 @@ export default function ConfirmNftModal({
   isOpen,
   attemptingTxn,
   txHash,
-  highSponsor
+  highNftPrice,
+  buttonID
 }: {
   isOpen: boolean
   nftBid: NftBidTrade | undefined
@@ -31,15 +32,18 @@ export default function ConfirmNftModal({
   onConfirm: () => void
   swapErrorMessage: string | undefined
   onDismiss: () => void
-  highSponsor: boolean
+  highNftPrice: boolean
+  buttonID: USER_BUTTON_ID
 }) {
 
-//  const showAcceptChanges = useMemo(
-//    () => Boolean(nftBid?.feswGiveRate && originalNftBid?.feswGiveRate && 
-//                  !nftBid.feswGiveRate.equalTo(originalNftBid.feswGiveRate)),
-//    [originalNftBid, nftBid]
-//  )
-  const showAcceptChanges = false
+  const showAcceptChanges = useMemo( 
+    () => Boolean( nftBid?.parsedAmounts[2] && originalNftBid?.parsedAmounts[2] &&
+                   !(nftBid?.parsedAmounts[2].equalTo(originalNftBid?.parsedAmounts[2]))),
+    [originalNftBid, nftBid]
+  )
+
+//  console.log("showAcceptChanges", showAcceptChanges, nftBid, originalNftBid)
+//  const showAcceptChanges  = true
 
   const modalHeader = useCallback(() => {
     return nftBid ? (
@@ -48,6 +52,8 @@ export default function ConfirmNftModal({
         recipient={recipient}
         showAcceptChanges={showAcceptChanges}
         onAcceptChanges={onAcceptChanges}
+        onDismiss={onDismiss}
+        buttonID = {buttonID}
       />
     ) : null
   }, [ onAcceptChanges, recipient, showAcceptChanges, nftBid])
@@ -59,16 +65,18 @@ export default function ConfirmNftModal({
         nftBid={nftBid}
         disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
-        highSponsor = {highSponsor}
+        highNftPrice = {highNftPrice}
       />
     ) : null
-  }, [ onConfirm, showAcceptChanges, swapErrorMessage, nftBid, highSponsor])
+  }, [ onConfirm, showAcceptChanges, swapErrorMessage, nftBid, highNftPrice])
 
   // text to show while loading
-  const pendingText = 'TO DO'
-  
-//  `Sponsoring ${nftBid?.pairTokens[Field.TOKEN_A]?.toSignificant(6)} ETH,
-//                      and will receive ${nftBid?.pairTokens[Field.TOKEN_B]?.toSignificant(6)} FESW as the giveaway`
+  const pendingText = useMemo(()=>{
+      if (!nftBid) return ''
+      return `Bidding ${nftBid?.parsedAmounts[WALLET_BALANCE.ETH]?.toSignificant(6)} ETH for the NFT representing
+              ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}/${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
+    }
+    ,[nftBid])
 
   const confirmationContent = useCallback(
     () =>
@@ -76,7 +84,7 @@ export default function ConfirmNftModal({
         <TransactionErrorContent onDismiss={onDismiss} message={swapErrorMessage} />
       ) : (
          <ConfirmationModalContent
-          title="Confirm Sponsor"
+          title="Confirm Bid"
           onDismiss={onDismiss}
           topContent={modalHeader}
           bottomContent={modalBottom}
@@ -93,8 +101,8 @@ export default function ConfirmNftModal({
       hash={txHash}
       content={confirmationContent}
       pendingText={pendingText}
-      pendingTitle="Confirm Sponsor"
-      submittedTitle="Sponsor Submitted"
+      pendingTitle="Confirm NFT Bidding"
+      submittedTitle="NFT Bidding Submitted"
     />
   )
 }

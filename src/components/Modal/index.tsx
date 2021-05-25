@@ -87,7 +87,7 @@ export default function Modal({
   isOpen,
   onDismiss,
   minHeight = false,
-  maxHeight = 90,
+  maxHeight = 120,
   initialFocusRef,
   children
 }: ModalProps) {
