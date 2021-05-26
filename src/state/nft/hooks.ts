@@ -10,7 +10,7 @@ import { useCurrencyBalances } from '../wallet/hooks'
 import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID } from './actions'
 import { FESW } from '../../constants'
 import { useSingleCallResult } from '../multicall/hooks'
-import { Field, WALLET_BALANCE } from './actions'
+import { Field, WALLET_BALANCE, USER_UI_INFO } from './actions'
 import { tryParseAmount } from '../swap/hooks'
 import { useMemo } from 'react'
 import { useTransactionAdder } from '../transactions/hooks'
@@ -25,7 +25,7 @@ import { useNFTPairAdded } from '../user/hooks'
 
 export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
-  readonly parsedAmounts: (CurrencyAmount | undefined)[]
+  readonly parsedAmounts: { [field in USER_UI_INFO]?: CurrencyAmount }
   readonly firtBidder: boolean
 }
 
@@ -111,7 +111,7 @@ export function useDerivedNftInfo(): {
   numberOfToken: number
   pairCurrencies: { [field in Field]?: Currency }
   WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
-  parsedAmounts:   (CurrencyAmount | undefined)[]
+  parsedAmounts:   { [field in USER_UI_INFO]?: CurrencyAmount }
   nftPairToSave: boolean
   inputError: USER_BUTTON_ID
 } {
@@ -173,8 +173,20 @@ export function useDerivedNftInfo(): {
   )
 
   const nftBidPrice = feswaPairINfo ? CurrencyAmount.ether(feswaPairINfo?.pairInfo.currentPrice.toString()) : undefined
+
+  const bidGiveAway : CurrencyAmount | undefined = useMemo(() => {
+    if(!nftBidPrice || !feswToken) return undefined
+    return new TokenAmount(feswToken as Token, nftBidPrice.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).quotient)
+  },
+  [feswToken, nftBidPrice, feswGiveRate] 
+)
   
-  const parsedAmounts = [parsedAmount, parsedAmountInduced, nftBidPrice]
+  const parsedAmounts = {
+            [USER_UI_INFO.USER_PRICE_INPUT]: parsedAmount,
+            [USER_UI_INFO.FESW_GIVEAWAY]: parsedAmountInduced, 
+            [USER_UI_INFO.LAST_NFT_PRICE]: nftBidPrice,
+            [USER_UI_INFO.BID_FESW_GIVEAWAY]: bidGiveAway
+          }
   
   //let inputError: string | undefined
   let inputError: USER_BUTTON_ID = USER_BUTTON_ID.OK_STATUS
@@ -203,7 +215,8 @@ export function useDerivedNftInfo(): {
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
     WalletBalances[WALLET_BALANCE.ETH],
-    parsedAmounts[WALLET_BALANCE.ETH]
+    parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT],
+    nftBidPrice
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(ONE_OVER_HUNDREAD.add(amountIn))) {

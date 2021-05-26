@@ -18,7 +18,7 @@ import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
-import { Field, WALLET_BALANCE, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
+import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
 import {
   NftBidTrade,
   useDerivedNftInfo,
@@ -108,7 +108,7 @@ export default function Nft() {
      
     switch (feswaPairBidInfo.pairBidInfo.poolState) {
       case NFT_BID_PHASE.BidToStart: 
-        NftBidStatus =  parsedAmounts[WALLET_BALANCE.ETH]?.lessThan(newNftBidPrice)
+        NftBidStatus =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
                         ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
                         : setBidButtonID(inputError, USER_BUTTON_ID.OK_INIT_BID)
         nftStatusString = nftStatusString??'Waiting for a bid'
@@ -122,7 +122,7 @@ export default function Nft() {
           }
           nftStatusString = nftStatusString??'Bid completed'
         }else {
-          NftBidStatus =  parsedAmounts[WALLET_BALANCE.ETH]?.lessThan(newNftBidPrice)
+          NftBidStatus =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
                           ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
                           : setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
           nftStatusString = nftStatusString??'Bid ongoing'
@@ -137,7 +137,7 @@ export default function Nft() {
           }
           nftStatusString = nftStatusString??'Bid completed'
         } else {
-          NftBidStatus =  parsedAmounts[WALLET_BALANCE.ETH]?.lessThan(newNftBidPrice)
+          NftBidStatus =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
                           ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
                           : setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
           nftStatusString = nftStatusString??'Bid in overtime'
@@ -157,7 +157,7 @@ export default function Nft() {
         break
       case NFT_BID_PHASE.PoolForSale: 
           if(feswaPairBidInfo.ownerPairNft === account){
-            if(!parsedAmounts[WALLET_BALANCE.ETH]) {
+            if(!parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]) {
               NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_CLOSE_SALE) 
             }else{
               NftBidStatus = setBidButtonID(inputError, USER_BUTTON_ID.OK_CHANGE_PRICE)
@@ -176,7 +176,7 @@ export default function Nft() {
     },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock])
 
 //  console.log( 'buttonID, BidButtonPrompt[buttonID]:',  buttonID, BidButtonPrompt[buttonID], 
-//                parsedAmounts[WALLET_BALANCE.ETH], TWO_TENTH_FRACTION)
+//                parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT], TWO_TENTH_FRACTION)
 
   const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
@@ -248,12 +248,12 @@ export default function Nft() {
   const {maxAmountInput, atMaxAmountInput} = useMemo(()=>{
       if( !account || !ethBalance ) return {undefined, boolean: false}
       const maxAmountInput = maxAmountSpend(ethBalance[account])
-      const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[WALLET_BALANCE.ETH]?.equalTo(maxAmountInput))
+      const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.equalTo(maxAmountInput))
       return { maxAmountInput, atMaxAmountInput}
     }, [account, ethBalance, parsedAmounts] )
   
   async function handleNftBidding(){
-    const nftBidderAmount = parsedAmounts[WALLET_BALANCE.ETH]
+    const nftBidderAmount = parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]
 
     const pairTokens =  { [Field.TOKEN_A]: wrappedCurrency(pairCurrencies[Field.TOKEN_A], chainId),
                           [Field.TOKEN_B]: wrappedCurrency(pairCurrencies[Field.TOKEN_B], chainId) 
@@ -293,7 +293,7 @@ export default function Nft() {
       })
   }
 
-  const isHighValueNftBidder: boolean = parsedAmounts[WALLET_BALANCE.ETH] ? (!parsedAmounts[WALLET_BALANCE.ETH]?.lessThan(FIVE_FRACTION)) : false
+  const isHighValueNftBidder: boolean = parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT] ? (!parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(FIVE_FRACTION)) : false
 
   const handleConfirmDismiss = useCallback(() => {
     setNftBidState({ showConfirm: false, nftBidToConfirm, attemptingTxn, nftBidErrorMessage, txHash })
@@ -442,7 +442,7 @@ export default function Nft() {
                       Last Bid Time: <strong> {nftLastBidTime} </strong>  <br />
                       { nftBidEndingTime.startsWith('Ended')
                         ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> </span>
-                        : <span color='red' >  Bid Ending Time: <strong> {nftBidEndingTime} </strong>  <br /> 
+                        : <span>  Bid Ending Time: <strong> {nftBidEndingTime} </strong>  <br /> 
                                   Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong> </span> 
                       }
                     </TYPE.italic>
@@ -452,10 +452,10 @@ export default function Nft() {
                       Current price: <strong> {nftBidPriceString} ETH </strong> <br />
                       Last Bid Time: <strong>{nftLastBidTime}</strong>  <br />
                       { nftBidEndingTime.startsWith('Extra')
-                        ? <span> Bid Completed, <strong> {nftBidEndingTime} </strong> <br /> </span>
-                        : <span> Bid Extra Ending Time: <strong> {nftBidEndingTime} </strong> <br /> </span>
+                        ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> <br /> </span>
+                        : <span>  Bid Extra Ending Time: <strong> {nftBidEndingTime} </strong> <br /> 
+                                  Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong> </span>
                       }
-                      Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong>
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidSettled) && (
@@ -490,7 +490,7 @@ export default function Nft() {
                           Insufficient ETH
                         </Text>)
                       : (<Text fontWeight={500} fontSize={14} color={theme.red2}>
-                          {parsedAmounts[WALLET_BALANCE.ETH]?.toSignificant(6)} ETH
+                          {parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH
                         </Text>)
                     }
                     </RowBetween>

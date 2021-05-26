@@ -10,24 +10,28 @@ import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { SwapCallbackError } from '../swap/styleds'
 import {NftBidTrade} from '../../state/nft/hooks'
+import { USER_BUTTON_ID, BidConfirmButton, USER_UI_INFO } from '../../state/nft/actions'
 
 export default function NftModalFooter({
   nftBid,
   onConfirm,
   swapErrorMessage,
   disabledConfirm,
-  highNftPrice
+  highNftPrice,
+  buttonID
 }: {
   nftBid: NftBidTrade
   onConfirm: () => void
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
   highNftPrice: boolean
+  buttonID: USER_BUTTON_ID
 }) {
   const theme = useContext(ThemeContext)
 
   const firtBidderPrePrompt = "If you win the bid, the giveway is air-droped at the rate of 20,000 FESW/ETH. If failed, you will get"
   const firtBidderPrompt = firtBidderPrePrompt.concat( (nftBid.firtBidder) ? ' 1000 FESW as this NFT initial creator' : ' 500 FESW')
+  const claimPrompt = "The FESW giveway is air-droped at the rate of 20,000 FESW/ETH. Thanks for bidding!"
 
   return (
     <>
@@ -37,7 +41,7 @@ export default function NftModalFooter({
             <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
               FESW Giveaway:
             </TYPE.black>
-            <QuestionHelper text={firtBidderPrompt} />
+            <QuestionHelper text={(buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? claimPrompt :firtBidderPrompt} />
           </RowFixed>
           <Text
             fontWeight={500}
@@ -51,7 +55,10 @@ export default function NftModalFooter({
               paddingLeft: '10px'
             }}
           >
-          {`${nftBid.parsedAmounts[1]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW`}
+            { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
+              `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
+            { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
+              `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
           </Text>
         </RowBetween>
       </AutoColumn>
@@ -61,10 +68,10 @@ export default function NftModalFooter({
           disabled={disabledConfirm}
           style={{ margin: '10px 0 0 0' }}
           id="confirm-swap-or-send"
-          error = {highNftPrice}
+          error = {  highNftPrice}
         >
           <Text fontSize={20} fontWeight={500}>
-            {'Confirm Bid'}
+            {BidConfirmButton[buttonID]}
           </Text>
         </ButtonError>
         {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}

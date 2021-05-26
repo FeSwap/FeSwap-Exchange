@@ -6,7 +6,8 @@ import TransactionConfirmationModal, {
 import NftModalHeader from './NftModalHeader'
 import NftModalFooter from './NftModalFooter'
 import {NftBidTrade} from '../../state/nft/hooks'
-import { Field, WALLET_BALANCE, USER_BUTTON_ID } from '../../state/nft/actions'
+import { Field, USER_UI_INFO, USER_BUTTON_ID, BidConfirmTitle } from '../../state/nft/actions'
+
 
 export default function ConfirmNftModal({
   nftBid,
@@ -56,7 +57,7 @@ export default function ConfirmNftModal({
         buttonID = {buttonID}
       />
     ) : null
-  }, [ onAcceptChanges, recipient, showAcceptChanges, nftBid])
+  }, [ onAcceptChanges, recipient, showAcceptChanges, nftBid, buttonID, onDismiss])
 
   const modalBottom = useCallback(() => {
     return nftBid ? (
@@ -66,14 +67,15 @@ export default function ConfirmNftModal({
         disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
         highNftPrice = {highNftPrice}
+        buttonID = {buttonID}
       />
     ) : null
-  }, [ onConfirm, showAcceptChanges, swapErrorMessage, nftBid, highNftPrice])
+  }, [ onConfirm, showAcceptChanges, swapErrorMessage, nftBid, highNftPrice, buttonID])
 
   // text to show while loading
   const pendingText = useMemo(()=>{
       if (!nftBid) return ''
-      return `Bidding ${nftBid?.parsedAmounts[WALLET_BALANCE.ETH]?.toSignificant(6)} ETH for the NFT representing
+      return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH for the NFT representing
               ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}/${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
     }
     ,[nftBid])
@@ -84,13 +86,13 @@ export default function ConfirmNftModal({
         <TransactionErrorContent onDismiss={onDismiss} message={swapErrorMessage} />
       ) : (
          <ConfirmationModalContent
-          title="Confirm Bid"
+          title={BidConfirmTitle[buttonID]}
           onDismiss={onDismiss}
           topContent={modalHeader}
           bottomContent={modalBottom}
           />
       ),
-    [onDismiss, modalBottom, modalHeader, swapErrorMessage]
+    [onDismiss, modalBottom, modalHeader, swapErrorMessage, buttonID]
   )
 
   return (

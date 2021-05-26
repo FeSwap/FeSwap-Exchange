@@ -1,10 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
 
-//export enum Field {
-//  TOKEN_A = 'TOKEN_A',
-//  TOKEN_B = 'TOKEN_B'
-//}
-
 export enum Field {
   TOKEN_A,
   TOKEN_B
@@ -13,6 +8,13 @@ export enum Field {
 export enum WALLET_BALANCE {
   ETH,
   FESW
+}
+
+export enum USER_UI_INFO {
+  USER_PRICE_INPUT,
+  FESW_GIVEAWAY,
+  LAST_NFT_PRICE,
+  BID_FESW_GIVEAWAY
 }
 
 export enum NFT_BID_PHASE {
@@ -57,6 +59,50 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const BidConfirmTitle: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm Bid',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Confirm Bid',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const BidConfirmLine1: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Bidding NFT:',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Bidding NFT:',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'Your own NFT:',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const BidConfirmLine2: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Bidding price:',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Bidding price:',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'Final Price:',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const BidConfirmButton: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm Bid',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Confirm Bid',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'

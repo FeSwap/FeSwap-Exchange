@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
-import { Field, WALLET_BALANCE, USER_BUTTON_ID } from '../../state/nft/actions'
+import { Field, USER_UI_INFO, USER_BUTTON_ID, BidConfirmLine1, BidConfirmLine2 } from '../../state/nft/actions'
 import { TYPE } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { isAddress, shortenAddress } from '../../utils'
@@ -36,7 +36,7 @@ export default function NftModalHeader({
       <RowBetween align="flex-end" style={{ padding: '12px 0px 6px 0px' }} >
         <RowFixed>
           <TYPE.body color={theme.text1} fontWeight={400} fontSize={20}>
-            Bidding NFT:
+            {BidConfirmLine1[buttonID]}
           </TYPE.body>
         </RowFixed>
         <RowFixed>
@@ -54,12 +54,15 @@ export default function NftModalHeader({
       <RowBetween align="flex-end" style={{ padding: '6px 0px 6px 0px'}}>
         <RowFixed>
           <TYPE.body color={theme.text1} fontWeight={400} fontSize={20}>
-            Bidding price:
+            {BidConfirmLine2[buttonID]}
           </TYPE.body>
         </RowFixed>
         <RowFixed>
           <TYPE.black color={theme.text1} fontSize={24}>
-            {nftBid?.parsedAmounts[WALLET_BALANCE.ETH]?.toSignificant(8)} ETH
+            { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
+              `${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(8)} ETH` : null}
+            { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
+              `${nftBid?.parsedAmounts[USER_UI_INFO.LAST_NFT_PRICE]?.toSignificant(8)} ETH` : null}
            </TYPE.black>
         </RowFixed>
       </RowBetween>
