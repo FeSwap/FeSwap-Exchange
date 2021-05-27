@@ -175,11 +175,9 @@ export function useDerivedNftInfo(): {
   const nftBidPrice = feswaPairINfo ? CurrencyAmount.ether(feswaPairINfo?.pairInfo.currentPrice.toString()) : undefined
 
   const bidGiveAway : CurrencyAmount | undefined = useMemo(() => {
-    if(!nftBidPrice || !feswToken) return undefined
-    return new TokenAmount(feswToken as Token, nftBidPrice.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).quotient)
-  },
-  [feswToken, nftBidPrice, feswGiveRate] 
-)
+      if(!nftBidPrice || !feswToken) return undefined
+      return new TokenAmount(feswToken as Token, nftBidPrice.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).quotient)
+    },[feswToken, nftBidPrice, feswGiveRate])
   
   const parsedAmounts = {
             [USER_UI_INFO.USER_PRICE_INPUT]: parsedAmount,
@@ -222,6 +220,8 @@ export function useDerivedNftInfo(): {
   if (balanceIn && amountIn && balanceIn.lessThan(ONE_OVER_HUNDREAD.add(amountIn))) {
     inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_BALANCE)
   }
+
+  console.log("parsedAmounts", parsedAmounts)
 
   return {
     feswaPairBidInfo, 

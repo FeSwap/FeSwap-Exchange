@@ -35,40 +35,43 @@ export default function NftModalFooter({
 
   return (
     <>
-      <AutoColumn gap="0px">
-        <RowBetween align="center">
-          <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-              FESW Giveaway:
-            </TYPE.black>
-            <QuestionHelper text={(buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? claimPrompt :firtBidderPrompt} />
-          </RowFixed>
-          <Text
-            fontWeight={500}
-            fontSize={14}
-            color={theme.text1}
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              display: 'flex',
-              textAlign: 'right',
-              paddingLeft: '10px'
-            }}
-          >
-            { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
-              `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
-            { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
-              `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
-          </Text>
-        </RowBetween>
-      </AutoColumn>
+      { ((buttonID !== USER_BUTTON_ID.OK_FOR_SALE) && (buttonID !== USER_BUTTON_ID.OK_CHANGE_PRICE) 
+          && (buttonID !== USER_BUTTON_ID.OK_CLOSE_SALE)) &&
+        <AutoColumn gap="0px">
+          <RowBetween align="center">
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                FESW Giveaway:
+              </TYPE.black>
+              <QuestionHelper text={(buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? claimPrompt :firtBidderPrompt} />
+            </RowFixed>
+            <Text
+              fontWeight={500}
+              fontSize={14}
+              color={theme.text1}
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                display: 'flex',
+                textAlign: 'right',
+                paddingLeft: '10px'
+              }}
+            >
+              { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
+                `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
+              { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
+                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
+            </Text>
+          </RowBetween>
+        </AutoColumn>
+      }
       <AutoRow>
         <ButtonError
           onClick={onConfirm}
           disabled={disabledConfirm}
-          style={{ margin: '10px 0 0 0' }}
+          style={{ margin: '10px 0 0 0px' }}
           id="confirm-swap-or-send"
-          error = {  highNftPrice}
+          error = {highNftPrice}
         >
           <Text fontSize={20} fontWeight={500}>
             {BidConfirmButton[buttonID]}

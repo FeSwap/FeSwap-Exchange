@@ -60,51 +60,73 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose NFT Sale',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
 export const BidConfirmTitle: {[field: number]: string} = {
-  [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm Bid',
-  [USER_BUTTON_ID.OK_TO_BID]: 'Confirm Bid',
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm NFT Bid',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Confirm NFT Bid',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
-  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Confirm to Close NFT Sale',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const BidPendingTitle: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Confirming NFT Bid',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Confirming NFT Bid',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirming Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirming Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const BidSubmittedTitle: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'NFT Bid Submitted',
+  [USER_BUTTON_ID.OK_TO_BID]: 'NFT Bid Submitted',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'NFT Claim Submmitted',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
 export const BidConfirmLine1: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Bidding NFT:',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bidding NFT:',
-  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
-  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
-  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'NFT to Buy:',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'NFT to Sell:',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT to Change:', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Your own NFT:',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Target NFT Sale:',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
 export const BidConfirmLine2: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Bidding price:',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bidding price:',
-  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
-  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
-  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Buying Price:',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'NFT Sell Price:',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'New NFT Price:', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Final Price:',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close Sale:',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
 export const BidConfirmButton: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm Bid',
   [USER_BUTTON_ID.OK_TO_BID]: 'Confirm Bid',
-  [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
-  [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
-  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Confirm Change NFT Price', 
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Buy NFT',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Sell NFT',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose Sell',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 

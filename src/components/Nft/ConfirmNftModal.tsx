@@ -1,3 +1,4 @@
+import { Rounding } from '@uniswap/sdk'
 import React, { useCallback, useMemo } from 'react'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -6,7 +7,7 @@ import TransactionConfirmationModal, {
 import NftModalHeader from './NftModalHeader'
 import NftModalFooter from './NftModalFooter'
 import {NftBidTrade} from '../../state/nft/hooks'
-import { Field, USER_UI_INFO, USER_BUTTON_ID, BidConfirmTitle } from '../../state/nft/actions'
+import { Field, USER_UI_INFO, USER_BUTTON_ID, BidConfirmTitle, BidPendingTitle, BidSubmittedTitle } from '../../state/nft/actions'
 
 
 export default function ConfirmNftModal({
@@ -43,9 +44,6 @@ export default function ConfirmNftModal({
     [originalNftBid, nftBid]
   )
 
-//  console.log("showAcceptChanges", showAcceptChanges, nftBid, originalNftBid)
-//  const showAcceptChanges  = true
-
   const modalHeader = useCallback(() => {
     return nftBid ? (
       <NftModalHeader
@@ -75,10 +73,19 @@ export default function ConfirmNftModal({
   // text to show while loading
   const pendingText = useMemo(()=>{
       if (!nftBid) return ''
-      return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH for the NFT representing
-              ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}/${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
+      switch (buttonID) {
+        case USER_BUTTON_ID.OK_INIT_BID:
+        case USER_BUTTON_ID.OK_TO_BID:
+          return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH for the NFT representing
+                  ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}/${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
+        case USER_BUTTON_ID.OK_TO_CLAIM:
+          return `Claiming NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
+                  and ${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW`
+        default:
+            return ''                     
+      }        
     }
-    ,[nftBid])
+    ,[nftBid, buttonID])
 
   const confirmationContent = useCallback(
     () =>
@@ -103,8 +110,8 @@ export default function ConfirmNftModal({
       hash={txHash}
       content={confirmationContent}
       pendingText={pendingText}
-      pendingTitle="Confirm NFT Bidding"
-      submittedTitle="NFT Bidding Submitted"
+      pendingTitle={BidPendingTitle[buttonID]}
+      submittedTitle={BidSubmittedTitle[buttonID]}
     />
   )
 }

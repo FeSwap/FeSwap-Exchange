@@ -247,6 +247,8 @@ export default function NftList({
       const [tokenA, tokenB]: [Token, Token] = data[index]
       const active =  ( ((tokenUA?.address === tokenA.address) && (tokenUB?.address === tokenB.address )) ||
                         ((tokenUA?.address === tokenB.address) && (tokenUB?.address === tokenA.address )) )
+ //     if(active) fixedListRef?.current?.scrollTo(index)
+
       return (
         <NftTokenRow
           style={style}
