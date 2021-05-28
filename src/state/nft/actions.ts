@@ -60,7 +60,7 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'CLose NFT Sale',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -127,6 +127,17 @@ export const BidConfirmButton: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
+  [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
+}
+
+export const userInputTitle: {[field: number]: string} = {
+  [USER_BUTTON_ID.OK_INIT_BID]: 'Bid Price',
+  [USER_BUTTON_ID.OK_TO_BID]: 'Bid Price',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'Buying Price',
+  [USER_BUTTON_ID.OK_FOR_SALE]: 'Selling Price',
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT new Price', 
+  [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim FESW',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'NFT new Price',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 

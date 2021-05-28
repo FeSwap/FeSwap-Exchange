@@ -18,7 +18,8 @@ import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
-import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
+import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID, userInputTitle } from '../../state/nft/actions'
+
 import {
   NftBidTrade,
   useDerivedNftInfo,
@@ -178,7 +179,9 @@ export default function Nft() {
               buttonID = setBidButtonID(inputError, USER_BUTTON_ID.OK_CHANGE_PRICE)
             }
           } else {
-            buttonID = setBidButtonID(inputError, USER_BUTTON_ID.OK_BUY_NFT)    
+            buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(nftBidPrice)
+                          ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
+                          : setBidButtonID(inputError, USER_BUTTON_ID.OK_BUY_NFT)
           }
           nftStatusString = nftStatusString??'Token Pair NFT on Sale'
           break
@@ -197,7 +200,7 @@ export default function Nft() {
       }  
       return [buttonID, nftStatusString]
 
-    },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock])
+    },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock, savedButtonID, setSavedButtonID, txHash, nftBidErrorMessage])
 
   const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
@@ -276,7 +279,8 @@ export default function Nft() {
                                       { value: BigNumber.from(nftBidderAmount.raw.toString()) })
       .then(async(estimatedGasLimit) => {
         await nftBidContract.BidFeswaPair(tokenAddressA, tokenAddressB, toAddess, 
-                                          { value: BigNumber.from(nftBidderAmount.raw.toString()), gasLimit: calculateGasMargin(estimatedGasLimit) })
+                                          { value: BigNumber.from(nftBidderAmount.raw.toString()), 
+                                            gasLimit: calculateGasMargin(estimatedGasLimit) })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
             summary: `Bidding NFT: ${(pairCurrencies[Field.TOKEN_A]?.symbol)}🔗${(pairCurrencies[Field.TOKEN_B]?.symbol)}.
@@ -365,6 +369,44 @@ export default function Nft() {
      })
  }
 
+  async function handleBuyNft(){
+    const nftID = feswaPairBidInfo.tokenIDPairNft.toHexString()
+
+    // if user does not input the new price, set the price to zero to close the sale
+    const nftBidderAmount = parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT] ?? CurrencyAmount.ether('0')
+    const nftSalePrice = parsedAmounts[USER_UI_INFO.LAST_NFT_PRICE]
+
+    if (!nftBidderAmount || !account || !nftBidContract || !nftSalePrice) return
+    const toAddess = recipientAddress === null ? account : recipientAddress
+
+    setNftBidState({ attemptingTxn: true, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: undefined })
+    await nftBidContract.estimateGas['FeswaPairBuyIn'](  nftID, nftBidderAmount.raw.toString(), toAddess,
+                                                        { value: BigNumber.from(nftSalePrice.raw.toString())})
+      .then(async(estimatedGasLimit) => {
+        await nftBidContract.FeswaPairBuyIn( nftID, nftBidderAmount.raw.toString(), toAddess,
+                                              { value: BigNumber.from(nftSalePrice.raw.toString()), 
+                                                gasLimit: calculateGasMargin(estimatedGasLimit) })
+        .then((response: TransactionResponse) => {
+          addTransaction(response, {
+            summary: `Buying NFT: ${(pairCurrencies[Field.TOKEN_A]?.symbol)}🔗${(pairCurrencies[Field.TOKEN_B]?.symbol)}`
+          })
+          setNftBidState({ attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: response.hash })
+        })
+        .catch((error: any) => {
+            // if the user rejected the tx, pass this along
+            if (error?.code === 4001) {
+              throw new Error(`NFT buying failed: You denied transaction signature.`)
+            } else {
+              // otherwise, the error was unexpected and we need to convey that
+              throw new Error(`NFT buying failed: ${error.message}`)
+            }
+        })
+      })
+      .catch((error: any) => {
+        setNftBidState({attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: error.message, txHash: undefined })
+      })
+ }
+
   const isHighValueNftBidder: boolean = parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT] ? (!parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(FIVE_FRACTION)) : false
 
   const handleConfirmDismiss = useCallback(() => {
@@ -390,6 +432,7 @@ export default function Nft() {
       if(!CurrencyA || !CurrencyB) return
       onNftCurrencySelection(Field.TOKEN_A, CurrencyA)
       onNftCurrencySelection(Field.TOKEN_B, CurrencyB)
+      onNftUserInput('')
     },       
     [onNftCurrencySelection] 
   )
@@ -432,7 +475,8 @@ export default function Nft() {
                                 if (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) handleClaimNft()
                                 if (buttonID === USER_BUTTON_ID.OK_FOR_SALE) handleSellNft()
                                 if (buttonID === USER_BUTTON_ID.OK_CHANGE_PRICE) handleSellNft()
-                                if (buttonID === USER_BUTTON_ID.OK_CLOSE_SALE) handleSellNft(true)                                      
+                                if (buttonID === USER_BUTTON_ID.OK_CLOSE_SALE) handleSellNft(true)
+                                if (buttonID === USER_BUTTON_ID.OK_BUY_NFT) handleBuyNft()
                               }}
             swapErrorMessage={nftBidErrorMessage}
             onDismiss={handleConfirmDismiss}
@@ -441,21 +485,19 @@ export default function Nft() {
           />
           <AutoColumn gap={'md'}>
             <TokenPairSelectPanel
-              label='NFT Bid'
               currencyA={pairCurrencies[Field.TOKEN_A]}
               currencyB={pairCurrencies[Field.TOKEN_B]}              
-              onMax={handleMaxInput}
               onCurrencySelectA={handleInputSelect}
               onCurrencySelectB={handleOutputSelect}
               id="NFT-bid-currency-input"
-              customBalanceText = 'Balance: '
             />
             <CurrencyInputPanel
-              label='Bid Price'
+              label={userInputTitle[buttonID]??'Bid Price'}
               value={typedValue}
               showMaxButton={!atMaxAmountInput}
               currency={ETHER}
               onUserInput={handleTypeInput}
+              disableInput = {(buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? true: false}
               onMax={handleMaxInput}
               disableCurrencySelect = {true}
               id="NFT-bid-currency-input"
@@ -555,8 +597,9 @@ export default function Nft() {
                   )}
                   { (nftStatus === NFT_BID_PHASE.PoolForSale) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      This token-pair NFT is on sale.<br/> 
-                      Current NFT sale price: <strong> {nftBidPriceString} ETH </strong>
+                      This token-pair NFT is on sale <br/> 
+                      Current NFT sale price: <strong> {nftBidPriceString} ETH </strong> <br/>
+                      You could set new sale price or just close the sale 
                     </TYPE.italic>
                   )}
                 </AutoColumn>

@@ -110,19 +110,15 @@ interface TokenPairSelectPanelProps {
 }
 
 export default function TokenPairSelectPanel({
-  onMax,
-  label = 'Input',
   onCurrencySelectA,
   onCurrencySelectB,
   currencyA,
   currencyB,
-  hideBalance = false,
   pair = null, // used for double token logo
   hideInput = false,
   otherCurrency,
   id,
-  showCommonBases,
-  customBalanceText
+  showCommonBases
 }: TokenPairSelectPanelProps) {
   const { t } = useTranslation()
 

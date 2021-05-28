@@ -83,7 +83,8 @@ function NftStatus({ pairBidInfo, account, ownerPairNft }: { pairBidInfo: PairBi
                 <Volume2 size={14} />
               } 
               <StyledNFTPrice>
-                {nftPrice.toSignificant(6)}{` ETH`}
+                {(pairBidInfo.poolState === NFT_BID_PHASE.PoolHolding) ? 'Holding' 
+                  : `${nftPrice.toSignificant(6)} ETH` }
               </StyledNFTPrice>
              </>
            )
@@ -247,8 +248,6 @@ export default function NftList({
       const [tokenA, tokenB]: [Token, Token] = data[index]
       const active =  ( ((tokenUA?.address === tokenA.address) && (tokenUB?.address === tokenB.address )) ||
                         ((tokenUA?.address === tokenB.address) && (tokenUB?.address === tokenA.address )) )
- //     if(active) fixedListRef?.current?.scrollTo(index)
-
       return (
         <NftTokenRow
           style={style}

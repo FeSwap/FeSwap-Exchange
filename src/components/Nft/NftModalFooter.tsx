@@ -36,7 +36,7 @@ export default function NftModalFooter({
   return (
     <>
       { ((buttonID !== USER_BUTTON_ID.OK_FOR_SALE) && (buttonID !== USER_BUTTON_ID.OK_CHANGE_PRICE) 
-          && (buttonID !== USER_BUTTON_ID.OK_CLOSE_SALE)) &&
+          && (buttonID !== USER_BUTTON_ID.OK_CLOSE_SALE) && (buttonID !== USER_BUTTON_ID.OK_BUY_NFT) ) &&
         <AutoColumn gap="0px">
           <RowBetween align="center">
             <RowFixed>

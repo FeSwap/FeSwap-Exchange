@@ -52,7 +52,7 @@ export default function NftModalHeader({
           </Text>
         </RowFixed>
       </RowBetween>
-      {(buttonID != USER_BUTTON_ID.OK_CLOSE_SALE) &&
+      {(buttonID !== USER_BUTTON_ID.OK_CLOSE_SALE) &&
         <RowBetween align="flex-end" style={{ padding: '6px 0px 6px 0px'}}>
           <RowFixed>
             <TYPE.body color={theme.text1} fontWeight={400} fontSize={20}>
@@ -64,7 +64,8 @@ export default function NftModalHeader({
               { ( (buttonID === USER_BUTTON_ID.OK_INIT_BID) 
                   || (buttonID === USER_BUTTON_ID.OK_TO_BID)
                   || (buttonID === USER_BUTTON_ID.OK_FOR_SALE)
-                  || (buttonID === USER_BUTTON_ID.OK_CHANGE_PRICE) ) ? 
+                  || (buttonID === USER_BUTTON_ID.OK_CHANGE_PRICE)
+                  || (buttonID === USER_BUTTON_ID.OK_BUY_NFT) ) ? 
                 `${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(8)} ETH` : null}
               { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
                 `${nftBid?.parsedAmounts[USER_UI_INFO.LAST_NFT_PRICE]?.toSignificant(8)} ETH` : null}
@@ -121,6 +122,13 @@ export default function NftModalHeader({
           This NFT could make profits fou you. Thanks for holding.
          </TYPE.italic>
       }
+
+      { (buttonID === USER_BUTTON_ID.OK_BUY_NFT) &&
+        <TYPE.italic size={20} textAlign="left" style={{ width: '100%' }}>
+          The NFT owner will enjoy 60% of the token pair exchange profit corresponding to the NFT. 
+        </TYPE.italic>
+      }
+
       </AutoColumn>
       {recipient !== null ? (
         <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>

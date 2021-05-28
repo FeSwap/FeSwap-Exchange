@@ -124,6 +124,7 @@ interface CurrencyInputPanelProps {
   currency?: Currency | null
   disableCurrencySelect?: boolean
   hideBalance?: boolean
+  disableInput?: boolean
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
@@ -142,6 +143,7 @@ export default function CurrencyInputPanel({
   currency,
   disableCurrencySelect = false,
   hideBalance = false,
+  disableInput = false,
   pair = null, // used for double token logo
   hideInput = false,
   otherCurrency,
@@ -171,7 +173,7 @@ export default function CurrencyInputPanel({
               </TYPE.body>
               {account && (
                 <TYPE.body
-                  onClick={onMax} 
+                  onClick={() => {if(!disableInput && onMax) onMax()} } 
                   color={theme.text2} fontWeight={500} fontSize={15}
                   style={{ display: 'inline', cursor: 'pointer' }}
                 >
@@ -189,12 +191,13 @@ export default function CurrencyInputPanel({
               <NumericalInput
                 className="token-amount-input"
                 value={value}
+                disabled={disableInput}
                 onUserInput={val => {
                   onUserInput(val)
                 }}
               />
               {account && currency && showMaxButton && label !== 'To' && (
-                <StyledBalanceMax onClick={onMax}>MAX</StyledBalanceMax>
+                <StyledBalanceMax disabled={disableInput} onClick={onMax}>MAX</StyledBalanceMax>
               )}
             </>
           )}
