@@ -32,18 +32,23 @@ export default function NftModalFooter({
   const firtBidderPrePrompt = "If you win the bid, the giveway is air-droped at the rate of 20,000 FESW/ETH. If failed, you will get"
   const firtBidderPrompt = firtBidderPrePrompt.concat( (nftBid.firtBidder) ? ' 1000 FESW as this NFT initial creator' : ' 500 FESW')
   const claimPrompt = "The FESW giveway is air-droped at the rate of 20,000 FESW/ETH. Thanks for bidding!"
+  const buyPrompt = "If new sale price is set, the NFT will be kept for sale at new price, otherwise the NFT sale will be closed."
 
   return (
     <>
-      { ((buttonID !== USER_BUTTON_ID.OK_FOR_SALE) && (buttonID !== USER_BUTTON_ID.OK_CHANGE_PRICE) 
-          && (buttonID !== USER_BUTTON_ID.OK_CLOSE_SALE) && (buttonID !== USER_BUTTON_ID.OK_BUY_NFT) ) &&
+      { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID) 
+          || (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) || (buttonID === USER_BUTTON_ID.OK_BUY_NFT) ) &&
         <AutoColumn gap="0px">
           <RowBetween align="center">
             <RowFixed>
               <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-                FESW Giveaway:
+                {(buttonID === USER_BUTTON_ID.OK_BUY_NFT) ? 'NFT New Price' : 'FESW Giveaway:'}
               </TYPE.black>
-              <QuestionHelper text={(buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? claimPrompt :firtBidderPrompt} />
+              <QuestionHelper text={ (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) 
+                                      ? claimPrompt 
+                                      : (buttonID === USER_BUTTON_ID.OK_BUY_NFT)
+                                        ? buyPrompt
+                                        : firtBidderPrompt} />
             </RowFixed>
             <Text
               fontWeight={500}
@@ -58,9 +63,14 @@ export default function NftModalFooter({
               }}
             >
               { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
-                `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
+                `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null }
               { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
-                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null}
+                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null }
+              { (buttonID === USER_BUTTON_ID.OK_BUY_NFT) && 
+                  ( !nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT] 
+                      ? 'Not For Sale'
+                      : `${nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} ETH` ) 
+              } 
             </Text>
           </RowBetween>
         </AutoColumn>

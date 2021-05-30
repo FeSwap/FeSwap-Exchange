@@ -34,6 +34,7 @@ export enum USER_BUTTON_ID {
   ERR_INPUT_VALUE,
   ERR_LOW_BALANCE,
   ERR_LOW_PRICE,
+  ERR_LOW_BUY_PRICE,
   ERR_NO_RECIPIENT,
   OK_INIT_BID,
   OK_TO_BID,
@@ -50,9 +51,10 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.ERR_NO_SERVICE]: 'NO Service',
   [USER_BUTTON_ID.ERR_NO_TOKENS ]: 'Select Token Pair',
   [USER_BUTTON_ID.ERR_BID_ENDED]: 'Bid Completed',
-  [USER_BUTTON_ID.ERR_INPUT_VALUE]: 'Enter an Amount',
+  [USER_BUTTON_ID.ERR_INPUT_VALUE]: 'Enter the Price',
   [USER_BUTTON_ID.ERR_LOW_BALANCE]: 'Insufficient ETH  Balance',
   [USER_BUTTON_ID.ERR_LOW_PRICE]: 'Low Bid Price',
+  [USER_BUTTON_ID.ERR_LOW_BUY_PRICE]: 'Low Buy Price',
   [USER_BUTTON_ID.ERR_NO_RECIPIENT]: 'Enter a recipient',
   [USER_BUTTON_ID.OK_INIT_BID]: 'Initiate a Bid',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bid the NFT',
@@ -133,11 +135,11 @@ export const BidConfirmButton: {[field: number]: string} = {
 export const userInputTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Bid Price',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bid Price',
-  [USER_BUTTON_ID.OK_BUY_NFT]: 'Buying Price',
+  [USER_BUTTON_ID.OK_BUY_NFT]: 'NFT New Sale Price',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Selling Price',
-  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT new Price', 
+  [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT New Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim FESW',
-  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'NFT new Price',
+  [USER_BUTTON_ID.OK_CLOSE_SALE]: 'NFT New Price',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 

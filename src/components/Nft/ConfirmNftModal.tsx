@@ -77,10 +77,24 @@ export default function ConfirmNftModal({
         case USER_BUTTON_ID.OK_INIT_BID:
         case USER_BUTTON_ID.OK_TO_BID:
           return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH for the NFT representing
-                  ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}/${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
+                  ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
         case USER_BUTTON_ID.OK_TO_CLAIM:
           return `Claiming NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
                   and ${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW`
+        case USER_BUTTON_ID.OK_FOR_SALE:
+          return `Selling the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
+                  at the price of ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH`
+        case USER_BUTTON_ID.OK_BUY_NFT:
+          return `Buying the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
+                  ${ (!nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]) 
+                      ? 'and close the NFT sale'
+                      : `and set the new price to be ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH`
+                  }`
+        case USER_BUTTON_ID.OK_CHANGE_PRICE:
+          return `Changing the price of NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
+                  to be ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH`
+        case USER_BUTTON_ID.OK_CLOSE_SALE:
+          return `Stop selling the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}`
         default:
             return ''                     
       }        

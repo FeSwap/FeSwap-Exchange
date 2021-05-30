@@ -34,20 +34,33 @@ const StyledNFTPrice = styled(Text)`
   padding-left: 3px;
 `
 
+enum NFT_BID_GOING {
+  ONGING,
+  VERYSOON,
+  ENDED
+}
+
 // check if the bidding time is ended 
-function ifBidEnded( pairBidInfo: PairBidInfo ): boolean {
+function ifBidEnded( pairBidInfo: PairBidInfo ): NFT_BID_GOING {
   const timeNftCreation: number = pairBidInfo.timeCreated.toNumber()
   const timeNftLastBid: number = pairBidInfo.lastBidTime.toNumber()
   const now = DateTime.now().toSeconds()
   const timeNormalEnd = timeNftCreation + 3600 * 10                     // Normal: 3600 * 24 * 14
 
-  if(pairBidInfo.poolState === NFT_BID_PHASE.BidToStart)  return false
-  if(pairBidInfo.poolState === NFT_BID_PHASE.BidPhase)    return (now >= timeNormalEnd) ? true : false
-  if(pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) return (now >= (timeNftLastBid + 3600 * 2)) ? true : false
-  return true
+  if(pairBidInfo.poolState === NFT_BID_PHASE.BidToStart)  return NFT_BID_GOING.ONGING
+  if(pairBidInfo.poolState === NFT_BID_PHASE.BidPhase){
+      if(now >= timeNormalEnd) return NFT_BID_GOING.ENDED  
+      if(now >= timeNftCreation + 3600 *8) return NFT_BID_GOING.VERYSOON  
+      return NFT_BID_GOING.ONGING
+  }      
+  if(pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) return (now >= (timeNftLastBid + 3600 * 2)) 
+                                                                  ? NFT_BID_GOING.ENDED 
+                                                                  : NFT_BID_GOING.ONGING
+  return NFT_BID_GOING.ENDED
 }
 
 function NftStatus({ pairBidInfo, account, ownerPairNft }: { pairBidInfo: PairBidInfo; account: string; ownerPairNft: string }) {
+  const theme = useContext(ThemeContext)
   const nftPrice = bigNumberToFractionInETH(pairBidInfo.currentPrice)
   const ifPairBidEnded = ifBidEnded(pairBidInfo)
 
@@ -61,17 +74,20 @@ function NftStatus({ pairBidInfo, account, ownerPairNft }: { pairBidInfo: PairBi
             )
           : (
             <>
-              { (pairBidInfo.poolState === NFT_BID_PHASE.BidPhase) && ifPairBidEnded &&
+              { (pairBidInfo.poolState === NFT_BID_PHASE.BidPhase) && (ifPairBidEnded === NFT_BID_GOING.ENDED) &&
                 <Flag size={14} />
               }   
-              { (pairBidInfo.poolState === NFT_BID_PHASE.BidPhase) && (!ifPairBidEnded) &&
+              { (pairBidInfo.poolState === NFT_BID_PHASE.BidPhase) && (ifPairBidEnded === NFT_BID_GOING.ONGING) &&
                 <Activity size={14} />
               }  
-              { (pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) && ifPairBidEnded &&
+              { (pairBidInfo.poolState === NFT_BID_PHASE.BidPhase) && (ifPairBidEnded === NFT_BID_GOING.VERYSOON) &&
+                <Clock size={14} color={theme.primary1} />
+              }  
+              { (pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) && (ifPairBidEnded === NFT_BID_GOING.ENDED) &&
                 <Flag size={14} />
               }   
-              { (pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) && (!ifPairBidEnded) &&
-                <Clock size={14} />
+              { (pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) && (ifPairBidEnded === NFT_BID_GOING.ONGING) &&
+                <Clock size={14} color={theme.primary1} />
               } 
               { (pairBidInfo.poolState === NFT_BID_PHASE.BidSettled) &&
                 <Lock size={14} />

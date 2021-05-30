@@ -225,8 +225,6 @@ export function useDerivedNftInfo(): {
     inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_BALANCE)
   }
 
-  console.log("parsedAmounts", parsedAmounts)
-
   return {
     feswaPairBidInfo, 
     numberOfToken,

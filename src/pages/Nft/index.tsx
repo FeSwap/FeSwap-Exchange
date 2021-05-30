@@ -101,11 +101,13 @@ export default function Nft() {
     txHash: undefined
   })
 
-  const [buttonID, nftStatusPrompt] = useMemo(()=>{
-    if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...']
+  const [buttonID, nftStatusPrompt, inputTitleID] = useMemo(()=>{
+    if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...', USER_BUTTON_ID.OK_INIT_BID]
 
-    let buttonID: USER_BUTTON_ID|undefined
+    let buttonID: USER_BUTTON_ID | undefined
     let nftStatusString: string | undefined
+    let inputTitleID: USER_BUTTON_ID | undefined
+
     if (feswaPairBidInfo.ownerPairNft === account) {
       nftStatusString = "Your are the owner"
     }
@@ -121,74 +123,86 @@ export default function Nft() {
 
     const now = DateTime.now().toSeconds()
     const timeNormalEnd = timeNftCreation + 3600 * 10                 // Normal: 3600 * 24 * 14
+    
+    function setButtonAndInputTitleID(buttonID: USER_BUTTON_ID, titleID?: USER_BUTTON_ID, force?: boolean): USER_BUTTON_ID {
+      inputTitleID = titleID??buttonID
+      return setBidButtonID(inputError, buttonID, force)
+    }
      
     switch (feswaPairBidInfo.pairBidInfo.poolState) {
       case NFT_BID_PHASE.BidToStart: 
         buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
-                        ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
-                        : setBidButtonID(inputError, USER_BUTTON_ID.OK_INIT_BID)
+                        ? setButtonAndInputTitleID(USER_BUTTON_ID.ERR_LOW_PRICE, USER_BUTTON_ID.OK_INIT_BID)
+                        : setButtonAndInputTitleID(USER_BUTTON_ID.OK_INIT_BID)
         nftStatusString = nftStatusString??'Waiting for a bid'
         break
       case NFT_BID_PHASE.BidPhase: 
         if(now >= timeNormalEnd){
           if (feswaPairBidInfo.ownerPairNft === account) {
-            buttonID = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_CLAIM, true)
+            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
           } else {
-            buttonID = setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)
+            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)
           }
-          nftStatusString = nftStatusString??'Bid completed'
+          nftStatusString = nftStatusString??'Bid Completed'
         }else {
           buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
-                          ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
-                          : setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
-          nftStatusString = nftStatusString??'Bid ongoing'
+                          ? setButtonAndInputTitleID(USER_BUTTON_ID.ERR_LOW_PRICE, USER_BUTTON_ID.OK_TO_BID)
+                          : setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_BID)
+          nftStatusString = nftStatusString??'Bid Ongoing'
         }
         break
       case NFT_BID_PHASE.BidDelaying: 
         if(now >= (timeNftLastBid + 3600 * 2)) {
           if (feswaPairBidInfo.ownerPairNft === account) {
-            buttonID = setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_CLAIM, true)
+            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
           } else {
-            buttonID = setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)
+            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)
           }
-          nftStatusString = nftStatusString??'Bid completed'
+          nftStatusString = nftStatusString??'Bid Completed'
         } else {
           buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
-                          ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
-                          : setBidButtonID(inputError, USER_BUTTON_ID.OK_TO_BID)
-          nftStatusString = nftStatusString??'Bid in overtime'
+                          ? setButtonAndInputTitleID(USER_BUTTON_ID.ERR_LOW_PRICE, USER_BUTTON_ID.OK_TO_BID)
+                          : setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_BID)
+          nftStatusString = nftStatusString??'Bid in Overtime'
         }
         break
       case NFT_BID_PHASE.BidSettled:
         buttonID =  (feswaPairBidInfo.ownerPairNft === account)
-                        ? setBidButtonID(inputError, USER_BUTTON_ID.OK_FOR_SALE)
-                        : setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)   
+                        ? setButtonAndInputTitleID(USER_BUTTON_ID.OK_FOR_SALE)
+                        : setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)   
         nftStatusString = nftStatusString??'Bid completed'
         break
       case NFT_BID_PHASE.PoolHolding: 
           buttonID =  (feswaPairBidInfo.ownerPairNft === account)
-                          ? setBidButtonID(inputError, USER_BUTTON_ID.OK_FOR_SALE)
-                          : setBidButtonID(inputError, USER_BUTTON_ID.ERR_BID_ENDED)     
-        nftStatusString = nftStatusString??'NFT in holding'
+                          ? setButtonAndInputTitleID(USER_BUTTON_ID.OK_FOR_SALE)
+                          : setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)     
+        nftStatusString = nftStatusString??'NFT in Holding'
         break
       case NFT_BID_PHASE.PoolForSale: 
           if(feswaPairBidInfo.ownerPairNft === account){
             if(!parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]) {
-              buttonID = setBidButtonID(inputError, USER_BUTTON_ID.OK_CLOSE_SALE, true) 
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_CLOSE_SALE, USER_BUTTON_ID.OK_CLOSE_SALE, true) 
             }else{
-              buttonID = setBidButtonID(inputError, USER_BUTTON_ID.OK_CHANGE_PRICE)
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_CHANGE_PRICE)
             }
           } else {
-            buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(nftBidPrice)
-                          ? setBidButtonID(inputError, USER_BUTTON_ID.ERR_LOW_PRICE)
-                          : setBidButtonID(inputError, USER_BUTTON_ID.OK_BUY_NFT)
+            if(!parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]) {
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_BUY_NFT, USER_BUTTON_ID.OK_BUY_NFT, true)
+            } else {
+              buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(nftBidPrice)
+                            ? setButtonAndInputTitleID(USER_BUTTON_ID.ERR_LOW_BUY_PRICE, USER_BUTTON_ID.OK_BUY_NFT)
+                            : setButtonAndInputTitleID(USER_BUTTON_ID.OK_BUY_NFT)
+            }
           }
-          nftStatusString = nftStatusString??'Token Pair NFT on Sale'
+          nftStatusString = nftStatusString??'Token Pair NFT for Sale'
+          console.log('buttonID, nftStatusString, inputTitleID', buttonID, nftStatusString, inputTitleID)
           break
         default:
           buttonID = inputError
+          inputTitleID = USER_BUTTON_ID.OK_INIT_BID
           nftStatusString = nftStatusString??'Unknown Status'
       }
+
       if (buttonID !== savedButtonID){
         setSavedButtonID(buttonID)
         // clear previous error message while user change the action
@@ -198,7 +212,8 @@ export default function Nft() {
             nftBidErrorMessage: undefined, txHash: undefined })
         }
       }  
-      return [buttonID, nftStatusString]
+      inputTitleID = inputTitleID?? USER_BUTTON_ID.OK_INIT_BID      // to solve code warning
+      return [buttonID, nftStatusString, inputTitleID]
 
     },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock, savedButtonID, setSavedButtonID, txHash, nftBidErrorMessage])
 
@@ -219,7 +234,7 @@ export default function Nft() {
 
   const nftLastBidTime = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return ''
-      return DateTime.fromSeconds(feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()).toFormat("yyyy-LLL-dd HH:MM:ss"); 
+      return DateTime.fromSeconds(feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()).toFormat("yyyy-LLL-dd HH:mm:ss"); 
     },[feswaPairBidInfo])
 
   const nftBidEndingTime = useMemo(()=>{
@@ -233,14 +248,14 @@ export default function Nft() {
 
       if(timeNftLastBid < (timeNormalEnd - 3600 * 2)){
         if(now > timeNormalEnd){
-          return 'Ended'.concat(DateTime.fromSeconds(timeNormalEnd).toFormat("yyyy-LLL-dd HH:MM:ss"))      
+          return 'Ended'.concat(DateTime.fromSeconds(timeNormalEnd).toFormat("yyyy-LLL-dd HH:mm:ss"))      
         }
-        return DateTime.fromSeconds(timeNormalEnd).toFormat("yyyy-LLL-dd HH:MM:ss")
+        return DateTime.fromSeconds(timeNormalEnd).toFormat("yyyy-LLL-dd HH:mm:ss")
       } 
       if(now < (timeNftLastBid + 3600 * 2)) {
-        return DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:MM:ss")   
+        return DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:mm:ss")   
       }
-      return 'Extra'.concat(DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:MM:ss"))     
+      return 'Extra'.concat(DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:mm:ss"))     
     },[feswaPairBidInfo])
 
   const nftTrackedList = useTrackedNFTTokenPairs()
@@ -432,7 +447,6 @@ export default function Nft() {
       if(!CurrencyA || !CurrencyB) return
       onNftCurrencySelection(Field.TOKEN_A, CurrencyA)
       onNftCurrencySelection(Field.TOKEN_B, CurrencyB)
-      onNftUserInput('')
     },       
     [onNftCurrencySelection] 
   )
@@ -492,12 +506,13 @@ export default function Nft() {
               id="NFT-bid-currency-input"
             />
             <CurrencyInputPanel
-              label={userInputTitle[buttonID]??'Bid Price'}
+              label={userInputTitle[buttonID]??userInputTitle[inputTitleID]??'Bid Price'}
               value={typedValue}
               showMaxButton={!atMaxAmountInput}
               currency={ETHER}
               onUserInput={handleTypeInput}
-              disableInput = {(buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? true: false}
+              disableInput = { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? true: 
+                               (buttonID === USER_BUTTON_ID.ERR_BID_ENDED) ? true: false}
               onMax={handleMaxInput}
               disableCurrencySelect = {true}
               id="NFT-bid-currency-input"
@@ -553,7 +568,7 @@ export default function Nft() {
                 <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 6px 12px 6px' }}>
                   { (nftStatus === NFT_BID_PHASE.BidToStart) && (
                     <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
-                      You will be the first bidder. <br />
+                      You will be the first bidder <br />
                       Minimum Bid price: <strong> 0.2 ETH </strong>
                     </TYPE.italic>
                   )}
@@ -592,14 +607,21 @@ export default function Nft() {
                   )}
                   { (nftStatus === NFT_BID_PHASE.PoolHolding) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Final bid price: <strong> {nftBidPriceString} ETH </strong>
+                      Final bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                      { (feswaPairBidInfo.ownerPairNft === account) 
+                        ? <span>  You could hold it , or sell it at specified price </span> 
+                        : <span>  The owner is holding </span> 
+                      }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.PoolForSale) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      This token-pair NFT is on sale <br/> 
+                      This token-pair NFT is for sale <br/> 
                       Current NFT sale price: <strong> {nftBidPriceString} ETH </strong> <br/>
-                      You could set new sale price or just close the sale 
+                      { (feswaPairBidInfo.ownerPairNft === account) 
+                        ? <span>  You could set new sale price or just close the sale </span> 
+                        : <span>  You could buy it for holding and profit yielding </span> 
+                      }
                     </TYPE.italic>
                   )}
                 </AutoColumn>
