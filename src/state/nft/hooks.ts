@@ -7,7 +7,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION, ONE_OVER_HUNDREAD } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID, NFT_BID_PHASE } from './actions'
+import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID } from './actions'
 import { FESW } from '../../constants'
 import { useSingleCallResult } from '../multicall/hooks'
 import { Field, WALLET_BALANCE, USER_UI_INFO } from './actions'
@@ -174,7 +174,7 @@ export function useDerivedNftInfo(): {
 
   const nftBidPrice: CurrencyAmount | undefined = useMemo(() => {
       if ((!feswaPairINfo) || (feswaPairINfo?.nftOwner === ZERO_ADDRESS)) return undefined
-      if(feswaPairINfo?.pairInfo.poolState === NFT_BID_PHASE.PoolHolding) return undefined
+//      if(feswaPairINfo?.pairInfo.poolState === NFT_BID_PHASE.PoolHolding) return undefined
       return CurrencyAmount.ether(feswaPairINfo?.pairInfo.currentPrice.toString())
     },[feswaPairINfo])
   
