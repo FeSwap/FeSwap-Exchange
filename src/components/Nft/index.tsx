@@ -5,13 +5,13 @@ import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
 import { useNFTPairRemover } from '../../state/user/hooks'
-import { useCurrencyFromToken } from '../../hooks/Tokens'
+import { useCurrency, useCurrencyFromToken } from '../../hooks/Tokens'
 import { bigNumberToFractionInETH } from '../../state/nft/hooks'
 import { RowFixed, RowBetween } from '../Row'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { Separator } from '../SearchModal/styleds'
 import Loader from '../Loader'
-import { useNftBidContract } from '../../hooks/useContract'
+import { useNftBidContract, useFeswFactoryContract } from '../../hooks/useContract'
 import { useSingleCallResult } from '../../state/multicall/hooks'
 import { PairBidInfo } from '../../state/nft/reducer'
 import { ZERO_ADDRESS } from '../../constants'
@@ -20,8 +20,10 @@ import { DateTime } from 'luxon'
 import { NFT_BID_PHASE, Field } from '../../state/nft/actions'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 
-function nftTokenKey([tokenA, tokenB]: [Token, Token]): string {
-  return `${tokenA.address}:${tokenB.address}`
+enum NFT_BID_GOING {
+  ONGING,
+  VERYSOON,
+  ENDED
 }
 
 const StyledNFTPrice = styled(Text)`
@@ -34,10 +36,70 @@ const StyledNFTPrice = styled(Text)`
   padding-left: 3px;
 `
 
-enum NFT_BID_GOING {
-  ONGING,
-  VERYSOON,
-  ENDED
+const Container = styled.div`
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.bg1};
+  margin: 0 16px 0 16px;
+`
+
+const NftItem = styled(RowBetween)<{ ifBid: boolean }>`
+  padding: 4px 10px 4px 20px;
+  height: 56px;
+  display: grid;
+  grid-template-columns:  ${({ ifBid }) => (ifBid ? '150px 15px 12px minmax(0, 150px)' : '150px minmax(0, 150px)')};
+   grid-gap: 20px;
+  cursor: ${({ disabled }) => !disabled && 'pointer'};
+  pointer-events: ${({ disabled }) => disabled && 'none'};
+  :hover {
+    background-color: ${({ theme, disabled }) => !disabled && theme.bg2};
+  }
+  opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
+`
+
+const NFTWatchListFooter = styled.div<{ show: boolean }>`
+  padding-top: calc(16px + 2rem);
+  padding-bottom: 16px;
+  margin-top: -2rem;
+  width: 100%;
+  max-width: 420px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  color: ${({ theme }) => theme.text2};
+  background-color: ${({ theme }) => theme.advancedBG};
+  z-index: -1;
+
+  transform: ${({ show }) => (show ? 'translateY(0%)' : 'translateY(-100%)')};
+  transition: transform 300ms ease-in-out;
+`
+
+export const StyledNFTButton = styled.button`
+  height: 20px;
+  width: 28px;
+  background-color: ${({ theme }) => theme.bg2};
+  border: 1px solid ${({ theme }) => theme.bg2};
+  border: none;
+  border-radius: 4px;
+  margin-left: 4px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  :hover {
+    border: 1px solid ${({ theme }) => theme.primary1};
+    color: ${({ theme }) => theme.primaryText1};
+  }
+  :focus {
+    border: 1px solid ${({ theme }) => theme.primary1};
+    color: ${({ theme }) => theme.primaryText1};
+  }
+`
+
+function nftTokenKey([tokenA, tokenB]: [Token, Token]): string {
+  return `${tokenA.address}:${tokenB.address}`
+}
+
+function nftTokenInfoKey([tokenA, tokenB]: [string, string]): string {
+  return `${tokenA}:${tokenB}`
 }
 
 // check if the bidding time is ended 
@@ -104,66 +166,7 @@ function NftStatus({ pairBidInfo, account, ownerPairNft }: { pairBidInfo: PairBi
               </StyledNFTPrice>
              </>
            )
-
 }
-
-const Container = styled.div`
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: ${({ theme }) => theme.bg1};
-  margin: 0 16px 0 16px;
-`
-
-const NftItem = styled(RowBetween)`
-  padding: 4px 10px 4px 20px;
-  height: 56px;
-  display: grid;
-  grid-template-columns: 150px 15px 12px minmax(0, 150px);
-  grid-gap: 20px;
-  cursor: ${({ disabled }) => !disabled && 'pointer'};
-  pointer-events: ${({ disabled }) => disabled && 'none'};
-  :hover {
-    background-color: ${({ theme, disabled }) => !disabled && theme.bg2};
-  }
-  opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
-`
-
-const NFTWatchListFooter = styled.div<{ show: boolean }>`
-  padding-top: calc(16px + 2rem);
-  padding-bottom: 16px;
-  margin-top: -2rem;
-  width: 100%;
-  max-width: 420px;
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
-  color: ${({ theme }) => theme.text2};
-  background-color: ${({ theme }) => theme.advancedBG};
-  z-index: -1;
-
-  transform: ${({ show }) => (show ? 'translateY(0%)' : 'translateY(-100%)')};
-  transition: transform 300ms ease-in-out;
-`
-
-export const StyledNFTButton = styled.button`
-  height: 20px;
-  width: 28px;
-  background-color: ${({ theme }) => theme.bg2};
-  border: 1px solid ${({ theme }) => theme.bg2};
-  border: none;
-  border-radius: 4px;
-  margin-left: 4px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  :hover {
-    border: 1px solid ${({ theme }) => theme.primary1};
-    color: ${({ theme }) => theme.primaryText1};
-  }
-  :focus {
-    border: 1px solid ${({ theme }) => theme.primary1};
-    color: ${({ theme }) => theme.primaryText1};
-  }
-`
 
 function NftTokenRow({
   nftTokenPair,
@@ -200,6 +203,7 @@ function NftTokenRow({
       style={style}
       onClick={() =>  onSelect([currencyA, currencyB]) }
       height={"40px"}
+      ifBid={true}
     >
       <RowFixed>
         <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} size={20} margin={false} />
@@ -236,6 +240,60 @@ function NftTokenRow({
             </RowFixed>
           )
         : (account ? <Loader /> : null)
+      }
+      </RowFixed>
+    </NftItem>
+  )
+}
+
+function NftTokenManageRow({
+  nftTokenPair,
+  onSelect,
+  active,
+  style
+}: {
+  nftTokenPair: PairBidInfo
+  onSelect: (nftTokenPair: [Currency|undefined, Currency|undefined]) => void
+  active: boolean
+  style: CSSProperties
+}) {
+  const theme = useContext(ThemeContext)
+  const feswFactoryContract = useFeswFactoryContract()
+
+  const [tokenAAddress, tokenBAddress] = [nftTokenPair.tokenA, nftTokenPair.tokenB]
+  const currencyA = useCurrency(tokenAAddress)??undefined
+  const currencyB = useCurrency(tokenBAddress)??undefined
+
+  const feswaPairAddress =  useSingleCallResult(feswFactoryContract, 'getPair', [tokenAAddress, tokenBAddress])?.result??undefined
+
+  return ( 
+    <NftItem
+      style={style}
+      onClick={() =>  onSelect([currencyA, currencyB]) }
+      height={"40px"}
+      ifBid={false}
+    >
+      <RowFixed>
+        <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} size={20} margin={false} />
+        { (currencyA && currencyB) 
+          ? (
+            <Text fontWeight={600} fontSize={14} style={{margin:'0px 3px 0px 6px'}}>
+              {currencyA?.symbol}/{currencyB?.symbol}
+            </Text>)
+          : null }
+        { active && <Eye size={14} color={theme.primary1} /> }
+      </RowFixed>
+      <RowFixed style={{ justifySelf: 'flex-end' }}>
+      { (feswaPairAddress)
+        ? ( <RowFixed style={{ justifySelf: 'flex-end' }}>
+              { (feswaPairAddress[0] === ZERO_ADDRESS) 
+                ? (nftTokenPair.poolState < NFT_BID_PHASE.BidSettled) 
+                  ? 'On Biding'
+                  : 'Not Created'
+                : 'Created' } 
+            </RowFixed>
+          )
+        : null
       }
       </RowFixed>
     </NftItem>
@@ -300,6 +358,68 @@ export default function NftList({
     </NFTWatchListFooter>
   )
 }
+
+export function NftInfoList({
+  nftList,
+  pairCurrencies,
+  onNftTokenSelect,
+  fixedListRef,
+}: {
+  nftList: PairBidInfo[] 
+  pairCurrencies: { [field in Field]?: Currency }
+  onNftTokenSelect: (nftTokenPair: [Currency|undefined, Currency|undefined]) => void
+  fixedListRef?: MutableRefObject<FixedSizeList | undefined>
+}) {
+  const theme = useContext(ThemeContext)
+  const { chainId } = useActiveWeb3React()
+  
+  const tokenUA = wrappedCurrency(pairCurrencies[Field.TOKEN_A], chainId)
+  const tokenUB = wrappedCurrency(pairCurrencies[Field.TOKEN_B], chainId)
+
+  const Row = useCallback(
+    ({ data, index, style }) => {
+      const nftPairInfo: PairBidInfo = data[index]
+      const active =  ( ((tokenUA?.address === nftPairInfo.tokenA) && (tokenUB?.address === nftPairInfo.tokenB )) ||
+                        ((tokenUA?.address === nftPairInfo.tokenB) && (tokenUB?.address === nftPairInfo.tokenA )) )
+      return (
+        <NftTokenManageRow
+          style={style}
+          nftTokenPair={nftPairInfo}
+          onSelect= {onNftTokenSelect}
+          active = {active}
+        />
+      )
+    },
+    [onNftTokenSelect, tokenUA, tokenUB]
+  )
+
+  const itemKey = useCallback((index: number, data: any) => nftTokenInfoKey(data[index]), [])
+
+  return (
+    <NFTWatchListFooter show={true}>
+      <Container>
+        <Text fontWeight={500} fontSize={16} color={theme.primary1} style={{margin:'6px 20px 2px 20px'}} >
+          Your NFT tokens:
+        </Text>
+        <Separator />
+          <FixedSizeList
+            height={112}
+            ref={fixedListRef as any}
+            width="100%"
+            itemData={nftList}
+            itemCount={nftList.length}
+            itemSize={28}
+            itemKey={itemKey}
+          >
+            {Row}
+          </FixedSizeList>
+      </Container>
+    </NFTWatchListFooter>
+  )
+}
+
+
+
 
 
 

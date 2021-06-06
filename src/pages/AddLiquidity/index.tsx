@@ -14,6 +14,8 @@ import TransactionConfirmationModal, { ConfirmationModalContent } from '../../co
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
+//import PageHeader from '../../components/PageHeader'
+//import {SettingsIcon} from '../../components/Settings'
 import { MinimalPositionCard } from '../../components/PositionCard'
 import Row, { RowBetween, RowFlat } from '../../components/Row'
 
@@ -304,6 +306,8 @@ export default function AddLiquidity({
 
   const isCreate = history.location.pathname.includes('/create')
 
+//  <AddRemoveTabs creating={isCreate} adding={true} />
+// <PageHeader header={'Manage NFT'}> <SettingsIcon /> </PageHeader>
   return (
     <>
       <AppBody>
@@ -324,19 +328,17 @@ export default function AddLiquidity({
             )}
             pendingText={pendingText}
           />
-          <AutoColumn gap="20px">
+          <AutoColumn gap={'md'}>
             {noLiquidity ||
               (isCreate && (
                 <ColumnCenter>
                   <BlueCard>
-                    <AutoColumn gap="10px">
+                    <AutoColumn gap="6px">
                       <TYPE.link fontWeight={600} color={'primaryText1'}>
                         You are the first liquidity provider.
                       </TYPE.link>
                       <TYPE.link fontWeight={400} color={'primaryText1'}>
                         The ratio of tokens you add will set the price of this pool.
-                      </TYPE.link>
-                      <TYPE.link fontWeight={400} color={'primaryText1'}>
                         Once you are happy with the rate click supply to review.
                       </TYPE.link>
                     </AutoColumn>

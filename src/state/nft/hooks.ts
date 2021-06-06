@@ -9,7 +9,7 @@ import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID } from './actions'
 import { FESW } from '../../constants'
-import { useSingleCallResult } from '../multicall/hooks'
+import { useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'
 import { Field, WALLET_BALANCE, USER_UI_INFO } from './actions'
 import { tryParseAmount } from '../swap/hooks'
 import { useMemo } from 'react'
@@ -18,7 +18,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useCurrency } from '../../hooks/Tokens'
 import { ZERO_ADDRESS } from '../../constants'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
-import { FeswaPairInfo } from './reducer'
+import { PairBidInfo, FeswaPairInfo } from './reducer'
 import { WEI_DENOM } from '../../utils'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useNFTPairAdded } from '../user/hooks'
@@ -58,6 +58,55 @@ export function useTotalETHReceived(): JSBI {
   const { result } = useSingleCallResult(sponsorContract, 'TotalETHReceived', [])
   return result?.[0] ?? undefined
 }
+
+// get Nft count of the current user
+export function useNfftCount(): number | undefined {
+  const { account } = useActiveWeb3React()
+  const nftContract = useNftBidContract()
+  const res = useSingleCallResult(nftContract, 'balanceOf', [account??ZERO_ADDRESS])
+  if (account && res.result && !res.loading) {
+    return parseInt(res.result[0])
+  }
+  return undefined
+}
+
+// get the users NFT list
+export function useUserNFTList(): {
+  numberOfNftToken: number
+  feswaNftPairBidInfo:  PairBidInfo[]
+} {
+  const { account } = useActiveWeb3React()
+  const nftContract = useNftBidContract()
+  const nftTokenCount = useNfftCount()
+  
+  // get all nft Token IDs
+  const nftTokenIndexes = []
+  for (let i = 0; i < (nftTokenCount ?? 0); i++) {
+    nftTokenIndexes.push([account??ZERO_ADDRESS, i])
+  }
+  const allNftTokensIDs = useSingleContractMultipleData(nftContract, 'tokenOfOwnerByIndex', nftTokenIndexes)
+
+  // get all nft Token Infos
+  const allNftTokensIDList = []
+  for (let i = 0; i < (nftTokenCount ?? 0); i++) {
+    if(allNftTokensIDs[i]?.valid && !allNftTokensIDs[i]?.loading)
+      allNftTokensIDList.push([allNftTokensIDs[i].result?.[0].toHexString()?? ZERO_ADDRESS])
+  }
+
+  const allNftTokenInfos = useSingleContractMultipleData(nftContract, 'getPoolInfo', allNftTokensIDList)
+
+  const nftTokenInfoList = []
+  for (let i = 0; i < (nftTokenCount ?? 0); i++) {
+    if(allNftTokenInfos[i]?.valid && !allNftTokenInfos[i]?.loading) {
+      if (allNftTokenInfos[i].result?.[0] === account)
+        nftTokenInfoList.push(allNftTokenInfos[i].result?.[1])
+    }
+  }
+
+  return {  numberOfNftToken:     nftTokenCount?? 0, 
+            feswaNftPairBidInfo:  nftTokenInfoList}
+}
+
 
 // gets the users current votes
 export function useUserVotes(): TokenAmount | undefined {

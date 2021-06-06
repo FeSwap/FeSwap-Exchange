@@ -6,7 +6,7 @@ import { Box } from 'rebass/styled-components'
 const Card = styled(Box)<{ padding?: string; border?: string; borderRadius?: string }>`
   width: 100%;
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: 8px 12px 8px 12px;
   padding: ${({ padding }) => padding};
   border: ${({ border }) => border};
   border-radius: ${({ borderRadius }) => borderRadius};
@@ -41,14 +41,14 @@ export const PinkCard = styled(Card)`
 const BlueCardStyled = styled(Card)`
   background-color: ${({ theme }) => theme.primary5};
   color: ${({ theme }) => theme.primary1};
-  border-radius: 12px;
+  border-radius: 8px;
   width: fit-content;
 `
 
 export const BlueCard = ({ children, ...rest }: CardProps) => {
   return (
     <BlueCardStyled {...rest}>
-      <Text fontWeight={500} color="#2172E5">
+      <Text fontWeight={400} color="#2172E5">
         {children}
       </Text>
     </BlueCardStyled>

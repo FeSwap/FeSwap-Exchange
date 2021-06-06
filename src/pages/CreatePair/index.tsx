@@ -1,4 +1,4 @@
-import { Currency, ETHER, Fraction, Rounding, CurrencyAmount } from '@uniswap/sdk'
+import { Currency, Fraction, Rounding, CurrencyAmount } from '@uniswap/sdk'
 import React, { useCallback, useContext, useState, useMemo, useRef } from 'react'
 import { PlusCircle } from 'react-feather'
 import { Text } from 'rebass'
@@ -9,27 +9,26 @@ import { ButtonError, ButtonLight } from '../../components/Button'
 import Card  from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import ConfirmNftModal from '../../components/Nft/ConfirmNftModal'
-import CurrencyInputPanel, { Container } from '../../components/CurrencyInputPanel'
 import TokenPairSelectPanel from '../../components/TokenPairSelectPanel'
+import { Container } from '../../components/CurrencyInputPanel'
 import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
 import { BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
 import PageHeader from '../../components/PageHeader'
 import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
-import { useETHBalances } from '../../state/wallet/hooks'
-import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID, userInputTitle } from '../../state/nft/actions'
+import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
 
 import {
   NftBidTrade,
   useDerivedNftInfo,
   useNftActionHandlers,
   useNftState,
-  setBidButtonID
+  setBidButtonID,
+  useUserNFTList
 } from '../../state/nft/hooks'
-import { useExpertModeManager, useTrackedNFTTokenPairs } from '../../state/user/hooks'
+import { useExpertModeManager } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
-import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
 import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
@@ -40,7 +39,7 @@ import { calculateGasMargin, FIVE_FRACTION, WEI_DENOM, ZERO_FRACTION, ONE_FRACTI
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
-import NftList, { StyledNFTButton } from '../../components/Nft'
+import { StyledNFTButton, NftInfoList } from '../../components/Nft'
 import { FixedSizeList } from 'react-window'
 import { useNFTPairAdder } from '../../state/user/hooks'
 import { ZERO_ADDRESS } from '../../constants'
@@ -59,7 +58,7 @@ const LabelRow = styled.div`
   }
 `
 
-export default function Nft() {
+export default function CreatePairByNft() {
   const { account, chainId, library } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
   const nftBidContract = useNftBidContract()
@@ -70,11 +69,10 @@ export default function Nft() {
   const [isExpertMode] = useExpertModeManager()
   const currentBlock = useBlockNumber()
 
+  const {feswaNftPairBidInfo} = useUserNFTList()
+
   // NFT Bidding state
-  const {
-    typedValue,
-    recipient,
-  } = useNftState()
+  const { recipient } = useNftState()
 
   const {
     feswaPairBidInfo,
@@ -101,12 +99,11 @@ export default function Nft() {
     txHash: undefined
   })
 
-  const [buttonID, nftStatusPrompt, inputTitleID] = useMemo(()=>{
+  const [buttonID, nftStatusPrompt] = useMemo(()=>{
     if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...', USER_BUTTON_ID.OK_INIT_BID]
 
     let buttonID: USER_BUTTON_ID | undefined
     let nftStatusString: string | undefined
-    let inputTitleID: USER_BUTTON_ID | undefined
 
     if (feswaPairBidInfo.ownerPairNft === account) {
       nftStatusString = "Your are the owner"
@@ -125,7 +122,6 @@ export default function Nft() {
     const timeNormalEnd = timeNftCreation + 3600 * 10                 // Normal: 3600 * 24 * 14
     
     function setButtonAndInputTitleID(buttonID: USER_BUTTON_ID, titleID?: USER_BUTTON_ID, force?: boolean): USER_BUTTON_ID {
-      inputTitleID = titleID??buttonID
       return setBidButtonID(inputError, buttonID, force)
     }
      
@@ -198,7 +194,6 @@ export default function Nft() {
           break
         default:
           buttonID = inputError
-          inputTitleID = USER_BUTTON_ID.OK_INIT_BID
           nftStatusString = nftStatusString??'Unknown Status'
       }
 
@@ -211,8 +206,7 @@ export default function Nft() {
             nftBidErrorMessage: undefined, txHash: undefined })
         }
       }  
-      inputTitleID = inputTitleID?? USER_BUTTON_ID.OK_INIT_BID      // to solve code warning
-      return [buttonID, nftStatusString, inputTitleID]
+      return [buttonID, nftStatusString]
 
     },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock, savedButtonID, setSavedButtonID, txHash, nftBidErrorMessage])
 
@@ -257,22 +251,8 @@ export default function Nft() {
       return 'Extra'.concat(DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:mm:ss"))     
     },[feswaPairBidInfo])
 
-  const nftTrackedList = useTrackedNFTTokenPairs()
-
   const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts, firtBidder: (feswaPairBidInfo?.ownerPairNft === ZERO_ADDRESS) }
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
-  const handleTypeInput = useCallback(
-    (value: string) => { onNftUserInput(value) },
-    [onNftUserInput]
-  )
-
-  const ethBalance = useETHBalances( account ? [account] : [] )
-  const {maxAmountInput, atMaxAmountInput} = useMemo(()=>{
-      if( !account || !ethBalance ) return {undefined, boolean: false}
-      const maxAmountInput = maxAmountSpend(ethBalance[account])
-      const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.equalTo(maxAmountInput))
-      return { maxAmountInput, atMaxAmountInput}
-    }, [account, ethBalance, parsedAmounts] )
 
   async function handleNftBidding(){
     const nftBidderAmount = parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]
@@ -454,10 +434,6 @@ export default function Nft() {
     setNftBidState({ nftBidToConfirm: nftBid, nftBidErrorMessage, txHash, attemptingTxn, showConfirm })
   }, [attemptingTxn, showConfirm, nftBidErrorMessage, nftBid, txHash])
 
-  const handleMaxInput = useCallback(() => {
-    maxAmountInput && onNftUserInput(maxAmountInput.toExact())
-  }, [maxAmountInput, onNftUserInput])
-
   const fixedList = useRef<FixedSizeList>()
 
   const adderNftList = useNFTPairAdder()
@@ -504,19 +480,7 @@ export default function Nft() {
               onCurrencySelectB={handleOutputSelect}
               id="NFT-bid-currency-input"
             />
-            <CurrencyInputPanel
-              label={userInputTitle[buttonID]??userInputTitle[inputTitleID]??'Bid Price'}
-              value={typedValue}
-              showMaxButton={!atMaxAmountInput}
-              currency={ETHER}
-              onUserInput={handleTypeInput}
-              disableInput = { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? true: 
-                               (buttonID === USER_BUTTON_ID.ERR_BID_ENDED) ? true: false}
-              onMax={handleMaxInput}
-              disableCurrencySelect = {true}
-              id="NFT-bid-currency-input"
-              customBalanceText = 'Balance: '
-            />
+
             { (recipient === null && isExpertMode) && (
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
                 <div></div>
@@ -687,8 +651,8 @@ export default function Nft() {
            </BottomGrouping>
         </Wrapper>
       </AppBody>
-      { (nftTrackedList.length > 0) ?
-        <NftList nftList={nftTrackedList} pairCurrencies = {pairCurrencies} onNftTokenSelect={handleNftSelect} fixedListRef={fixedList} /> : null
+      { (feswaNftPairBidInfo.length > 0) ?
+        <NftInfoList nftList={feswaNftPairBidInfo} pairCurrencies = {pairCurrencies} onNftTokenSelect={handleNftSelect} fixedListRef={fixedList} /> : null
       }
     </>
   )

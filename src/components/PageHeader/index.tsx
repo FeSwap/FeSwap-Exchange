@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { RowBetween } from '../Row'
 import { TYPE } from '../../theme'
 
-const StyledPageHeader = styled.div`
+export const StyledPageHeader = styled.div`
   padding: 8px 1rem 10px 1rem;
   margin-bottom: 6px;
   width: 100%;
