@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { useActiveWeb3React } from '../../hooks'
 import { useNFTPairRemover } from '../../state/user/hooks'
-import { useCurrency, useCurrencyFromToken } from '../../hooks/Tokens'
+import { useToken, useCurrencyFromToken } from '../../hooks/Tokens'
 import { bigNumberToFractionInETH } from '../../state/nft/hooks'
 import { RowFixed, RowBetween } from '../Row'
 import DoubleCurrencyLogo from '../DoubleLogo'
@@ -18,7 +18,7 @@ import { ZERO_ADDRESS } from '../../constants'
 import { Lock, User, Coffee, Flag, MinusCircle, Activity, Clock, Volume2, Eye } from 'react-feather'
 import { DateTime } from 'luxon'
 import { NFT_BID_PHASE, Field } from '../../state/nft/actions'
-import { wrappedCurrency } from '../../utils/wrappedCurrency'
+import { wrappedCurrency, unwrappedToken } from '../../utils/wrappedCurrency'
 
 enum NFT_BID_GOING {
   ONGING,
@@ -261,10 +261,14 @@ function NftTokenManageRow({
   const feswFactoryContract = useFeswFactoryContract()
 
   const [tokenAAddress, tokenBAddress] = [nftTokenPair.tokenA, nftTokenPair.tokenB]
-  const currencyA = useCurrency(tokenAAddress)??undefined
-  const currencyB = useCurrency(tokenBAddress)??undefined
+  const tokenA = useToken(tokenAAddress)??undefined
+  const tokenB = useToken(tokenBAddress)??undefined
 
-  const feswaPairAddress =  useSingleCallResult(feswFactoryContract, 'getPair', [tokenAAddress, tokenBAddress])?.result??undefined
+  const pairTokenAddress= [tokenAAddress, tokenBAddress]
+  const currencyA = tokenA ? unwrappedToken(tokenA) : undefined
+  const currencyB = tokenB ? unwrappedToken(tokenB) : undefined
+
+  const feswaPairAddress =  useSingleCallResult(feswFactoryContract, 'getPair', pairTokenAddress)?.result??undefined
 
   return ( 
     <NftItem
@@ -289,8 +293,8 @@ function NftTokenManageRow({
               { (feswaPairAddress[0] === ZERO_ADDRESS) 
                 ? (nftTokenPair.poolState < NFT_BID_PHASE.BidSettled) 
                   ? 'On Biding'
-                  : 'Not Created'
-                : 'Created' } 
+                  : 'Pool to be Created'
+                : 'Pool Created' } 
             </RowFixed>
           )
         : null
@@ -360,12 +364,12 @@ export default function NftList({
 }
 
 export function NftInfoList({
-  nftList,
+  nftPairList,
   pairCurrencies,
   onNftTokenSelect,
   fixedListRef,
 }: {
-  nftList: PairBidInfo[] 
+  nftPairList: PairBidInfo[] 
   pairCurrencies: { [field in Field]?: Currency }
   onNftTokenSelect: (nftTokenPair: [Currency|undefined, Currency|undefined]) => void
   fixedListRef?: MutableRefObject<FixedSizeList | undefined>
@@ -406,8 +410,8 @@ export function NftInfoList({
             height={112}
             ref={fixedListRef as any}
             width="100%"
-            itemData={nftList}
-            itemCount={nftList.length}
+            itemData={nftPairList}
+            itemCount={nftPairList.length}
             itemSize={28}
             itemKey={itemKey}
           >

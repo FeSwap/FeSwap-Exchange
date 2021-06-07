@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { BigNumber } from '@ethersproject/bignumber'
-import { replaceNftState, setNftRecipient, typeNftInput, selectNftCurrency } from './actions'
+import { replaceNftState, setNftRecipient, typeNftInput, typeTriggerRate, selectNftCurrency } from './actions'
 import { Field } from './actions'
 
 export interface PairBidInfo {
@@ -20,6 +20,7 @@ export interface FeswaPairInfo {
 
 export interface NftState {
   readonly typedValue: string
+  readonly rateTrigger: number
   readonly [Field.TOKEN_A]: {
     readonly currencyId: string | undefined
   }
@@ -32,6 +33,7 @@ export interface NftState {
 
 const initialState: NftState = {
   typedValue: '',
+  rateTrigger: 10,
   [Field.TOKEN_A]: {
     currencyId: ''
   },
@@ -44,7 +46,7 @@ const initialState: NftState = {
 
 export default createReducer<NftState>(initialState, builder =>
   builder
-    .addCase(replaceNftState, (state, { payload: { typedValue, recipient, inputCurrencyId, outputCurrencyId } }) => {
+    .addCase(replaceNftState, (state, { payload: { typedValue, rateTrigger, recipient, inputCurrencyId, outputCurrencyId } }) => {
       return {
         [Field.TOKEN_A]: {
           currencyId: inputCurrencyId
@@ -53,6 +55,7 @@ export default createReducer<NftState>(initialState, builder =>
           currencyId: outputCurrencyId
         },
         typedValue: typedValue,
+        rateTrigger: rateTrigger,
         recipient
       }
     })
@@ -77,6 +80,12 @@ export default createReducer<NftState>(initialState, builder =>
       return {
         ...state,
         typedValue
+      }
+    })
+    .addCase(typeTriggerRate, (state, { payload: {rateTrigger } }) => {
+      return {
+        ...state,
+        rateTrigger
       }
     })
     .addCase(setNftRecipient, (state, { payload: { recipient } }) => {

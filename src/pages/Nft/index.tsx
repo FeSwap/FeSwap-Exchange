@@ -472,7 +472,7 @@ export default function Nft() {
   return (
     <>
       <AppBody>
-        <PageHeader header="Nft Bid" />
+        <PageHeader header="Nft Bid/Trade" />
         <Wrapper id="nft-bid-page">
           <ConfirmNftModal
             isOpen={showConfirm}

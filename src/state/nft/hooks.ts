@@ -1,13 +1,13 @@
 import useENS from '../../hooks/useENS'
 import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Fraction } from '@uniswap/sdk'
-import { useSponsorContract, useFeswContract, useNftBidContract } from '../../hooks/useContract'
+import { useSponsorContract, useNftBidContract, useFeswFactoryContract } from '../../hooks/useContract'
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '../../hooks'
 import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION, ONE_OVER_HUNDREAD } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { setNftRecipient, typeNftInput, selectNftCurrency, USER_BUTTON_ID } from './actions'
+import { setNftRecipient, typeNftInput, typeTriggerRate, selectNftCurrency, USER_BUTTON_ID } from './actions'
 import { FESW } from '../../constants'
 import { useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'
 import { Field, WALLET_BALANCE, USER_UI_INFO } from './actions'
@@ -27,6 +27,11 @@ export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
   readonly parsedAmounts: { [field in USER_UI_INFO]?: CurrencyAmount }
   readonly firtBidder: boolean
+}
+
+export interface NftManageTrade {
+  readonly pairCurrencies: { [field in Field]?: Currency | null }
+  readonly recipientAddress: string | null
 }
 
 export function setBidButtonID(curID: USER_BUTTON_ID, newID: USER_BUTTON_ID, force: boolean = false){
@@ -71,7 +76,7 @@ export function useNfftCount(): number | undefined {
 }
 
 // get the users NFT list
-export function useUserNFTList(): {
+export function useGetUserNFTList(): {
   numberOfNftToken: number
   feswaNftPairBidInfo:  PairBidInfo[]
 } {
@@ -107,21 +112,10 @@ export function useUserNFTList(): {
             feswaNftPairBidInfo:  nftTokenInfoList}
 }
 
-
-// gets the users current votes
-export function useUserVotes(): TokenAmount | undefined {
-  const { account, chainId } = useActiveWeb3React()
-  const feswContract = useFeswContract()
-
-  // check for available votes
-  const fesw = chainId ? FESW[chainId] : undefined
-  const votes = useSingleCallResult(feswContract, 'getCurrentVotes', [account ?? undefined])?.result?.[0]
-  return votes && fesw ? new TokenAmount(fesw, votes) : undefined
-}
-
 export function useNftActionHandlers(): {
   onNftCurrencySelection: (field: Field, currency: Currency) => void
   onNftUserInput: (typedValue: string) => void
+  onNftTriggerRate: (rateTrigger: number) => void
   onChangeNftRecipient: (recipient: string | null) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
@@ -135,7 +129,14 @@ export function useNftActionHandlers(): {
 
   const onNftUserInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeNftInput({typedValue }))
+      dispatch(typeNftInput({typedValue}))
+    },
+    [dispatch]
+  )
+
+  const onNftTriggerRate = useCallback(
+    (rateTrigger: number) => {
+      dispatch(typeTriggerRate({rateTrigger}))
     },
     [dispatch]
   )
@@ -150,14 +151,86 @@ export function useNftActionHandlers(): {
   return {
     onNftCurrencySelection,
     onNftUserInput,
+    onNftTriggerRate,
     onChangeNftRecipient
+  }
+}
+
+
+// from the current sponsor inputs, compute the best trade and return it.
+export function useDerivedNftManageInfo(): {
+  feswaPairBidInfo:   FeswaPairInfo
+  feswaPoolPair:      string | undefined
+  pairCurrencies:     { [field in Field]?: Currency }
+  inputError:         USER_BUTTON_ID
+} {
+  const { account, chainId } = useActiveWeb3React()
+  const nftBidContract = useNftBidContract()
+  const feswFactoryContract = useFeswFactoryContract()
+
+  const {
+    recipient,
+    [Field.TOKEN_A]: tokenAId,
+    [Field.TOKEN_B]: tokenBId
+  } = useNftState()
+
+  const currencyA = useCurrency(tokenAId.currencyId)
+  const currencyB = useCurrency(tokenBId.currencyId)
+
+  const recipientLookup = useENS(recipient ?? undefined)
+  const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
+
+  const tokenA = wrappedCurrency(currencyA ?? undefined, chainId)
+  const tokenB = wrappedCurrency(currencyB ?? undefined, chainId)          
+
+  const pairTokenAddress= [ (tokenA instanceof Token) ? (tokenA as Token).address : ZERO_ADDRESS ,
+                            (tokenB instanceof Token) ? (tokenB as Token).address : ZERO_ADDRESS]
+
+  const feswaPairINfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
+
+  const feswaPoolPair =  useSingleCallResult(feswFactoryContract, 'getPair', pairTokenAddress)?.result?.[0]??undefined
+
+  const feswaPairBidInfo : FeswaPairInfo = {
+    tokenIDPairNft: feswaPairINfo?.tokenID,
+    ownerPairNft:   feswaPairINfo?.nftOwner,
+    pairBidInfo:    feswaPairINfo?.pairInfo,
+  }
+
+  const pairCurrencies =  { [Field.TOKEN_A]: currencyA ?? undefined,
+                            [Field.TOKEN_B]: currencyB ?? undefined
+                          }
+
+  //let inputError: string | undefined
+  let inputError: USER_BUTTON_ID = USER_BUTTON_ID.OK_STATUS
+
+  if (!account) {
+    inputError = USER_BUTTON_ID.ERR_NO_WALLET
+  }
+
+  if (!feswaPairINfo?.pairInfo) {
+    inputError = USER_BUTTON_ID.ERR_NO_SERVICE
+  }
+  
+  if (!pairCurrencies[Field.TOKEN_A] || !pairCurrencies[Field.TOKEN_B]) {
+    inputError = USER_BUTTON_ID.ERR_NO_TOKENS
+  }
+
+  const formattedTo = isAddress(to)
+  if (!to || !formattedTo) {
+    inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_NO_RECIPIENT)
+  } 
+
+  return {
+    feswaPairBidInfo, 
+    feswaPoolPair,
+    pairCurrencies,
+    inputError,
   }
 }
 
 // from the current sponsor inputs, compute the best trade and return it.
 export function useDerivedNftInfo(): {
   feswaPairBidInfo:  FeswaPairInfo
-  numberOfToken: number
   pairCurrencies: { [field in Field]?: Currency }
   WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
   parsedAmounts:   { [field in USER_UI_INFO]?: CurrencyAmount }
@@ -201,8 +274,6 @@ export function useDerivedNftInfo(): {
                             (tokenB instanceof Token) ? (tokenB as Token).address : ZERO_ADDRESS]
 
   const feswaPairINfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
-  const numberOfToken = useSingleCallResult(nftBidContract, 'balanceOf', [account ?? ZERO_ADDRESS])?.result?.[0].toNumber()
-                        ?? 0
 
   const feswaPairBidInfo : FeswaPairInfo = {
     tokenIDPairNft: feswaPairINfo?.tokenID,
@@ -276,7 +347,6 @@ export function useDerivedNftInfo(): {
 
   return {
     feswaPairBidInfo, 
-    numberOfToken,
     pairCurrencies,
     WalletBalances,
     parsedAmounts,

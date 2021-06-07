@@ -43,6 +43,9 @@ export enum USER_BUTTON_ID {
   OK_CHANGE_PRICE,
   OK_TO_CLAIM,
   OK_CLOSE_SALE,
+  OK_JUMP_BID,
+  OK_CREATE_PAIR,
+  OK_CHNAGE_CONFIG,
   OK_STATUS
 }
 
@@ -63,6 +66,9 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
+  [USER_BUTTON_ID.OK_JUMP_BID]: 'Skip to Bid',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Manage NFT',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Change NFT Config',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -145,8 +151,10 @@ export const userInputTitle: {[field: number]: string} = {
 
 export const selectNftCurrency = createAction<{ field: Field; currencyId: string }>('swap/selectNftCurrency')
 export const typeNftInput = createAction<{ typedValue: string }>('nft/typeNftInput')
+export const typeTriggerRate = createAction<{ rateTrigger: number }>('nft/typeTriggerRate')
 export const replaceNftState = createAction<{
   typedValue: string
+  rateTrigger: number
   inputCurrencyId?: string
   outputCurrencyId?: string
   recipient: string | null
