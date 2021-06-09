@@ -1,13 +1,13 @@
 import { Currency, Fraction, Rounding } from '@uniswap/sdk'
 import React, { useCallback, useContext, useState, useMemo, useRef } from 'react'
-import { ArrowDown } from 'react-feather'
+import { ArrowDown, ChevronUp, ChevronDown } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { darken } from 'polished'
 import AddressInputPanel from '../../components/AddressInputPanel'
-import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonEmpty } from '../../components/Button'
 import { AutoColumn } from '../../components/Column'
-import { ConfirmNftManageModal } from '../../components/Nft/ConfirmNftModal'
+import ConfirmNftManageModal  from '../../components/Nft/ConfirmNftMngModal'
 import TokenPairSelectPanel from '../../components/TokenPairSelectPanel'
 import { Container } from '../../components/CurrencyInputPanel'
 import Row, { AutoRow, RowBetween, RowFixed } from '../../components/Row'
@@ -29,12 +29,13 @@ import {
   setBidButtonID,
   useGetUserNFTList
 } from '../../state/nft/hooks'
-import { useExpertModeManager } from '../../state/user/hooks'
+// import { useExpertModeManager } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import AppBody from '../AppBody'
 //import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useNftBidContract } from '../../hooks/useContract'
+//import { useNftBidContract } from '../../hooks/useContract'
+import { useFeswRouterContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin,  WEI_DENOM } from '../../utils'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
@@ -87,12 +88,13 @@ const RateButton = styled.button<{ width: string }>`
 export default function CreatePairByNft() {
   const { account, chainId, library } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
-  const nftBidContract = useNftBidContract()
+  const feswRouterContract = useFeswRouterContract()
+  
   const addTransaction = useTransactionAdder()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
-  const [isExpertMode] = useExpertModeManager()
+//  const [isExpertMode] = useExpertModeManager()
   const currentBlock = useBlockNumber()
 
   const {feswaNftPairBidInfo} = useGetUserNFTList()
@@ -113,21 +115,21 @@ export default function CreatePairByNft() {
   const { address: recipientAddress } = useENSAddress(recipient)
 
     // modal and loading
-  const [{ showConfirm, nftBidToConfirm, nftBidErrorMessage, attemptingTxn, txHash }, setNftBidState] = useState<{
+  const [{ showConfirm, nftMngToConfirm, nftManageErrorMessage, attemptingTxn, txHash }, setNftMngState] = useState<{
     showConfirm: boolean
-    nftBidToConfirm: NftManageTrade | undefined
+    nftMngToConfirm: NftManageTrade | undefined
     attemptingTxn: boolean
-    nftBidErrorMessage: string | undefined
+    nftManageErrorMessage: string | undefined
     txHash: string | undefined
   }>({
     showConfirm: false,
-    nftBidToConfirm: undefined,
+    nftMngToConfirm: undefined,
     attemptingTxn: false,
-    nftBidErrorMessage: undefined,
+    nftManageErrorMessage: undefined,
     txHash: undefined
   })
 
-  console.log(attemptingTxn)
+//  console.log(attemptingTxn)
 
   const [buttonID, nftStatusPrompt] = useMemo(()=>{
     if (!feswaPairBidInfo.pairBidInfo) return [inputError, 'Waiting...']
@@ -182,7 +184,7 @@ export default function CreatePairByNft() {
           nftStatusString = nftStatusString??'Unknown Status'
       }
       return [buttonID, nftStatusString]
-    },[feswaPairBidInfo, account, inputError, currentBlock, txHash, nftBidErrorMessage])
+    },[feswaPairBidInfo, account, inputError, currentBlock, txHash, nftManageErrorMessage])
 
   const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
@@ -221,26 +223,29 @@ export default function CreatePairByNft() {
       return 'Ended'.concat(DateTime.fromSeconds(timeNftLastBid + 3600 * 2).toFormat("yyyy-LLL-dd HH:mm:ss"))     
     },[feswaPairBidInfo])
 
-  const nftManageTrade: NftManageTrade = { pairCurrencies, recipientAddress }
+  const nftManageTrade: NftManageTrade = { pairCurrencies, recipientAddress, rateTrigger }
+
   const { onNftCurrencySelection, onNftTriggerRate, onChangeNftRecipient } = useNftActionHandlers()
 
   async function handleNftManaging(){
 
-    if ( !account || !library || !chainId || !nftBidContract ) return
+    if ( !account || !library || !chainId || !feswRouterContract ) return
  
     const toAddess = recipientAddress === null ? account : recipientAddress
     const nftTokenID = feswaPairBidInfo.tokenIDPairNft
       
-    setNftBidState({ attemptingTxn: true, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: undefined })
-    await nftBidContract.estimateGas['ManageFeswaPair']( nftTokenID.toString(), toAddess )
+    setNftMngState({ attemptingTxn: true, nftMngToConfirm, showConfirm, nftManageErrorMessage: undefined, txHash: undefined })
+    await feswRouterContract.estimateGas['ManageFeswaPair']( nftTokenID.toString(), toAddess, rateTrigger )
       .then(async(estimatedGasLimit) => {
-        await nftBidContract.ManageFeswaPair(nftTokenID.toString(), toAddess, 
+        await feswRouterContract.ManageFeswaPair(nftTokenID.toString(), toAddess, rateTrigger,
                                             { gasLimit: calculateGasMargin(estimatedGasLimit) })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
-            summary: `Managing NFT: ${(pairCurrencies[Field.TOKEN_A]?.symbol)}🔗${(pairCurrencies[Field.TOKEN_B]?.symbol)}.`
+            summary: `Managing NFT: ${(pairCurrencies[Field.TOKEN_A]?.symbol)}🔗${(pairCurrencies[Field.TOKEN_B]?.symbol)}.
+                      ${(recipientAddress !==null)? `Profit receiver: ${recipientAddress}` : ''} 
+                      ${(rateTrigger !==0)? `New arbitrage trigger deviation: ${rateTrigger}` : ''} `
           })
-          setNftBidState({ attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: response.hash })
+          setNftMngState({ attemptingTxn: false, nftMngToConfirm, showConfirm, nftManageErrorMessage: undefined, txHash: response.hash })
         })
         .catch((error: any) => {
             // if the user rejected the tx, pass this along
@@ -253,18 +258,18 @@ export default function CreatePairByNft() {
         })
       })
       .catch((error: any) => {
-        setNftBidState({attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: error.message, txHash: undefined })
+        setNftMngState({attemptingTxn: false, nftMngToConfirm, showConfirm, nftManageErrorMessage: error.message, txHash: undefined })
       })
   }
 
 
   const handleConfirmDismiss = useCallback(() => {
-    setNftBidState({ showConfirm: false, nftBidToConfirm, attemptingTxn, nftBidErrorMessage, txHash })
+    setNftMngState({ showConfirm: false, nftMngToConfirm, attemptingTxn, nftManageErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onNftTriggerRate(10)
     }
-  }, [attemptingTxn, onNftTriggerRate, nftBidErrorMessage, nftBidToConfirm, txHash])
+  }, [attemptingTxn, onNftTriggerRate, nftManageErrorMessage, nftMngToConfirm, txHash])
 
 
   const handleInputSelect = useCallback(
@@ -286,6 +291,8 @@ export default function CreatePairByNft() {
     [onNftCurrencySelection] 
   )
 
+  const [showMore, setShowMore] = useState(false)
+
   const fixedList = useRef<FixedSizeList>()
 
    const changeRateTriggerCallback = useCallback(
@@ -295,27 +302,6 @@ export default function CreatePairByNft() {
     [onNftTriggerRate]
   )
 
-
-/*
-  <ConfirmNftModal
-  isOpen={showConfirm}
-  nftBid={nftManageTrade}
-  originalNftBid={nftBidToConfirm}
-  onAcceptChanges={handleAcceptChanges}
-  attemptingTxn={attemptingTxn}
-  txHash={txHash}
-  recipient={recipient}
-  onConfirm={() =>  {
-                      if (buttonID === USER_BUTTON_ID.OK_INIT_BID) handleNftManaging()
-                      if (buttonID === USER_BUTTON_ID.OK_TO_BID) handleNftManaging()
-                    }}
-  swapErrorMessage={nftBidErrorMessage}
-  onDismiss={handleConfirmDismiss}
-  highNftPrice = {isHighValueNftBidder}
-  buttonID = {buttonID}
-/>
-*/
-
   return (
     <>
       <AppBody>
@@ -323,19 +309,17 @@ export default function CreatePairByNft() {
         <Wrapper id="nft-bid-page">
             <ConfirmNftManageModal
               isOpen={showConfirm}
-              nftBid={undefined}
-              originalNftBid={undefined}
-              onAcceptChanges={()=>{}}
+              nftManageTrx={nftManageTrade}
+              originalnftManageTrx={nftMngToConfirm}
               attemptingTxn={attemptingTxn}
               txHash={txHash}
               recipient={recipient}
               onConfirm={() =>  {
-                                  if (buttonID === USER_BUTTON_ID.OK_INIT_BID) handleNftManaging()
-                                  if (buttonID === USER_BUTTON_ID.OK_TO_BID) handleNftManaging()
+                                  if (buttonID === USER_BUTTON_ID.OK_CREATE_PAIR) handleNftManaging()
+                                  if (buttonID === USER_BUTTON_ID.OK_CHNAGE_CONFIG) handleNftManaging()
                                 }}
-              swapErrorMessage={nftBidErrorMessage}
+              swapErrorMessage={nftManageErrorMessage}
               onDismiss={handleConfirmDismiss}
-              highNftPrice = {false}
               buttonID = {buttonID}
           />
           <AutoColumn gap={'md'}>
@@ -347,7 +331,7 @@ export default function CreatePairByNft() {
               id="NFT-bid-currency-input"
             />
 
-            { (recipient === null && isExpertMode) && (
+            { (recipient === null) && (
               <AutoRow justify={'space-between'} style={{ padding: '0 1rem', alignItems: 'center' }}>
                 <div />
                 <LinkStyledButton id="add-recipient-button" onClick={() => onChangeNftRecipient('')}>
@@ -380,41 +364,68 @@ export default function CreatePairByNft() {
             )}
               <Container hideInput={false}>
                   <AutoColumn gap="6px">
-                    <Row style={{ margin: '6px 0px 0px 8px', alignItems: 'center' }}>
-                      <Text fontWeight={500}>Price gap to trigger arbitrage</Text>
-                      <QuestionHelper text="While the token prices in two sub liquidity pools deviate more than the specified rate, 
-                                    internal token swap is triggerd to balance the prices. The rate set by the Nft owner weights 60%." />
-                    </Row>
-                    <CardWrapper >
-                      <Row style={{ margin: '0px 6px 0px 8px', alignItems: 'center'}}>
-                        <Text fontSize={40} fontWeight={500} color={theme.primary1}>
-                          {(rateTrigger/10).toFixed(1)}%
-                        </Text>
+                    <RowBetween>
+                      <Row style={{ margin: '6px 0px 0px 8px', alignItems: 'center' }}>
+                        <Text fontWeight={500}>Price gap to trigger arbitrage</Text>
+                        <QuestionHelper text="While the token prices in two sub liquidity pools deviate more than the specified rate, 
+                                      internal token swap is triggerd to balance the prices. The rate set by the Nft owner weights 60%." />
                       </Row>
-                      <Row style={{ margin: '0 0.5 0 1em', alignItems: 'center' }}>
-                        <AutoColumn gap="2px" style={{ margin: '0 1 0 1em', width: '100%' }} >
-                          <Slider value={rateTrigger} onChange={changeRateTriggerCallback} 
-                                        min= {10} step={1} max={50} size={12}/>
-                          <RowBetween style={{ width: '90%', marginLeft: 15, marginRight: 15, paddingBottom: '10px' }}>
-                            <RateButton onClick={() => onNftTriggerRate(10)} width="16%">
-                              1%
-                            </RateButton>
-                            <RateButton onClick={() => onNftTriggerRate(20)} width="16%">
-                              2%
-                            </RateButton>
-                            <RateButton onClick={() => onNftTriggerRate(30)} width="16%">
-                              3%
-                            </RateButton>
-                            <RateButton onClick={() => onNftTriggerRate(40)} width="16%">
-                              4%
-                            </RateButton>
-                            <RateButton onClick={() => onNftTriggerRate(50)} width="16%">
-                              5%
-                            </RateButton>
-                          </RowBetween>
-                        </AutoColumn>
-                      </Row>
-                    </CardWrapper>
+
+                      <RowFixed>
+                        <ButtonEmpty
+                          padding="6px 0px"
+                          onClick={() => {
+                                            showMore ? onNftTriggerRate(0) : onNftTriggerRate(10)
+                                            setShowMore(!showMore)
+                                          }}
+                        >
+                          {showMore ? (
+                            <>
+                              <Text> Default </Text>
+                              <ChevronUp style={{ margin: '0px 8px 0px 20px'}} />
+                            </>
+                          ) : (
+                            <>
+                              <Text> Config </Text>
+                              <ChevronDown style={{ margin: '0px 8px 0px 20px'}} />
+                            </>
+                          )}
+                        </ButtonEmpty>
+                      </RowFixed>
+                    </RowBetween>
+
+                    {showMore && 
+                      <CardWrapper >
+                        <Row style={{ margin: '0px 6px 0px 8px', alignItems: 'center'}}>
+                          <Text fontSize={40} fontWeight={500} color={theme.primary1}>
+                            {(rateTrigger/10).toFixed(1)}%
+                          </Text>
+                        </Row>
+                        <Row style={{ margin: '0 0.5 0 1em', alignItems: 'center' }}>
+                          <AutoColumn gap="2px" style={{ margin: '0 1 0 1em', width: '100%' }} >
+                            <Slider value={rateTrigger} onChange={changeRateTriggerCallback} 
+                                          min= {10} step={1} max={50} size={12}/>
+                            <RowBetween style={{ width: '90%', marginLeft: 15, marginRight: 15, paddingBottom: '10px' }}>
+                              <RateButton onClick={() => onNftTriggerRate(10)} width="16%">
+                                1%
+                              </RateButton>
+                              <RateButton onClick={() => onNftTriggerRate(20)} width="16%">
+                                2%
+                              </RateButton>
+                              <RateButton onClick={() => onNftTriggerRate(30)} width="16%">
+                                3%
+                              </RateButton>
+                              <RateButton onClick={() => onNftTriggerRate(40)} width="16%">
+                                4%
+                              </RateButton>
+                              <RateButton onClick={() => onNftTriggerRate(50)} width="16%">
+                                5%
+                              </RateButton>
+                            </RowBetween>
+                          </AutoColumn>
+                        </Row>
+                      </CardWrapper>
+                    }
                   </AutoColumn>
             </Container>
 
@@ -504,17 +515,13 @@ export default function CreatePairByNft() {
                   :
                   <ButtonError
                     onClick={() => {
-                      if (isExpertMode) {
-                        handleNftManaging()
-                      } else {
-                        setNftBidState({
-                          nftBidToConfirm: nftManageTrade,
+                          setNftMngState({
+                          nftMngToConfirm: nftManageTrade,
                           attemptingTxn: false,
-                          nftBidErrorMessage: undefined,
+                          nftManageErrorMessage: undefined,
                           showConfirm: true,
                           txHash: undefined
                         })
-                      }
                     }}
                     id="NFT-bid-button"
                     disabled={ buttonID < USER_BUTTON_ID.OK_INIT_BID}
@@ -527,7 +534,7 @@ export default function CreatePairByNft() {
                 }
               </AutoColumn>              
             )}
-            {nftBidErrorMessage && !showConfirm ? <SwapCallbackError error={nftBidErrorMessage} /> : null}
+            {nftManageErrorMessage && !showConfirm ? <SwapCallbackError error={nftManageErrorMessage} /> : null}
            </BottomGrouping>
         </Wrapper>
       </AppBody>

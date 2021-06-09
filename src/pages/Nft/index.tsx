@@ -260,6 +260,7 @@ export default function Nft() {
   const nftTrackedList = useTrackedNFTTokenPairs()
 
   const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts, firtBidder: (feswaPairBidInfo?.ownerPairNft === ZERO_ADDRESS) }
+  
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
   const handleTypeInput = useCallback(
     (value: string) => { onNftUserInput(value) },

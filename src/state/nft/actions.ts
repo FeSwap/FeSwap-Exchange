@@ -80,6 +80,8 @@ export const BidConfirmTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Confirm to Close NFT Sale',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Create NFT Pool',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Config NFT Pool',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -91,6 +93,8 @@ export const BidPendingTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Create NFT Pool',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Config NFT Pool',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -102,6 +106,8 @@ export const BidSubmittedTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'NFT Claim Submmitted',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Create NFT Pool',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Config NFT Pool',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -113,6 +119,8 @@ export const BidConfirmLine1: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT to Change:', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Your own NFT:',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Target NFT Sale:',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'NFT Pool:',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'NFT Pool:',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -124,6 +132,8 @@ export const BidConfirmLine2: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'New NFT Price:', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Final Price:',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close Sale:',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Trigger Rate:',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Trigger Rate:',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 
@@ -135,6 +145,8 @@ export const BidConfirmButton: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change Price', 
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Create NFT Pool',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Config NFT Pool ',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 

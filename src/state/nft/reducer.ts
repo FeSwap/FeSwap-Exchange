@@ -33,7 +33,7 @@ export interface NftState {
 
 const initialState: NftState = {
   typedValue: '',
-  rateTrigger: 10,
+  rateTrigger: 0,
   [Field.TOKEN_A]: {
     currencyId: ''
   },

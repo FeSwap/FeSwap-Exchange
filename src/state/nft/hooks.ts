@@ -32,6 +32,7 @@ export interface NftBidTrade {
 export interface NftManageTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
   readonly recipientAddress: string | null
+  readonly rateTrigger: number
 }
 
 export function setBidButtonID(curID: USER_BUTTON_ID, newID: USER_BUTTON_ID, force: boolean = false){
