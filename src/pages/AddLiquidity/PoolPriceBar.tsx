@@ -1,4 +1,4 @@
-import { Currency, Percent, Price } from '@uniswap/sdk'
+import { Currency, Percent, Price } from '@feswap/sdk'
 import React, { useContext } from 'react'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
@@ -21,7 +21,7 @@ export function PoolPriceBar({
 }) {
   const theme = useContext(ThemeContext)
   return (
-    <AutoColumn gap="md">
+    <AutoColumn gap="md" >
       <AutoRow justify="space-around" gap="4px">
         <AutoColumn justify="center">
           <TYPE.black>{price?.toSignificant(6) ?? '-'}</TYPE.black>

@@ -1,5 +1,5 @@
 import { FESW, PRELOADED_PROPOSALS } from './../../constants/index'
-import { TokenAmount } from '@uniswap/sdk'
+import { TokenAmount } from '@feswap/sdk'
 import { isAddress } from 'ethers/lib/utils'
 import { useGovernanceContract, useFeswContract } from '../../hooks/useContract'
 import { useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'

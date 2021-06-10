@@ -1,5 +1,5 @@
 import React from 'react'
-import { Price, Rounding } from '@uniswap/sdk'
+import { Price, Rounding } from '@feswap/sdk'
 import { useContext } from 'react'
 import { RefreshCcw } from 'react-feather'
 import { Text } from 'rebass'

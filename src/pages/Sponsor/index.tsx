@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, ETHER } from '@uniswap/sdk'
+import { Currency, CurrencyAmount, ETHER } from '@feswap/sdk'
 import React, { useCallback, useContext, useState } from 'react'
 import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'

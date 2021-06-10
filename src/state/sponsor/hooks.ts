@@ -1,5 +1,5 @@
 import useENS from '../../hooks/useENS'
-import { CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Price } from '@uniswap/sdk'
+import { CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Price } from '@feswap/sdk'
 import { useSponsorContract, useFeswContract } from '../../hooks/useContract'
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

@@ -1,4 +1,4 @@
-import { Rounding } from '@uniswap/sdk'
+import { Rounding } from '@feswap/sdk'
 import React, { useContext, useState } from 'react'
 import { RefreshCcw } from 'react-feather'
 import { Text } from 'rebass'

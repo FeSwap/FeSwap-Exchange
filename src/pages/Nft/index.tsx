@@ -1,4 +1,4 @@
-import { Currency, ETHER, Fraction, Rounding, CurrencyAmount } from '@uniswap/sdk'
+import { Currency, ETHER, Fraction, Rounding, CurrencyAmount } from '@feswap/sdk'
 import React, { useCallback, useContext, useState, useMemo, useRef } from 'react'
 import { PlusCircle } from 'react-feather'
 import { Text } from 'rebass'

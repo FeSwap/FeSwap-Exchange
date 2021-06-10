@@ -12,7 +12,7 @@ import { SwapShowAcceptChanges } from '../swap/styleds'
 import {NftBidTrade} from '../../state/nft/hooks'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { Link2 } from 'react-feather'
-import { CurrencyAmount } from '@uniswap/sdk'
+import { CurrencyAmount } from '@feswap/sdk'
 
 export default function NftModalHeader({
   nftBid,

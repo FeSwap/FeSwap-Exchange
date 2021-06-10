@@ -1,4 +1,4 @@
-import { Rounding } from '@uniswap/sdk'
+import { Rounding } from '@feswap/sdk'
 import React, { useCallback, useMemo } from 'react'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,

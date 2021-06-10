@@ -7,8 +7,8 @@ import { abi as NFT_FACTORY_ABI } from '../constants/abis/FeSwapFactory.json'
 import { abi as NFT_ROUTER_ABI } from '../constants/abis/FeSwapRouter.json'
 import { abi as STAKING_REWARDS_ABI } from '@uniswap/liquidity-staker/build/StakingRewards.json'
 import { abi as MERKLE_DISTRIBUTOR_ABI } from '@uniswap/merkle-distributor/build/MerkleDistributor.json'
-import { ChainId, WETH } from '@uniswap/sdk'
-import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
+import { ChainId, WETH } from '@feswap/sdk'
+import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
 import { useMemo } from 'react'
 import { GOVERNANCE_ADDRESS, SPONSOR_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, 
           FESW, NFT_BID_ADDRESS, NFT_FACTORY_ADDRESS, NFT_ROUTER_ADDRESS } from '../constants'
@@ -99,7 +99,7 @@ export function useBytes32TokenContract(tokenAddress?: string, withSignerIfPossi
 }
 
 export function usePairContract(pairAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(pairAddress, IUniswapV2PairABI, withSignerIfPossible)
+  return useContract(pairAddress, IFeSwapPair, withSignerIfPossible)
 }
 
 export function useMulticallContract(): Contract | null {

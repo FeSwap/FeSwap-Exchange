@@ -1,4 +1,4 @@
-import { ChainId, Pair, Token } from '@uniswap/sdk'
+import { ChainId, Pair, Token } from '@feswap/sdk'
 import flatMap from 'lodash.flatmap'
 import ReactGA from 'react-ga'
 import { useCallback, useMemo } from 'react'
@@ -355,8 +355,9 @@ export function useTrackedTokenPairs(): [Token, Token][] {
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list
     const keyed = combinedList.reduce<{ [key: string]: [Token, Token] }>((memo, [tokenA, tokenB]) => {
-      const sorted = tokenA.sortsBefore(tokenB)
-      const key = sorted ? `${tokenA.address}:${tokenB.address}` : `${tokenB.address}:${tokenA.address}`
+//      const sorted = tokenA.sortsBefore(tokenB)
+    const sorted = true
+    const key = sorted ? `${tokenA.address}:${tokenB.address}` : `${tokenB.address}:${tokenA.address}`
       if (memo[key]) return memo
       memo[key] = sorted ? [tokenA, tokenB] : [tokenB, tokenA]
       return memo

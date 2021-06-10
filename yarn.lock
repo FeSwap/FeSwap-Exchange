@@ -2013,6 +2013,24 @@
     "@ethersproject/properties" "^5.1.0"
     "@ethersproject/strings" "^5.1.0"
 
+"@feswap/core@1.0.0", "@feswap/core@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.0.0.tgz#2dc95577cffd3a20c72abf2b531de47ac1ea189a"
+  integrity sha512-zxfpWvh+2aIfLfddgz/RoBCnP3IChQqnntNiJu+2/zgYbFglY3Ih1YUTfEuPiKCP68cD9fg+nlk6SGnWvR9P/g==
+
+"@feswap/sdk@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.2.1.tgz#96b75d7278b40f79e7b19756b99172ce43c91a46"
+  integrity sha512-A+IPXovwi3fH8eutga2z31m4Zp1Mg/VCKAXM86ymgCdmVywq9j31qgyQgpODJz/lTVvDLA9+ZLmcQdyQMz7rqA==
+  dependencies:
+    "@feswap/core" "^1.0.0"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    jsbi "^3.1.1"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
@@ -3117,19 +3135,6 @@
   resolved "https://registry.yarnpkg.com/@uniswap/merkle-distributor/-/merkle-distributor-1.0.1.tgz#dc3d911f65a860fc3f0cae074bdcd08ed6a27a4d"
   integrity sha512-5gDiTI5hrXIh5UWTrxKYjw30QQDnpl8ckDSpefldNenDlYO1RKkdUYMYpvrqGi2r7YzLYTlO6+TDlNs6O7hDRw==
 
-"@uniswap/sdk@3.0.3":
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/@uniswap/sdk/-/sdk-3.0.3.tgz#8201c7c72215d0030cb99acc7e661eff895c18a9"
-  integrity sha512-t4s8bvzaCFSiqD2qfXIm3rWhbdnXp+QjD3/mRaeVDHK7zWevs6RGEb1ohMiNgOCTZANvBayb4j8p+XFdnMBadQ==
-  dependencies:
-    "@uniswap/v2-core" "^1.0.0"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.1"
-    tiny-invariant "^1.1.0"
-    tiny-warning "^1.0.3"
-    toformat "^2.0.0"
-
 "@uniswap/token-lists@^1.0.0-beta.19":
   version "1.0.0-beta.21"
   resolved "https://registry.yarnpkg.com/@uniswap/token-lists/-/token-lists-1.0.0-beta.21.tgz#5a4844236e328d3b0e87161c19edaace669e3e6e"
@@ -3139,11 +3144,6 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@uniswap/v2-core/-/v2-core-1.0.0.tgz#e0fab91a7d53e8cafb5326ae4ca18351116b0844"
   integrity sha512-BJiXrBGnN8mti7saW49MXwxDBRFiWemGetE58q8zgfnPPzQKq55ADltEILqOt6VFZ22kVeVKbF8gVd8aY3l7pA==
-
-"@uniswap/v2-core@^1.0.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@uniswap/v2-core/-/v2-core-1.0.1.tgz#af8f508bf183204779938969e2e54043e147d425"
-  integrity sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==
 
 "@uniswap/v2-periphery@^1.1.0-beta.0":
   version "1.1.0-beta.0"

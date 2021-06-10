@@ -1,4 +1,4 @@
-import { Currency, Fraction, Rounding } from '@uniswap/sdk'
+import { Currency, Fraction, Rounding } from '@feswap/sdk'
 import React, { useCallback, useContext, useState, useMemo, useRef } from 'react'
 import { ArrowDown, ChevronUp, ChevronDown } from 'react-feather'
 import { Text } from 'rebass'

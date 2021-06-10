@@ -1,4 +1,4 @@
-import { Currency, Token } from '@uniswap/sdk'
+import { Currency, Token } from '@feswap/sdk'
 import React, { CSSProperties, MutableRefObject, useCallback, useContext } from 'react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
