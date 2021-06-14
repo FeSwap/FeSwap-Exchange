@@ -11,7 +11,7 @@ import { ChainId, WETH } from '@feswap/sdk'
 import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
 import { useMemo } from 'react'
 import { GOVERNANCE_ADDRESS, SPONSOR_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, 
-          FESW, NFT_BID_ADDRESS, NFT_FACTORY_ADDRESS, NFT_ROUTER_ADDRESS } from '../constants'
+          FESW, NFT_BID_ADDRESS, FESW_FACTORY_ADDRESS, FESW_ROUTER_ADDRESS } from '../constants'
 import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS
@@ -122,11 +122,11 @@ export function useFeswContract(): Contract | null {
 }
 
 export function useFeswFactoryContract(): Contract | null {
-  return useContract(NFT_FACTORY_ADDRESS, NFT_FACTORY_ABI, true)
+  return useContract(FESW_FACTORY_ADDRESS, NFT_FACTORY_ABI, true)
 }
 
 export function useFeswRouterContract(): Contract | null {
-  return useContract(NFT_ROUTER_ADDRESS, NFT_ROUTER_ABI, true)
+  return useContract(FESW_ROUTER_ADDRESS, NFT_ROUTER_ABI, true)
 }
 
 export function useSponsorContract(): Contract | null {

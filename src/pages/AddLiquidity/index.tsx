@@ -19,7 +19,7 @@ import { AddRemoveTabs } from '../../components/NavigationTabs'
 import { MinimalPositionCard } from '../../components/PositionCard'
 import Row, { RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESS } from '../../constants'
+import { FESW_ROUTER_ADDRESS } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -68,7 +68,6 @@ const RateSplitButton = styled.button<{ width: string }>`
     outline: none;
   }
 `
-
 
 export default function AddLiquidity({
   match: {
@@ -148,8 +147,8 @@ export default function AddLiquidity({
   )
 
   // check whether the user has approved the router on the tokens
-  const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], ROUTER_ADDRESS)
-  const [approvalB, approveBCallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_B], ROUTER_ADDRESS)
+  const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], FESW_ROUTER_ADDRESS)
+  const [approvalB, approveBCallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_B], FESW_ROUTER_ADDRESS)
 
   const addTransaction = useTransactionAdder()
 
@@ -175,14 +174,19 @@ export default function AddLiquidity({
       const tokenBIsETH = currencyB === ETHER
       estimate = router.estimateGas.addLiquidityETH
       method = router.addLiquidityETH
-      args = [
-        wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '', // token
-        (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(), // token desired
-        amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
-        amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
-        account,
-        deadline.toHexString()
-      ]
+
+      const addLiquidityETHParams =  [
+            wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '',     // token
+            (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(),                     // token desired
+            amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),         // token min
+            amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),         // eth min
+            rateSplit.toString(),                                                             // split rate
+        ]
+
+      args = [addLiquidityETHParams, account, deadline.toHexString()]
+      console.log('args', args)
+      console.log('router', router)
+
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
     } else {
       estimate = router.estimateGas.addLiquidity
@@ -303,7 +307,11 @@ export default function AddLiquidity({
       if (newCurrencyIdA === currencyIdB) {
         history.push(`/add/${currencyIdB}/${currencyIdA}`)
       } else {
-        history.push(`/add/${newCurrencyIdA}/${currencyIdB}`)
+        if(currencyIdB){
+          history.push(`/add/${newCurrencyIdA}/${currencyIdB}`)
+        } else {
+          history.push(`/add/${newCurrencyIdA}`)
+        }
       }
     },
     [currencyIdB, history, currencyIdA]
@@ -315,7 +323,7 @@ export default function AddLiquidity({
         if (currencyIdB) {
           history.push(`/add/${currencyIdB}/${newCurrencyIdB}`)
         } else {
-          history.push(`/add/${newCurrencyIdB}`)
+          history.push(`/add/ETH/${newCurrencyIdB}`)
         }
       } else {
         history.push(`/add/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)

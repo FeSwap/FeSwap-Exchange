@@ -2013,10 +2013,15 @@
     "@ethersproject/properties" "^5.1.0"
     "@ethersproject/strings" "^5.1.0"
 
-"@feswap/core@1.0.0", "@feswap/core@^1.0.0":
+"@feswap/core@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.0.0.tgz#2dc95577cffd3a20c72abf2b531de47ac1ea189a"
   integrity sha512-zxfpWvh+2aIfLfddgz/RoBCnP3IChQqnntNiJu+2/zgYbFglY3Ih1YUTfEuPiKCP68cD9fg+nlk6SGnWvR9P/g==
+
+"@feswap/core@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.1.0.tgz#d8c23c352c709993bcecdd7b22d3e3e7cac53861"
+  integrity sha512-YI209QPiZfqHhXUqXUQIN/0b2dcQhFVNqQBbj+bcBO9btkWoN/J+jSk9SwYCVJ7AAYJA+kXnRcWjUA3ftL0DXA==
 
 "@feswap/sdk@^1.2.1":
   version "1.2.1"

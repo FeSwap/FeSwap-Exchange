@@ -3,8 +3,6 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
 
-export const ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
-
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export { PRELOADED_PROPOSALS } from './proposals'
@@ -36,8 +34,8 @@ export const SPONSOR_ADDRESS = '0x9b185eCEbff41B991FdA0A268fEc31454779d276'
 //export const NFT_BID_ADDRESS = '0xa1fbe179e8791ab4fc0060b2b881577e68dcd6dd' // Goerli
 export const NFT_BID_ADDRESS      = '0x9bb53A4d89768fb9277eE83016F08Eff21DDd576'        // Rinkeby
 
-export const NFT_FACTORY_ADDRESS  = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'        // Rinkeby
-export const NFT_ROUTER_ADDRESS  = '0xFE7a9e76864704A09584E235C3968Ba3D1C6743b'         // Rinkeby
+export const FESW_FACTORY_ADDRESS  = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'        // Rinkeby
+export const FESW_ROUTER_ADDRESS  = '0x09179ceebad6b676F6E6B0474907335be3E30D89'         // Rinkeby
 
 const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'
 const FESW_TEST_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'
