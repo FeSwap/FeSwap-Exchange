@@ -5,7 +5,7 @@ import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { darken } from 'polished'
 import AddressInputPanel from '../../components/AddressInputPanel'
-import { ButtonError, ButtonLight, ButtonPrimary, ButtonEmpty } from '../../components/Button'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonEmpty, RateButton } from '../../components/Button'
 import { AutoColumn } from '../../components/Column'
 import ConfirmNftManageModal  from '../../components/Nft/ConfirmNftMngModal'
 import TokenPairSelectPanel from '../../components/TokenPairSelectPanel'
@@ -29,23 +29,17 @@ import {
   setBidButtonID,
   useGetUserNFTList
 } from '../../state/nft/hooks'
-// import { useExpertModeManager } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import AppBody from '../AppBody'
-//import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-//import { useNftBidContract } from '../../hooks/useContract'
 import { useFeswRouterContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin,  WEI_DENOM } from '../../utils'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
-//import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
 import { NftInfoList } from '../../components/Nft'
 import { FixedSizeList } from 'react-window'
-//import { useNFTPairAdder } from '../../state/user/hooks'
 import { ZERO_ADDRESS } from '../../constants'
-
 
 const LabelRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -65,24 +59,6 @@ const CardWrapper = styled.div`
   grid-template-columns: 2fr 7fr;
   gap: 20px;
   width: 100%;
-`
-
-const RateButton = styled.button<{ width: string }>`
-  padding: 2px 8px;
-  background-color: ${({ theme }) => theme.bg4};
-  border: 1px solid ${({ theme }) => theme.bg4};
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  overflow: hidden;
-  :hover {
-    border: 1px solid ${({ theme }) => theme.primary1};
-  }
-  :focus {
-    border: 1px solid ${({ theme }) => theme.primary1};
-    outline: none;
-  }
 `
 
 export default function CreatePairByNft() {

@@ -6,7 +6,7 @@ import { Plus } from 'react-feather'
 import ReactGA from 'react-ga'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
-import { ThemeContext } from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
 import { BlueCard, LightCard, LightGreyCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
@@ -40,6 +40,35 @@ import { Dots, Wrapper } from '../Pool/styleds'
 import { ConfirmAddModalBottom } from './ConfirmAddModalBottom'
 import { currencyId } from '../../utils/currencyId'
 import { PoolPriceBar } from './PoolPriceBar'
+import Slider from '../../components/Slider'
+import QuestionHelper from '../../components/QuestionHelper'
+import { Container } from '../../components/CurrencyInputPanel'
+
+const CardWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 6fr;
+  gap: 20px;p
+  width: 100%;
+`
+
+const RateSplitButton = styled.button<{ width: string }>`
+  padding: 2px 2px;
+  background-color: ${({ theme }) => theme.bg4};
+  border: 1px solid ${({ theme }) => theme.bg4};
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  overflow: hidden;
+  :hover {
+    border: 1px solid ${({ theme }) => theme.primary1};
+  }
+  :focus {
+    border: 1px solid ${({ theme }) => theme.primary1};
+    outline: none;
+  }
+`
+
 
 export default function AddLiquidity({
   match: {
@@ -64,7 +93,7 @@ export default function AddLiquidity({
   const expertMode = useIsExpertMode()
 
   // mint state
-  const { independentField, typedValue, otherTypedValue } = useMintState()
+  const { independentField, typedValue, otherTypedValue, rateSplit } = useMintState()
   const {
     dependentField,
     currencies,
@@ -78,7 +107,7 @@ export default function AddLiquidity({
     poolTokenPercentage,
     error
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined)
-  const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
+  const { onFieldAInput, onFieldBInput, onSetSplitRate } = useMintActionHandlers(noLiquidity)
 
   const isValid = !error
 
@@ -329,8 +358,7 @@ export default function AddLiquidity({
             pendingText={pendingText}
           />
           <AutoColumn gap={'md'}>
-            {noLiquidity ||
-              (isCreate && (
+            { (pairState === PairState.EXISTS && noLiquidity) && (
                 <ColumnCenter>
                   <BlueCard>
                     <AutoColumn gap="6px">
@@ -344,8 +372,9 @@ export default function AddLiquidity({
                     </AutoColumn>
                   </BlueCard>
                 </ColumnCenter>
-              ))}
+              )}
             <CurrencyInputPanel
+              label='Token A Liquidity'
               value={formattedAmounts[Field.CURRENCY_A]}
               onUserInput={onFieldAInput}
               onMax={() => {
@@ -361,6 +390,7 @@ export default function AddLiquidity({
               <Plus size="16" color={theme.text2} />
             </ColumnCenter>
             <CurrencyInputPanel
+              label='Token B Liquidity'
               value={formattedAmounts[Field.CURRENCY_B]}
               onUserInput={onFieldBInput}
               onCurrencySelect={handleCurrencyBSelect}
@@ -372,14 +402,70 @@ export default function AddLiquidity({
               id="add-liquidity-input-tokenb"
               showCommonBases
             />
-            {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState !== PairState.INVALID && (
+
+            {pairState === PairState.EXISTS && 
+              <Container hideInput={false}>
+                <AutoColumn gap="6px">
+                  <Row style={{ margin: '6px 0px 0px 8px', alignItems: 'center' }}>
+                    <TYPE.body fontWeight={500} fontSize={15} color={theme.text2}>
+                      Ratio to split liquidity
+                    </TYPE.body>
+                    <QuestionHelper text="Your liquidity will be provided to two sub-pools, pool A->B, and pool B->A. 
+                                          You could specify the split ratio of the total liquidty, or just click 🔨 to use the
+                                          ratio recommended by the system. 
+                                          You could also provide liquidity solely to anyone of the sub-pools."/>
+                  </Row>
+                  <CardWrapper >
+                    <Row style={{ margin: '0px 6px 0px 8px', alignItems: 'center'}}>
+                      <ColumnCenter style={{ margin: '0 1 0 1em', width: '100%' }} >
+                        <Text fontSize={16} fontWeight={500} color={theme.primary1}>
+                          A-B : B-A
+                        </Text>
+                        <Text fontSize={32} fontWeight={500} color={theme.primary1}>
+                          {rateSplit}:{100-rateSplit}
+                        </Text>
+                      </ColumnCenter>
+                    </Row>
+                    <Row style={{ margin: '0 0.5 0 1em', alignItems: 'center' }}>
+                      <AutoColumn gap="2px" style={{ margin: '0 1 0 1em', width: '100%' }} >
+                        <Slider value={rateSplit} onChange={onSetSplitRate} min= {0} step={1} max={100} size={12}/>
+                          <RowBetween style={{ width: '90%', marginLeft: 15, marginRight: 15, paddingBottom: '10px' }}>
+                            <RateSplitButton onClick={() => onSetSplitRate(20)} width="15%">
+                              20%
+                            </RateSplitButton>
+                            <RateSplitButton onClick={() => onSetSplitRate(40)} width="15%">
+                              40%
+                            </RateSplitButton>
+                            <RateSplitButton onClick={() => onSetSplitRate(50)} width="15%">
+                              50%
+                            </RateSplitButton>
+                            <RateSplitButton onClick={() => onSetSplitRate(60)} width="15%">
+                              60%
+                            </RateSplitButton>
+                            <RateSplitButton onClick={() => onSetSplitRate(80)} width="15%">
+                              80%
+                            </RateSplitButton>
+                            <RateSplitButton onClick={() => onSetSplitRate(50)} width="15%">
+                              <span role="img" aria-label="wizard-icon">
+                                🔨
+                              </span>
+                            </RateSplitButton>
+                          </RowBetween>
+                      </AutoColumn>
+                    </Row>
+                  </CardWrapper>
+                </AutoColumn>
+              </Container>
+            }
+
+            {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState === PairState.EXISTS && (
               <>
                 <LightCard padding="0px" borderRadius={'8px'}>
                   <RowBetween padding="0.75rem 1rem 0.75rem 1rem">
                     <TYPE.body fontWeight={500} fontSize={15} color={theme.text2}>
                       {noLiquidity ? 'Initial prices' : 'Prices'} and pool share
                     </TYPE.body>
-                  </RowBetween>{' '}
+                  </RowBetween>
                   <LightGreyCard padding="8px 0px" borderRadius={'8px'}>
                     <PoolPriceBar
                       currencies={currencies}

@@ -9,7 +9,7 @@ import { wrappedCurrency, wrappedCurrencyAmount } from '../../utils/wrappedCurre
 import { AppDispatch, AppState } from '../index'
 import { tryParseAmount } from '../swap/hooks'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { Field, typeInput } from './actions'
+import { Field, typeInput, setRateSplit } from './actions'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -137,7 +137,11 @@ export function useDerivedMintInfo(
   }
 
   if (pairState === PairState.INVALID) {
-    error = error ?? 'Invalid pair'
+    error = error ?? 'Select Token Pair'
+  }
+
+  if (pairState === PairState.NOT_EXISTS) {
+    error = error ?? 'Pair Not Created'
   }
 
   if (!parsedAmounts[Field.CURRENCY_A] || !parsedAmounts[Field.CURRENCY_B]) {
@@ -174,6 +178,7 @@ export function useMintActionHandlers(
 ): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
+  onSetSplitRate: (rateSplit: number) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -189,9 +194,16 @@ export function useMintActionHandlers(
     },
     [dispatch, noLiquidity]
   )
+  const onSetSplitRate = useCallback(
+    (rateSplit: number) => {
+      dispatch(setRateSplit({rateSplit}))
+    },
+    [dispatch]
+  )
 
   return {
     onFieldAInput,
-    onFieldBInput
+    onFieldBInput,
+    onSetSplitRate
   }
 }

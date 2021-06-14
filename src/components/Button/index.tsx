@@ -276,6 +276,24 @@ const ButtonErrorStyle = styled(Base)`
   }
 `
 
+export const RateButton = styled.button<{ width: string }>`
+  padding: 2px 8px;
+  background-color: ${({ theme }) => theme.bg4};
+  border: 1px solid ${({ theme }) => theme.bg4};
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  overflow: hidden;
+  :hover {
+    border: 1px solid ${({ theme }) => theme.primary1};
+  }
+  :focus {
+    border: 1px solid ${({ theme }) => theme.primary1};
+    outline: none;
+  }
+`
+
 export function ButtonConfirmed({
   confirmed,
   altDisabledStyle,
