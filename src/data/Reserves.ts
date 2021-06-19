@@ -29,45 +29,47 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     [chainId, currencies]
   )
 
-  const pairAddresses = useMemo(
-    () =>
+  const pairAddressesAAB = useMemo(
+    () => 
       tokens.map(([tokenA, tokenB]) => {
         return tokenA && tokenB && !tokenA.equals(tokenB) ? Pair.getAddress(tokenA, tokenB) : undefined
       }),
     [tokens]
   )
 
-/*
-  const pairAddresses = useMemo(
-    () =>
-    flatMap(tokens, ([tokenA, tokenB]) => {
-        return tokenA && tokenB && !tokenA.equals(tokenB) 
-                ? [Pair.getAddress(tokenA, tokenB), Pair.getAddress(tokenB, tokenA)] 
-                : [undefined]
+  const pairAddressesABB = useMemo(
+    () => 
+      tokens.map(([tokenA, tokenB]) => {
+        return tokenA && tokenB && !tokenA.equals(tokenB) ? Pair.getAddress(tokenB, tokenA) : undefined
       }),
     [tokens]
   )
-*/
-  const results = useMultipleContractSingleData(pairAddresses, PAIR_INTERFACE, 'getReserves')
+
+  const resultsAAB = useMultipleContractSingleData(pairAddressesAAB, PAIR_INTERFACE, 'getReserves')
+  const resultsABB = useMultipleContractSingleData(pairAddressesABB, PAIR_INTERFACE, 'getReserves')  
 
   return useMemo(() => {
-    return results.map((result, i) => {
-      const { result: reserves, loading } = result
+    return resultsAAB.map((result, i) => {
+      const { result: reserves, loading} = result
+      const { result: reservesTwin, loading: loadingTwin} = resultsABB[i]
+
       const tokenA = tokens[i][0]
       const tokenB = tokens[i][1]
 
-      if (loading) return [PairState.LOADING, null]
       if (!tokenA || !tokenB || tokenA.equals(tokenB)) return [PairState.INVALID, null]
-      if (!reserves) return [PairState.NOT_EXISTS, null]
+      if (loading || loadingTwin) return [PairState.LOADING, null]
+      if (!reserves || !reservesTwin) return [PairState.NOT_EXISTS, null]
+
       const { _reserveIn, _reserveOut } = reserves
-//      const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
-      const [token0, token1] = [tokenA, tokenB]
+      const { _reserveIn: _reserveInTwin, _reserveOut: _reserveOuTwin } = reservesTwin 
+
       return [
         PairState.EXISTS,
-        new Pair(new TokenAmount(token0, _reserveIn.toString()), new TokenAmount(token1, _reserveOut.toString()))
+        new Pair( new TokenAmount(tokenA, _reserveIn.toString()), new TokenAmount(tokenB, _reserveOut.toString()),
+                  new TokenAmount(tokenB, _reserveInTwin.toString()), new TokenAmount(tokenA, _reserveOuTwin.toString()))
       ]
     })
-  }, [results, tokens])
+  }, [resultsAAB, resultsABB, tokens])
 }
 
 export function usePair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {

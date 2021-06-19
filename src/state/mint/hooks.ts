@@ -49,11 +49,23 @@ export function useDerivedMintInfo(
   )
 
   // pair
-  const [pairState, pair] = usePair(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B])
-  const totalSupply = useTotalSupply(pair?.liquidityToken)
+//  const [pairState, pair] = usePair(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B])
+//  const totalSupply = useTotalSupply(pair?.liquidityToken)
 
-  const noLiquidity: boolean =
-          !(pairState === PairState.EXISTS && totalSupply && !(JSBI.equal(totalSupply.raw, ZERO)))
+//  const noLiquidity: boolean =
+//          !(pairState === PairState.EXISTS && totalSupply && !(JSBI.equal(totalSupply.raw, ZERO)))
+
+  const [pairStateAAB, pairAAB] = usePair(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B])
+  const totalSupplyAAB = useTotalSupply(pairAAB?.liquidityToken)
+
+  const noLiquidityAAB: boolean =
+          !(pairStateAAB === PairState.EXISTS && totalSupplyAAB && !(JSBI.equal(totalSupplyAAB.raw, ZERO)))
+
+  const [pairStateABB, pairABB] = usePair(currencies[Field.CURRENCY_B], currencies[Field.CURRENCY_A])
+  const totalSupplyABB = useTotalSupply(pairABB?.liquidityToken)
+
+  const noLiquidityABB: boolean =
+          !(pairStateABB === PairState.EXISTS && totalSupplyABB && !(JSBI.equal(totalSupplyABB.raw, ZERO)))
 
   // balances
   const balances = useCurrencyBalances(account ?? undefined, [
