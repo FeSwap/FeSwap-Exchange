@@ -1,4 +1,4 @@
-import { JSBI, Pair, Percent, TokenAmount } from '@feswap/sdk'
+import { JSBI, Pair, Percent, TokenAmount, Token } from '@feswap/sdk'
 import { darken } from 'polished'
 import React, { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
@@ -19,15 +19,29 @@ import { CardNoise } from '../earn/styled'
 import { useColor } from '../../hooks/useColor'
 
 import Card, { GreyCard, LightCard } from '../Card'
-import { AutoColumn } from '../Column'
+import { AutoColumn, ColumnCenter, ColumnLeft } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { RowBetween, RowFixed, AutoRow } from '../Row'
+import Row, { RowBetween, RowFixed, AutoRow } from '../Row'
 import { Dots } from '../swap/styleds'
 import { BIG_INT_ZERO } from '../../constants'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 24px;
+`
+
+const CardWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 3fr 3fr 3fr;
+  gap: 20px;
+  width: 100%;
+`
+
+const Separator = styled.div`
+  width: 100%;
+  height: 1px;
+  margin: 0px 0px 6px 0px;
+  background-color: ${({ theme }) => theme.bg5};
 `
 
 export const HoverCard = styled(Card)`
@@ -48,112 +62,172 @@ const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
 
 interface PositionCardProps {
   pair: Pair
+  tokenA?: Token
   showUnwrapped?: boolean
   border?: string
   stakedBalance?: TokenAmount // optional balance to indicate that liquidity is deposited in mining pool
 }
 
-export function MinimalPositionCard({ pair, showUnwrapped = false, border }: PositionCardProps) {
+export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, border }: PositionCardProps) {
   const { account } = useActiveWeb3React()
 
-  const currency0 = showUnwrapped ? pair.token0 : unwrappedToken(pair.token0)
-  const currency1 = showUnwrapped ? pair.token1 : unwrappedToken(pair.token1)
+  const iftokenAFirst = tokenA?.equals(pair.token0)
+  const [token0, token1] = iftokenAFirst ? [pair.token0, pair.token1] : [pair.token1, pair.token0]
 
-  const [showMore, setShowMore] = useState(false)
+  const currency0 = showUnwrapped ? token0 : unwrappedToken(token0)
+  const currency1 = showUnwrapped ? token1 : unwrappedToken(token1)
 
-  const userPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
-  const totalPoolTokens = useTotalSupply(pair.liquidityToken)
+  const userPoolBalance0 = useTokenBalance(account ?? undefined, iftokenAFirst ? pair.liquidityToken0 : pair.liquidityToken1)
+  const totalPoolTokens0 = useTotalSupply(iftokenAFirst ? pair.liquidityToken0 : pair.liquidityToken1)
 
-  const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+  const userPoolBalance1 = useTokenBalance(account ?? undefined, iftokenAFirst ? pair.liquidityToken1 : pair.liquidityToken0 )
+  const totalPoolTokens1 = useTotalSupply(iftokenAFirst ? pair.liquidityToken1 : pair.liquidityToken0)
+
+  const poolTokenPercentage0 =
+    !!userPoolBalance0 && !!totalPoolTokens0 && JSBI.greaterThanOrEqual(totalPoolTokens0.raw, userPoolBalance0.raw)
+      ? new Percent(userPoolBalance0.raw, totalPoolTokens0.raw)
       : undefined
 
-  const [token0Deposited, token1Deposited] =
+  const poolTokenPercentage1 =
+    !!userPoolBalance1 && !!totalPoolTokens1 && JSBI.greaterThanOrEqual(totalPoolTokens1.raw, userPoolBalance1.raw)
+      ? new Percent(userPoolBalance1.raw, totalPoolTokens1.raw)
+      : undefined
+
+  const [token00Deposited, token01Deposited] =
     !!pair &&
-    !!totalPoolTokens &&
-    !!userPoolBalance &&
+    !!totalPoolTokens0 &&
+    !!userPoolBalance0 &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens0.raw, userPoolBalance0.raw)
       ? [
-          pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance, false),
-          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance, false)
+          pair.getLiquidityValue(token0, totalPoolTokens0, userPoolBalance0, false),
+          pair.getLiquidityValue(token1, totalPoolTokens0, userPoolBalance0, false)
+        ]
+      : [undefined, undefined]
+
+  const [token10Deposited, token11Deposited] =
+    !!pair &&
+    !!totalPoolTokens1 &&
+    !!userPoolBalance1 &&
+    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
+    JSBI.greaterThanOrEqual(totalPoolTokens1.raw, userPoolBalance1.raw)
+      ? [
+          pair.getLiquidityValue(token1, totalPoolTokens1, userPoolBalance1, false),
+          pair.getLiquidityValue(token0, totalPoolTokens1, userPoolBalance1, false)
         ]
       : [undefined, undefined]
 
   return (
     <>
-      {userPoolBalance && JSBI.greaterThan(userPoolBalance.raw, JSBI.BigInt(0)) ? (
+      { ( ( userPoolBalance0 && JSBI.greaterThan(userPoolBalance0.raw, JSBI.BigInt(0) ) ) || 
+          ( userPoolBalance1 && JSBI.greaterThan(userPoolBalance1.raw, JSBI.BigInt(0) ) ) )
+      ? (
         <GreyCard border={border}>
-          <AutoColumn gap="12px">
-            <FixedHeightRow>
-              <RowFixed>
-                <Text fontWeight={500} fontSize={16}>
-                  Your position
+          <ColumnCenter>
+            <Text fontWeight={500} fontSize={16} >
+              Your position
+            </Text>
+            <Separator />
+          </ColumnCenter>
+          <CardWrapper>
+            <Row>
+              <ColumnLeft style={{ margin: '0 1 0 1em', width: '100%' }} >
+                <RowFixed>
+                  <Text fontWeight={500} fontSize={14}>
+                  <strong>Sub-Pools</strong>
+                  </Text>
+                </RowFixed>
+                <Text fontWeight={500} fontSize={14}>
+                  <strong>Pool Liquidity</strong>
                 </Text>
-              </RowFixed>
-            </FixedHeightRow>
-            <FixedHeightRow onClick={() => setShowMore(!showMore)}>
-              <RowFixed>
-                <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={true} size={20} />
-                <Text fontWeight={500} fontSize={20}>
-                  {currency0.symbol}/{currency1.symbol}
+                <Text fontWeight={500} fontSize={14}>
+                  Your Liquidity
                 </Text>
-              </RowFixed>
-              <RowFixed>
-                <Text fontWeight={500} fontSize={20}>
-                  {userPoolBalance ? userPoolBalance.toSignificant(4) : '-'}
+                <Text fontSize={14} fontWeight={500} >
+                  Pool Share
                 </Text>
-              </RowFixed>
-            </FixedHeightRow>
-            <AutoColumn gap="4px">
-              <FixedHeightRow>
-                <Text fontSize={16} fontWeight={500}>
-                  Your pool share:
-                </Text>
-                <Text fontSize={16} fontWeight={500}>
-                  {poolTokenPercentage ? poolTokenPercentage.toFixed(6) + '%' : '-'}
-                </Text>
-              </FixedHeightRow>
-              <FixedHeightRow>
-                <Text fontSize={16} fontWeight={500}>
+                <Text fontSize={14} fontWeight={500}>
                   {currency0.symbol}:
                 </Text>
-                {token0Deposited ? (
-                  <RowFixed>
-                    <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
-                      {token0Deposited?.toSignificant(6)}
-                    </Text>
-                  </RowFixed>
-                ) : (
-                  '-'
-                )}
-              </FixedHeightRow>
-              <FixedHeightRow>
-                <Text fontSize={16} fontWeight={500}>
+                <Text fontSize={14} fontWeight={500}>
                   {currency1.symbol}:
                 </Text>
-                {token1Deposited ? (
-                  <RowFixed>
-                    <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
-                      {token1Deposited?.toSignificant(6)}
-                    </Text>
-                  </RowFixed>
+              </ColumnLeft>
+            </Row>
+            <Row>
+              <ColumnCenter style={{ margin: '0 1 0 1em', width: '100%' }} >
+                <RowFixed>
+                  <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={false} size={14} />
+                  <Text fontWeight={500} fontSize={14}>
+                    <strong>{currency0.symbol}/{currency1.symbol}</strong>
+                  </Text>
+                </RowFixed>
+                <Text fontWeight={500} fontSize={14}>
+                  <strong>{totalPoolTokens0 ? totalPoolTokens0.toSignificant(6) : '-'}</strong>
+                </Text>
+                <Text fontWeight={500} fontSize={14}>
+                  {userPoolBalance0 ? userPoolBalance0.toSignificant(6) : '-'}
+                </Text>
+                <Text fontSize={14} fontWeight={500}>
+                  {poolTokenPercentage0 ? poolTokenPercentage0.toFixed(2) + '%' : '-'}
+                </Text>
+                {token00Deposited ? (
+                      <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                        {token00Deposited?.toSignificant(6)}
+                      </Text>
+                  ) : ('-')}
+
+                {token01Deposited ? (
+                      <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                        {token01Deposited?.toSignificant(6)}
+                      </Text>
+                  ) : ('-')}
+
+              </ColumnCenter>
+            </Row>
+            <Row>
+              <ColumnCenter style={{ margin: '0 1 0 1em', width: '100%' }} >
+                <RowFixed>
+                  <DoubleCurrencyLogo currency0={currency1} currency1={currency0} margin={false} size={14} />
+                  <Text fontWeight={500} fontSize={14}>
+                    <strong>{currency1.symbol}/{currency0.symbol}</strong>
+                  </Text>
+                </RowFixed>
+                <Text fontWeight={500} fontSize={14}>
+                  <strong>{totalPoolTokens1 ? totalPoolTokens1.toSignificant(6) : '-'}</strong>
+                </Text>
+                <Text fontWeight={500} fontSize={14}>
+                  {userPoolBalance1 ? userPoolBalance1.toSignificant(4) : '-'}
+                </Text>
+                <Text fontSize={14} fontWeight={500}>
+                  {poolTokenPercentage1 ? poolTokenPercentage1.toFixed(2) + '%' : '-'}
+                </Text>
+                {token11Deposited ? (
+                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                    {token11Deposited?.toSignificant(6)}
+                  </Text>
                 ) : (
                   '-'
                 )}
-              </FixedHeightRow>
-            </AutoColumn>
-          </AutoColumn>
+                {token10Deposited ? (
+                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                    {token10Deposited?.toSignificant(6)}
+                  </Text>
+                ) : (
+                  '-'
+                )}
+              </ColumnCenter>
+            </Row>
+          </CardWrapper>
         </GreyCard>
-      ) : (
+       ) : (
         <LightCard>
           <TYPE.subHeader style={{ textAlign: 'center' }}>
             <span role="img" aria-label="wizard-icon">
               ⭐️
             </span>{' '}
-            By adding liquidity you&apos;ll earn 0.3% of all trades on this pair proportional to your share of the pool.
-            Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.
+            By adding liquidity you&apos;ll earn the arbitrage profit of all trades on this pair proportional to your share of the pool, 
+            which could be around 0.25-1.0%. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity.
           </TYPE.subHeader>
         </LightCard>
       )}
@@ -169,8 +243,8 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
 
   const [showMore, setShowMore] = useState(false)
 
-  const userDefaultPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
-  const totalPoolTokens = useTotalSupply(pair.liquidityToken)
+  const userDefaultPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken0)
+  const totalPoolTokens = useTotalSupply(pair.liquidityToken0)
 
   // if staked balance balance provided, add to standard liquidity amount
   const userPoolBalance = stakedBalance ? userDefaultPoolBalance?.add(stakedBalance) : userDefaultPoolBalance

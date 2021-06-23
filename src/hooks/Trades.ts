@@ -72,7 +72,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[] {
           .filter((result): result is [PairState.EXISTS, Pair] => Boolean(result[0] === PairState.EXISTS && result[1]))
           // filter out duplicated pairs
           .reduce<{ [pairAddress: string]: Pair }>((memo, [, curr]) => {
-            memo[curr.liquidityToken.address] = memo[curr.liquidityToken.address] ?? curr
+            memo[curr.liquidityToken0.address] = memo[curr.liquidityToken0.address] ?? curr
             return memo
           }, {})
       ),

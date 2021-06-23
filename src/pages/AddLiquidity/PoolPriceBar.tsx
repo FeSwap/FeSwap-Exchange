@@ -1,12 +1,13 @@
 import { Currency, Percent, Price } from '@feswap/sdk'
-import React, { useContext } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { AutoColumn } from '../../components/Column'
 import { AutoRow } from '../../components/Row'
-import { ONE_BIPS } from '../../constants'
+import { ONE_BIPS, ZERO_PERCENT } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
+import { SeparatorDark } from '../../components/SearchModal/styleds'
 
 export function PoolPriceBar({
   currencies,
@@ -16,34 +17,70 @@ export function PoolPriceBar({
 }: {
   currencies: { [field in Field]?: Currency }
   noLiquidity?: boolean
-  poolTokenPercentage?: Percent
-  price?: Price
+  poolTokenPercentage?: { [field in Field]?: Percent } 
+  price?: { [field in Field]?: Price }
 }) {
   const theme = useContext(ThemeContext)
+  const pricePromptAB = useMemo(() => {
+          if(!price || !price[Field.CURRENCY_A]) return '-'
+          return price[Field.CURRENCY_A]?.lessThan('1') 
+                    ? `${price[Field.CURRENCY_A]?.invert()?.toSignificant(6)} : 1`
+                    : `1 : ${price[Field.CURRENCY_A]?.toSignificant(6)}`
+        }, [price])
+
+  const pricePromptBA = useMemo(() => {
+          if(!price || !price[Field.CURRENCY_B]) return '-'
+          return price[Field.CURRENCY_B]?.lessThan('1') 
+                    ? `${price[Field.CURRENCY_B]?.invert()?.toSignificant(6)} : 1`
+                    : `1 : ${price[Field.CURRENCY_B]?.toSignificant(6)}`
+        }, [price])
+
   return (
     <AutoColumn gap="md" >
       <AutoRow justify="space-around" gap="4px">
         <AutoColumn justify="center">
-          <TYPE.black>{price?.toSignificant(6) ?? '-'}</TYPE.black>
+          <TYPE.black>{pricePromptAB}</TYPE.black>
           <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
-            {currencies[Field.CURRENCY_B]?.symbol} per {currencies[Field.CURRENCY_A]?.symbol}
-          </Text>
-        </AutoColumn>
-        <AutoColumn justify="center">
-          <TYPE.black>{price?.invert()?.toSignificant(6) ?? '-'}</TYPE.black>
-          <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
-            {currencies[Field.CURRENCY_A]?.symbol} per {currencies[Field.CURRENCY_B]?.symbol}
+            Price of {currencies[Field.CURRENCY_A]?.symbol} 🔗 {currencies[Field.CURRENCY_B]?.symbol}
           </Text>
         </AutoColumn>
         <AutoColumn justify="center">
           <TYPE.black>
             {noLiquidity && price
               ? '100'
-              : (poolTokenPercentage?.lessThan(ONE_BIPS) ? '<0.01' : poolTokenPercentage?.toFixed(2)) ?? '0'}
+              : ( poolTokenPercentage?.[Field.CURRENCY_A]?.equalTo(ZERO_PERCENT)
+                  ? '0'
+                  : poolTokenPercentage?.[Field.CURRENCY_A]?.lessThan(ONE_BIPS)
+                    ? '<0.01' 
+                    : poolTokenPercentage?.[Field.CURRENCY_A]?.toFixed(2)) ?? '0'}
             %
           </TYPE.black>
           <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
-            Share of Pool
+            Liquidity Share of the Pool 
+          </Text>
+        </AutoColumn>
+      </AutoRow>
+      <SeparatorDark />
+      <AutoRow justify="space-around" gap="4px">
+        <AutoColumn justify="center">
+          <TYPE.black>{pricePromptBA}</TYPE.black>
+          <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
+            Price of {currencies[Field.CURRENCY_B]?.symbol} 🔗 {currencies[Field.CURRENCY_A]?.symbol}
+          </Text>
+        </AutoColumn>
+        <AutoColumn justify="center">
+          <TYPE.black>
+            {noLiquidity && price
+              ? '100'
+              : ( poolTokenPercentage?.[Field.CURRENCY_B]?.equalTo(ZERO_PERCENT)
+                  ? '0'
+                  : poolTokenPercentage?.[Field.CURRENCY_B]?.lessThan(ONE_BIPS)
+                    ? '<0.01' 
+                    : poolTokenPercentage?.[Field.CURRENCY_B]?.toFixed(2)) ?? '0'}
+            %
+          </TYPE.black>
+          <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
+            Liquidity Share of the Pool
           </Text>
         </AutoColumn>
       </AutoRow>

@@ -8,7 +8,7 @@ describe('v1SwapArguments', () => {
   const DAI_WETH = new MockV1Pair('1000000', new TokenAmount(DAI, '1000000'))
 
   // just some random address
-  const TEST_RECIPIENT_ADDRESS = USDC_WETH.liquidityToken.address
+  const TEST_RECIPIENT_ADDRESS = USDC_WETH.liquidityToken0.address
 
   it('exact eth to token', () => {
     const trade = Trade.exactIn(new Route([USDC_WETH], ETHER), CurrencyAmount.ether('100'))

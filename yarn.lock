@@ -2013,22 +2013,17 @@
     "@ethersproject/properties" "^5.1.0"
     "@ethersproject/strings" "^5.1.0"
 
-"@feswap/core@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.0.0.tgz#2dc95577cffd3a20c72abf2b531de47ac1ea189a"
-  integrity sha512-zxfpWvh+2aIfLfddgz/RoBCnP3IChQqnntNiJu+2/zgYbFglY3Ih1YUTfEuPiKCP68cD9fg+nlk6SGnWvR9P/g==
-
 "@feswap/core@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.1.0.tgz#d8c23c352c709993bcecdd7b22d3e3e7cac53861"
   integrity sha512-YI209QPiZfqHhXUqXUQIN/0b2dcQhFVNqQBbj+bcBO9btkWoN/J+jSk9SwYCVJ7AAYJA+kXnRcWjUA3ftL0DXA==
 
-"@feswap/sdk@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.3.0.tgz#62a9ea1398997e4fa86ae408aa4ac717140dee42"
-  integrity sha512-9u6Ui7hd64gw/AuBymfLQxwjVV/bYp5yZtyM8j2OZYW5WbQQaX+mV09HhqtATw0ryHj71yDCvbapSNVNahNIZw==
+"@feswap/sdk@^1.3.7":
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.3.7.tgz#9ecdc83e4c2a996a8f7d04793b3dadb156d6a66e"
+  integrity sha512-SZiUa8YehMaPTQF+upE2CQAGCJ/n6coPG/mCKccCixFpQhdx2CRvxVb5zp17oOTJvOAppz3EwoCSZOL88ScxdQ==
   dependencies:
-    "@feswap/core" "^1.0.0"
+    "@feswap/core" "^1.1.0"
     big.js "^5.2.2"
     decimal.js-light "^2.5.0"
     jsbi "^3.1.1"

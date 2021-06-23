@@ -36,18 +36,18 @@ export function useDerivedBurnInfo(
   const [, pair] = usePair(currencyA, currencyB)
 
   // balances
-  const relevantTokenBalances = useTokenBalances(account ?? undefined, [pair?.liquidityToken])
-  const userLiquidity: undefined | TokenAmount = relevantTokenBalances?.[pair?.liquidityToken?.address ?? '']
+  const relevantTokenBalances = useTokenBalances(account ?? undefined, [pair?.liquidityToken0])
+  const userLiquidity: undefined | TokenAmount = relevantTokenBalances?.[pair?.liquidityToken0?.address ?? '']
 
   const [tokenA, tokenB] = [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
   const tokens = {
     [Field.CURRENCY_A]: tokenA,
     [Field.CURRENCY_B]: tokenB,
-    [Field.LIQUIDITY]: pair?.liquidityToken
+    [Field.LIQUIDITY]: pair?.liquidityToken0
   }
 
   // liquidity values
-  const totalSupply = useTotalSupply(pair?.liquidityToken)
+  const totalSupply = useTotalSupply(pair?.liquidityToken0)
   const liquidityValueA =
     pair &&
     totalSupply &&
@@ -78,8 +78,8 @@ export function useDerivedBurnInfo(
   }
   // user specified a specific amount of liquidity tokens
   else if (independentField === Field.LIQUIDITY) {
-    if (pair?.liquidityToken) {
-      const independentAmount = tryParseAmount(typedValue, pair.liquidityToken)
+    if (pair?.liquidityToken0) {
+      const independentAmount = tryParseAmount(typedValue, pair.liquidityToken0)
       if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity)) {
         percentToRemove = new Percent(independentAmount.raw, userLiquidity.raw)
       }

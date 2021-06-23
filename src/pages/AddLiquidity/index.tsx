@@ -43,12 +43,19 @@ import { PoolPriceBar } from './PoolPriceBar'
 import Slider from '../../components/Slider'
 import QuestionHelper from '../../components/QuestionHelper'
 import { Container } from '../../components/CurrencyInputPanel'
+import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
 
 const CardWrapper = styled.div`
   display: grid;
   grid-template-columns: 2fr 6fr;
-  gap: 20px;p
+  gap: 20px;
   width: 100%;
+`
+
+const PositionWrapper = styled.div`
+  position: relative;
+  padding-left: 1rem;
+  padding-right: 1rem;
 `
 
 const RateSplitButton = styled.button<{ width: string }>`
@@ -80,6 +87,7 @@ export default function AddLiquidity({
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
+  const tokenA = wrappedCurrency(currencyA??undefined, chainId)
 
   const oneCurrencyIsWETH = Boolean(
     chainId &&
@@ -104,11 +112,22 @@ export default function AddLiquidity({
     noLiquidity,
     liquidityMinted,
     poolTokenPercentage,
+    percentProposal,
     error
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined)
   const { onFieldAInput, onFieldBInput, onSetSplitRate } = useMintActionHandlers(noLiquidity)
 
   const isValid = !error
+
+  console.log('currencyB', currencyIdB, currencyB)
+  const AmountA = BigNumber.from('0x16345785d8a0000')
+  const AmountB = BigNumber.from('0x01043561a8829300000')
+
+  console.log('AmountA * AmountB: ', AmountA.toHexString(), AmountB.toHexString(), AmountA.mul(AmountB).toHexString())
+
+  const AmountAX = BigNumber.from('0x260181d209d1c7a7')
+  console.log('AmountA ** 2: ', AmountAX.toHexString(), AmountAX.mul(AmountAX).toHexString())
+
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -180,27 +199,24 @@ export default function AddLiquidity({
             (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(),                     // token desired
             amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),         // token min
             amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),         // eth min
-            rateSplit.toString(),                                                             // split rate
+            tokenBIsETH ? rateSplit.toString(): (100-rateSplit).toString()                    // split rate
         ]
 
       args = [addLiquidityETHParams, account, deadline.toHexString()]
-      console.log('args', args)
-      console.log('router', router)
-
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
     } else {
       estimate = router.estimateGas.addLiquidity
       method = router.addLiquidity
-      args = [
-        wrappedCurrency(currencyA, chainId)?.address ?? '',
-        wrappedCurrency(currencyB, chainId)?.address ?? '',
-        parsedAmountA.raw.toString(),
-        parsedAmountB.raw.toString(),
-        amountsMin[Field.CURRENCY_A].toString(),
-        amountsMin[Field.CURRENCY_B].toString(),
-        account,
-        deadline.toHexString()
+      const addLiquidityParams =  [
+        wrappedCurrency(currencyA, chainId)?.address ?? '',                               // tokenA
+        wrappedCurrency(currencyB, chainId)?.address ?? '',                               // tokenB
+        parsedAmountA.raw.toString(),                                                     // amountADesired
+        parsedAmountB.raw.toString(),                                                     // amountBDesired
+        amountsMin[Field.CURRENCY_A].toString(),                                          // amountAMin
+        amountsMin[Field.CURRENCY_B].toString(),                                          // amountBMin
+        rateSplit.toString(),                                                             // split rate
       ]
+      args = [addLiquidityParams, account, deadline.toHexString()]
       value = null
     }
 
@@ -263,7 +279,7 @@ export default function AddLiquidity({
       <AutoColumn gap="20px">
         <RowFlat style={{ marginTop: '20px' }}>
           <Text fontSize="48px" fontWeight={500} lineHeight="42px" marginRight={10}>
-            {liquidityMinted?.toSignificant(6)}
+            {liquidityMinted?.[Field.CURRENCY_A]?.toSignificant(6)}
           </Text>
           <DoubleCurrencyLogo
             currency0={currencies[Field.CURRENCY_A]}
@@ -287,12 +303,12 @@ export default function AddLiquidity({
   const modalBottom = () => {
     return (
       <ConfirmAddModalBottom
-        price={price}
+        price={price?.[Field.CURRENCY_A]}
         currencies={currencies}
         parsedAmounts={parsedAmounts}
         noLiquidity={noLiquidity}
         onAdd={onAdd}
-        poolTokenPercentage={poolTokenPercentage}
+        poolTokenPercentage={poolTokenPercentage?.[Field.CURRENCY_A]}
       />
     )
   }
@@ -306,6 +322,7 @@ export default function AddLiquidity({
       const newCurrencyIdA = currencyId(currencyA)
       if (newCurrencyIdA === currencyIdB) {
         history.push(`/add/${currencyIdB}/${currencyIdA}`)
+        onSetSplitRate(100-rateSplit)
       } else {
         if(currencyIdB){
           history.push(`/add/${newCurrencyIdA}/${currencyIdB}`)
@@ -314,7 +331,7 @@ export default function AddLiquidity({
         }
       }
     },
-    [currencyIdB, history, currencyIdA]
+    [currencyIdB, history, currencyIdA, onSetSplitRate, rateSplit]
   )
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
@@ -322,6 +339,7 @@ export default function AddLiquidity({
       if (currencyIdA === newCurrencyIdB) {
         if (currencyIdB) {
           history.push(`/add/${currencyIdB}/${newCurrencyIdB}`)
+          onSetSplitRate(100-rateSplit)
         } else {
           history.push(`/add/ETH/${newCurrencyIdB}`)
         }
@@ -329,7 +347,7 @@ export default function AddLiquidity({
         history.push(`/add/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
       }
     },
-    [currencyIdA, history, currencyIdB]
+    [currencyIdA, history, currencyIdB, onSetSplitRate, rateSplit]
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -453,7 +471,7 @@ export default function AddLiquidity({
                             <RateSplitButton onClick={() => onSetSplitRate(80)} width="15%">
                               80%
                             </RateSplitButton>
-                            <RateSplitButton onClick={() => onSetSplitRate(50)} width="15%">
+                            <RateSplitButton onClick={() => onSetSplitRate(percentProposal)} width="15%">
                               <span role="img" aria-label="wizard-icon">
                                 🔨
                               </span>
@@ -540,12 +558,18 @@ export default function AddLiquidity({
           </AutoColumn>
         </Wrapper>
       </AppBody>
+      
+      {pair && tokenA && !noLiquidity && pairState !== PairState.INVALID ? (
+          <AdvancedDetailsFooter show={true}>
+            <PositionWrapper>
+                <Container hideInput={false}>
+                  <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} tokenA={tokenA} pair={pair} />
+                </Container>
+            </PositionWrapper>
+          </AdvancedDetailsFooter>
+        ) : null}
 
-      {pair && !noLiquidity && pairState !== PairState.INVALID ? (
-        <AutoColumn style={{ minWidth: '20rem', width: '100%', maxWidth: '400px', marginTop: '1rem' }}>
-          <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} pair={pair} />
-        </AutoColumn>
-      ) : null}
     </>
   )
 }
+

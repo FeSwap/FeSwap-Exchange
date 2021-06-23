@@ -153,12 +153,18 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
 
         // get the LP token
         const tokens = info[index].tokens
-        const dummyPair = new Pair(new TokenAmount(tokens[0], '0'), new TokenAmount(tokens[1], '0'))
+//      const dummyPair = new Pair(new TokenAmount(tokens[0], '0'), new TokenAmount(tokens[1], '0'))
+        const dummyPair = new Pair( new TokenAmount(tokens[0], '0'), new TokenAmount(tokens[1], '0'),
+                                    new TokenAmount(tokens[1], '0'), new TokenAmount(tokens[0], '0'))
 
         // check for account, if no account set to 0
 
-        const stakedAmount = new TokenAmount(dummyPair.liquidityToken, JSBI.BigInt(balanceState?.result?.[0] ?? 0))
-        const totalStakedAmount = new TokenAmount(dummyPair.liquidityToken, JSBI.BigInt(totalSupplyState.result?.[0]))
+//        const stakedAmount = new TokenAmount(dummyPair.liquidityToken, JSBI.BigInt(balanceState?.result?.[0] ?? 0))
+//        const totalStakedAmount = new TokenAmount(dummyPair.liquidityToken, JSBI.BigInt(totalSupplyState.result?.[0]))
+//        const totalRewardRate = new TokenAmount(uni, JSBI.BigInt(rewardRateState.result?.[0]))
+
+        const stakedAmount = new TokenAmount(dummyPair.liquidityToken0, JSBI.BigInt(balanceState?.result?.[0] ?? 0))
+        const totalStakedAmount = new TokenAmount(dummyPair.liquidityToken0, JSBI.BigInt(totalSupplyState.result?.[0]))
         const totalRewardRate = new TokenAmount(uni, JSBI.BigInt(rewardRateState.result?.[0]))
 
         const getHypotheticalRewardRate = (
