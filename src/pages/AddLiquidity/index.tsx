@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, currencyEquals, ETHER, TokenAmount, WETH } from '@feswap/sdk'
 import React, { useCallback, useContext, useState } from 'react'
-import { Plus } from 'react-feather'
 import ReactGA from 'react-ga'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -17,7 +16,7 @@ import { AddRemoveTabs } from '../../components/NavigationTabs'
 //import PageHeader from '../../components/PageHeader'
 //import {SettingsIcon} from '../../components/Settings'
 import { MinimalPositionCard } from '../../components/PositionCard'
-import Row, { RowBetween, RowFlat } from '../../components/Row'
+import Row, { RowBetween, RowFixed } from '../../components/Row'
 
 import { FESW_ROUTER_ADDRESS } from '../../constants'
 import { PairState } from '../../data/Reserves'
@@ -32,7 +31,7 @@ import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../s
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
 import { TYPE } from '../../theme'
-import { calculateGasMargin, calculateSlippageAmount, getRouterContract } from '../../utils'
+import { ZERO_FRACTION, calculateGasMargin, calculateSlippageAmount, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import AppBody from '../AppBody'
@@ -44,6 +43,7 @@ import Slider from '../../components/Slider'
 import QuestionHelper from '../../components/QuestionHelper'
 import { Container } from '../../components/CurrencyInputPanel'
 import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
+import { Link2, Plus } from 'react-feather'
 
 const CardWrapper = styled.div`
   display: grid;
@@ -109,6 +109,7 @@ export default function AddLiquidity({
     currencyBalances,
     parsedAmounts,
     price,
+    meanPrice,
     noLiquidity,
     liquidityMinted,
     poolTokenPercentage,
@@ -118,16 +119,6 @@ export default function AddLiquidity({
   const { onFieldAInput, onFieldBInput, onSetSplitRate } = useMintActionHandlers(noLiquidity)
 
   const isValid = !error
-
-  console.log('currencyB', currencyIdB, currencyB)
-  const AmountA = BigNumber.from('0x16345785d8a0000')
-  const AmountB = BigNumber.from('0x01043561a8829300000')
-
-  console.log('AmountA * AmountB: ', AmountA.toHexString(), AmountB.toHexString(), AmountA.mul(AmountB).toHexString())
-
-  const AmountAX = BigNumber.from('0x260181d209d1c7a7')
-  console.log('AmountA ** 2: ', AmountAX.toHexString(), AmountAX.mul(AmountAX).toHexString())
-
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -238,7 +229,8 @@ export default function AddLiquidity({
               ' and ' +
               parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
               ' ' +
-              currencies[Field.CURRENCY_B]?.symbol
+              currencies[Field.CURRENCY_B]?.symbol +
+              'with the ratio ' + rateSplit.toString() + ':' + (100-rateSplit).toString()
           })
 
           setTxHash(response.hash)
@@ -260,38 +252,47 @@ export default function AddLiquidity({
   }
 
   const modalHeader = () => {
-    return noLiquidity ? (
-      <AutoColumn gap="20px">
-        <LightCard mt="20px" borderRadius="20px">
-          <RowFlat>
-            <Text fontSize="48px" fontWeight={500} lineHeight="42px" marginRight={10}>
-              {currencies[Field.CURRENCY_A]?.symbol + '/' + currencies[Field.CURRENCY_B]?.symbol}
-            </Text>
-            <DoubleCurrencyLogo
-              currency0={currencies[Field.CURRENCY_A]}
-              currency1={currencies[Field.CURRENCY_B]}
-              size={30}
-            />
-          </RowFlat>
-        </LightCard>
-      </AutoColumn>
-    ) : (
-      <AutoColumn gap="20px">
-        <RowFlat style={{ marginTop: '20px' }}>
-          <Text fontSize="48px" fontWeight={500} lineHeight="42px" marginRight={10}>
-            {liquidityMinted?.[Field.CURRENCY_A]?.toSignificant(6)}
-          </Text>
-          <DoubleCurrencyLogo
-            currency0={currencies[Field.CURRENCY_A]}
-            currency1={currencies[Field.CURRENCY_B]}
-            size={30}
-          />
-        </RowFlat>
-        <Row>
-          <Text fontSize="24px">
-            {currencies[Field.CURRENCY_A]?.symbol + '/' + currencies[Field.CURRENCY_B]?.symbol + ' Pool Tokens'}
-          </Text>
-        </Row>
+    return (
+      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}  >
+        { liquidityMinted?.[Field.CURRENCY_A]?.greaterThan(ZERO_FRACTION) &&
+          <RowBetween align="flex-end" style={{ padding: '12px 0px 6px 0px' }} >
+              <Text fontSize="36px" fontWeight={500} lineHeight="42px" marginRight={10}>
+                {liquidityMinted?.[Field.CURRENCY_A]?.toSignificant(6)}
+              </Text>
+              <RowFixed>
+                <DoubleCurrencyLogo currency0={currencies[Field.CURRENCY_A]} 
+                                    currency1={currencies[Field.CURRENCY_B]} size={24} />
+                <Text fontWeight={500} fontSize={24} style={{ margin: '0 0 0 6px' }} >
+                  {currencies[Field.CURRENCY_A]?.symbol}
+                </Text>
+                <Link2 fontSize={'20px'} color={theme.primary1} style={{ margin: '0 2px 0 2px' }} />
+                <Text fontWeight={500} fontSize={24} >
+                  {currencies[Field.CURRENCY_B]?.symbol}
+                </Text>
+              </RowFixed>
+          </RowBetween> }
+        { liquidityMinted?.[Field.CURRENCY_A]?.greaterThan(ZERO_FRACTION) &&
+          liquidityMinted?.[Field.CURRENCY_B]?.greaterThan(ZERO_FRACTION) &&
+          <ColumnCenter>
+            <Plus size="24" color={theme.text2} style={{ marginLeft: '4px', minWidth: '16px' }} />
+          </ColumnCenter> }
+        { liquidityMinted?.[Field.CURRENCY_B]?.greaterThan(ZERO_FRACTION) &&
+          <RowBetween align="flex-end" style={{ padding: '12px 0px 6px 0px' }} >
+              <Text fontSize="36px" fontWeight={500} lineHeight="42px" marginRight={10}>
+                {liquidityMinted?.[Field.CURRENCY_B]?.toSignificant(6)}
+              </Text>
+              <RowFixed>
+                <DoubleCurrencyLogo currency0={currencies[Field.CURRENCY_B]} 
+                                    currency1={currencies[Field.CURRENCY_A]} size={24} />
+                <Text fontWeight={500} fontSize={24} style={{ margin: '0 0 0 6px' }} >
+                  {currencies[Field.CURRENCY_B]?.symbol}
+                </Text>
+                <Link2 fontSize={'20px'} color={theme.primary1} style={{ margin: '0 2px 0 2px' }} />
+                <Text fontWeight={500} fontSize={24} >
+                  {currencies[Field.CURRENCY_A]?.symbol}
+                </Text>
+              </RowFixed>
+          </RowBetween> }
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
           {`Output is estimated. If the price changes by more than ${allowedSlippage /
             100}% your transaction will revert.`}
@@ -303,12 +304,12 @@ export default function AddLiquidity({
   const modalBottom = () => {
     return (
       <ConfirmAddModalBottom
-        price={price?.[Field.CURRENCY_A]}
+        price={meanPrice}
         currencies={currencies}
         parsedAmounts={parsedAmounts}
         noLiquidity={noLiquidity}
         onAdd={onAdd}
-        poolTokenPercentage={poolTokenPercentage?.[Field.CURRENCY_A]}
+        poolTokenPercentage={poolTokenPercentage}
       />
     )
   }
@@ -361,8 +362,6 @@ export default function AddLiquidity({
 
   const isCreate = history.location.pathname.includes('/create')
 
-//  <AddRemoveTabs creating={isCreate} adding={true} />
-// <PageHeader header={'Manage NFT'}> <SettingsIcon /> </PageHeader>
   return (
     <>
       <AppBody>
@@ -375,7 +374,7 @@ export default function AddLiquidity({
             hash={txHash}
             content={() => (
               <ConfirmationModalContent
-                title={noLiquidity ? 'You are creating a pool' : 'You will receive'}
+                title={'You will receive pool tokens'}
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}

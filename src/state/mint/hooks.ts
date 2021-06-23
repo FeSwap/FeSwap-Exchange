@@ -30,6 +30,7 @@ export function useDerivedMintInfo(
   currencyBalances: { [field in Field]?: CurrencyAmount }
   parsedAmounts: { [field in Field]?: CurrencyAmount }
   price?: { [field in Field]?: Price }
+  meanPrice?: Price
   noLiquidity?: boolean
   liquidityMinted?:  { [field in Field]?: TokenAmount }
   poolTokenPercentage?: { [field in Field]?: Percent }
@@ -77,6 +78,12 @@ export function useDerivedMintInfo(
 
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, currencies[independentField])
+  const wrappedIndependentAmount = wrappedCurrencyAmount(independentAmount, chainId)
+  const meanPrice = useMemo(() => {
+          if ( !tokenA || !pair) return undefined
+          return pair.priceOfMean(tokenA)
+        }, [ tokenA, pair])
+  
   const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
     if (noLiquidity) {
       if (otherTypedValue && currencies[dependentField]) {
@@ -85,7 +92,6 @@ export function useDerivedMintInfo(
       return undefined
     } else if (independentAmount) {
       // we wrap the currencies just to get the price in terms of the other token
-      const wrappedIndependentAmount = wrappedCurrencyAmount(independentAmount, chainId)
       if (tokenA && tokenB && wrappedIndependentAmount && pair) {
         const dependentCurrency = dependentField === Field.CURRENCY_B ? currencyB : currencyA
         const dependentTokenAmount =
@@ -98,7 +104,7 @@ export function useDerivedMintInfo(
     } else {
       return undefined
     }
-  }, [noLiquidity, otherTypedValue, tokenA, tokenB, currencies, dependentField, independentAmount, currencyA, chainId, currencyB, pair])
+  }, [noLiquidity, otherTypedValue, tokenA, tokenB, currencies, dependentField, independentAmount, wrappedIndependentAmount, currencyA, currencyB, pair])
   
   const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
@@ -172,9 +178,7 @@ export function useDerivedMintInfo(
                         : new Percent( JSBI.subtract(vitualLiquidity.raw, diffSupply), JSBI.multiply(vitualLiquidity.raw, TWO))
 
     const percentNumber =  parseInt(percentage.multiply(HUNDREAD_FRACTION).toFixed(0))
-
-    console.log('percentage', percentage.multiply(HUNDREAD_FRACTION).toFixed(5))
-    
+   
     return  (percentNumber < 10)
             ? (bigPoolAB ? 0 : 100)
             : (bigPoolAB ? percentNumber : (100-percentNumber))
@@ -215,6 +219,7 @@ export function useDerivedMintInfo(
     currencyBalances,
     parsedAmounts,
     price,
+    meanPrice,
     noLiquidity,
     liquidityMinted,
     poolTokenPercentage,
