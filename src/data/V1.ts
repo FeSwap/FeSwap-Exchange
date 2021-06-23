@@ -30,7 +30,9 @@ export function useV1ExchangeAddress(tokenAddress?: string): string | undefined 
 
 export class MockV1Pair extends Pair {
   constructor(etherAmount: BigintIsh, tokenAmount: TokenAmount) {
-    super(tokenAmount, new TokenAmount(WETH[tokenAmount.token.chainId], etherAmount))
+    super(tokenAmount, new TokenAmount(WETH[tokenAmount.token.chainId], etherAmount),
+          new TokenAmount(WETH[tokenAmount.token.chainId], etherAmount), tokenAmount
+    )
   }
 }
 

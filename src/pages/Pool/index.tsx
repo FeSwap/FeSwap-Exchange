@@ -116,7 +116,7 @@ export default function Pool() {
     return (
       stakingPairs
         ?.map(stakingPair => stakingPair[1])
-        .filter(stakingPair => stakingPair?.liquidityToken.address === v2Pair.liquidityToken.address).length === 0
+        .filter(stakingPair => stakingPair?.liquidityToken0.address === v2Pair.liquidityToken0.address).length === 0
     )
   })
 
@@ -174,7 +174,7 @@ export default function Pool() {
             ) : allV2PairsWithLiquidity?.length > 0 || stakingPairs?.length > 0 ? (
               <>
                 {v2PairsWithoutStakedAmount.map(v2Pair => (
-                  <FullPositionCard key={v2Pair.liquidityToken.address} pair={v2Pair} />
+                  <FullPositionCard key={v2Pair.liquidityToken0.address} pair={v2Pair} />
                 ))}
                 {stakingPairs.map(
                   (stakingPair, i) =>

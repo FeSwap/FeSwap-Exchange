@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, currencyEquals, ETHER, TokenAmount, WETH } from '@feswap/sdk'
 import React, { useCallback, useContext, useState } from 'react'
-import { Plus } from 'react-feather'
 import ReactGA from 'react-ga'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -17,7 +16,7 @@ import { AddRemoveTabs } from '../../components/NavigationTabs'
 //import PageHeader from '../../components/PageHeader'
 //import {SettingsIcon} from '../../components/Settings'
 import { MinimalPositionCard } from '../../components/PositionCard'
-import Row, { RowBetween, RowFlat } from '../../components/Row'
+import Row, { RowBetween, RowFixed } from '../../components/Row'
 
 import { FESW_ROUTER_ADDRESS } from '../../constants'
 import { PairState } from '../../data/Reserves'
@@ -32,7 +31,7 @@ import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../s
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
 import { TYPE } from '../../theme'
-import { calculateGasMargin, calculateSlippageAmount, getRouterContract } from '../../utils'
+import { ZERO_FRACTION, calculateGasMargin, calculateSlippageAmount, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import AppBody from '../AppBody'
@@ -43,12 +42,20 @@ import { PoolPriceBar } from './PoolPriceBar'
 import Slider from '../../components/Slider'
 import QuestionHelper from '../../components/QuestionHelper'
 import { Container } from '../../components/CurrencyInputPanel'
+import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
+import { Link2, Plus } from 'react-feather'
 
 const CardWrapper = styled.div`
   display: grid;
   grid-template-columns: 2fr 6fr;
-  gap: 20px;p
+  gap: 20px;
   width: 100%;
+`
+
+const PositionWrapper = styled.div`
+  position: relative;
+  padding-left: 1rem;
+  padding-right: 1rem;
 `
 
 const RateSplitButton = styled.button<{ width: string }>`
@@ -80,6 +87,7 @@ export default function AddLiquidity({
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
+  const tokenA = wrappedCurrency(currencyA??undefined, chainId)
 
   const oneCurrencyIsWETH = Boolean(
     chainId &&
@@ -101,9 +109,11 @@ export default function AddLiquidity({
     currencyBalances,
     parsedAmounts,
     price,
+    meanPrice,
     noLiquidity,
     liquidityMinted,
     poolTokenPercentage,
+    percentProposal,
     error
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined)
   const { onFieldAInput, onFieldBInput, onSetSplitRate } = useMintActionHandlers(noLiquidity)
@@ -180,27 +190,24 @@ export default function AddLiquidity({
             (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(),                     // token desired
             amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),         // token min
             amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),         // eth min
-            rateSplit.toString(),                                                             // split rate
+            tokenBIsETH ? rateSplit.toString(): (100-rateSplit).toString()                    // split rate
         ]
 
       args = [addLiquidityETHParams, account, deadline.toHexString()]
-      console.log('args', args)
-      console.log('router', router)
-
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
     } else {
       estimate = router.estimateGas.addLiquidity
       method = router.addLiquidity
-      args = [
-        wrappedCurrency(currencyA, chainId)?.address ?? '',
-        wrappedCurrency(currencyB, chainId)?.address ?? '',
-        parsedAmountA.raw.toString(),
-        parsedAmountB.raw.toString(),
-        amountsMin[Field.CURRENCY_A].toString(),
-        amountsMin[Field.CURRENCY_B].toString(),
-        account,
-        deadline.toHexString()
+      const addLiquidityParams =  [
+        wrappedCurrency(currencyA, chainId)?.address ?? '',                               // tokenA
+        wrappedCurrency(currencyB, chainId)?.address ?? '',                               // tokenB
+        parsedAmountA.raw.toString(),                                                     // amountADesired
+        parsedAmountB.raw.toString(),                                                     // amountBDesired
+        amountsMin[Field.CURRENCY_A].toString(),                                          // amountAMin
+        amountsMin[Field.CURRENCY_B].toString(),                                          // amountBMin
+        rateSplit.toString(),                                                             // split rate
       ]
+      args = [addLiquidityParams, account, deadline.toHexString()]
       value = null
     }
 
@@ -222,7 +229,8 @@ export default function AddLiquidity({
               ' and ' +
               parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
               ' ' +
-              currencies[Field.CURRENCY_B]?.symbol
+              currencies[Field.CURRENCY_B]?.symbol +
+              'with the ratio ' + rateSplit.toString() + ':' + (100-rateSplit).toString()
           })
 
           setTxHash(response.hash)
@@ -244,38 +252,47 @@ export default function AddLiquidity({
   }
 
   const modalHeader = () => {
-    return noLiquidity ? (
-      <AutoColumn gap="20px">
-        <LightCard mt="20px" borderRadius="20px">
-          <RowFlat>
-            <Text fontSize="48px" fontWeight={500} lineHeight="42px" marginRight={10}>
-              {currencies[Field.CURRENCY_A]?.symbol + '/' + currencies[Field.CURRENCY_B]?.symbol}
-            </Text>
-            <DoubleCurrencyLogo
-              currency0={currencies[Field.CURRENCY_A]}
-              currency1={currencies[Field.CURRENCY_B]}
-              size={30}
-            />
-          </RowFlat>
-        </LightCard>
-      </AutoColumn>
-    ) : (
-      <AutoColumn gap="20px">
-        <RowFlat style={{ marginTop: '20px' }}>
-          <Text fontSize="48px" fontWeight={500} lineHeight="42px" marginRight={10}>
-            {liquidityMinted?.toSignificant(6)}
-          </Text>
-          <DoubleCurrencyLogo
-            currency0={currencies[Field.CURRENCY_A]}
-            currency1={currencies[Field.CURRENCY_B]}
-            size={30}
-          />
-        </RowFlat>
-        <Row>
-          <Text fontSize="24px">
-            {currencies[Field.CURRENCY_A]?.symbol + '/' + currencies[Field.CURRENCY_B]?.symbol + ' Pool Tokens'}
-          </Text>
-        </Row>
+    return (
+      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}  >
+        { liquidityMinted?.[Field.CURRENCY_A]?.greaterThan(ZERO_FRACTION) &&
+          <RowBetween align="flex-end" style={{ padding: '12px 0px 6px 0px' }} >
+              <Text fontSize="36px" fontWeight={500} lineHeight="42px" marginRight={10}>
+                {liquidityMinted?.[Field.CURRENCY_A]?.toSignificant(6)}
+              </Text>
+              <RowFixed>
+                <DoubleCurrencyLogo currency0={currencies[Field.CURRENCY_A]} 
+                                    currency1={currencies[Field.CURRENCY_B]} size={24} />
+                <Text fontWeight={500} fontSize={24} style={{ margin: '0 0 0 6px' }} >
+                  {currencies[Field.CURRENCY_A]?.symbol}
+                </Text>
+                <Link2 fontSize={'20px'} color={theme.primary1} style={{ margin: '0 2px 0 2px' }} />
+                <Text fontWeight={500} fontSize={24} >
+                  {currencies[Field.CURRENCY_B]?.symbol}
+                </Text>
+              </RowFixed>
+          </RowBetween> }
+        { liquidityMinted?.[Field.CURRENCY_A]?.greaterThan(ZERO_FRACTION) &&
+          liquidityMinted?.[Field.CURRENCY_B]?.greaterThan(ZERO_FRACTION) &&
+          <ColumnCenter>
+            <Plus size="24" color={theme.text2} style={{ marginLeft: '4px', minWidth: '16px' }} />
+          </ColumnCenter> }
+        { liquidityMinted?.[Field.CURRENCY_B]?.greaterThan(ZERO_FRACTION) &&
+          <RowBetween align="flex-end" style={{ padding: '12px 0px 6px 0px' }} >
+              <Text fontSize="36px" fontWeight={500} lineHeight="42px" marginRight={10}>
+                {liquidityMinted?.[Field.CURRENCY_B]?.toSignificant(6)}
+              </Text>
+              <RowFixed>
+                <DoubleCurrencyLogo currency0={currencies[Field.CURRENCY_B]} 
+                                    currency1={currencies[Field.CURRENCY_A]} size={24} />
+                <Text fontWeight={500} fontSize={24} style={{ margin: '0 0 0 6px' }} >
+                  {currencies[Field.CURRENCY_B]?.symbol}
+                </Text>
+                <Link2 fontSize={'20px'} color={theme.primary1} style={{ margin: '0 2px 0 2px' }} />
+                <Text fontWeight={500} fontSize={24} >
+                  {currencies[Field.CURRENCY_A]?.symbol}
+                </Text>
+              </RowFixed>
+          </RowBetween> }
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
           {`Output is estimated. If the price changes by more than ${allowedSlippage /
             100}% your transaction will revert.`}
@@ -287,7 +304,7 @@ export default function AddLiquidity({
   const modalBottom = () => {
     return (
       <ConfirmAddModalBottom
-        price={price}
+        price={meanPrice}
         currencies={currencies}
         parsedAmounts={parsedAmounts}
         noLiquidity={noLiquidity}
@@ -306,6 +323,7 @@ export default function AddLiquidity({
       const newCurrencyIdA = currencyId(currencyA)
       if (newCurrencyIdA === currencyIdB) {
         history.push(`/add/${currencyIdB}/${currencyIdA}`)
+        onSetSplitRate(100-rateSplit)
       } else {
         if(currencyIdB){
           history.push(`/add/${newCurrencyIdA}/${currencyIdB}`)
@@ -314,7 +332,7 @@ export default function AddLiquidity({
         }
       }
     },
-    [currencyIdB, history, currencyIdA]
+    [currencyIdB, history, currencyIdA, onSetSplitRate, rateSplit]
   )
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
@@ -322,6 +340,7 @@ export default function AddLiquidity({
       if (currencyIdA === newCurrencyIdB) {
         if (currencyIdB) {
           history.push(`/add/${currencyIdB}/${newCurrencyIdB}`)
+          onSetSplitRate(100-rateSplit)
         } else {
           history.push(`/add/ETH/${newCurrencyIdB}`)
         }
@@ -329,7 +348,7 @@ export default function AddLiquidity({
         history.push(`/add/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
       }
     },
-    [currencyIdA, history, currencyIdB]
+    [currencyIdA, history, currencyIdB, onSetSplitRate, rateSplit]
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -343,8 +362,6 @@ export default function AddLiquidity({
 
   const isCreate = history.location.pathname.includes('/create')
 
-//  <AddRemoveTabs creating={isCreate} adding={true} />
-// <PageHeader header={'Manage NFT'}> <SettingsIcon /> </PageHeader>
   return (
     <>
       <AppBody>
@@ -357,7 +374,7 @@ export default function AddLiquidity({
             hash={txHash}
             content={() => (
               <ConfirmationModalContent
-                title={noLiquidity ? 'You are creating a pool' : 'You will receive'}
+                title={'You will receive pool tokens'}
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}
@@ -453,7 +470,7 @@ export default function AddLiquidity({
                             <RateSplitButton onClick={() => onSetSplitRate(80)} width="15%">
                               80%
                             </RateSplitButton>
-                            <RateSplitButton onClick={() => onSetSplitRate(50)} width="15%">
+                            <RateSplitButton onClick={() => onSetSplitRate(percentProposal)} width="15%">
                               <span role="img" aria-label="wizard-icon">
                                 🔨
                               </span>
@@ -540,12 +557,18 @@ export default function AddLiquidity({
           </AutoColumn>
         </Wrapper>
       </AppBody>
+      
+      {pair && tokenA && !noLiquidity && pairState !== PairState.INVALID ? (
+          <AdvancedDetailsFooter show={true}>
+            <PositionWrapper>
+                <Container hideInput={false}>
+                  <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} tokenA={tokenA} pair={pair} />
+                </Container>
+            </PositionWrapper>
+          </AdvancedDetailsFooter>
+        ) : null}
 
-      {pair && !noLiquidity && pairState !== PairState.INVALID ? (
-        <AutoColumn style={{ minWidth: '20rem', width: '100%', maxWidth: '400px', marginTop: '1rem' }}>
-          <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} pair={pair} />
-        </AutoColumn>
-      ) : null}
     </>
   )
 }
+

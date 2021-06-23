@@ -9,6 +9,15 @@ export const ColumnCenter = styled(Column)`
   width: 100%;
   align-items: center;
 `
+export const ColumnLeft = styled(Column)`
+  width: 100%;
+  align-items: flex-start;
+`
+
+export const ColumnRight = styled(Column)`
+  width: 100%;
+  align-items: flex-end;
+`
 
 export const AutoColumn = styled.div<{
   gap?: 'sm' | 'md' | 'lg' | string

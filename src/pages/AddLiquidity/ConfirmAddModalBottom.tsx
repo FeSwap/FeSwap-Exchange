@@ -6,6 +6,7 @@ import { RowBetween, RowFixed } from '../../components/Row'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
+import { ZERO_FRACTION } from '../../utils'
 
 export function ConfirmAddModalBottom({
   noLiquidity,
@@ -19,27 +20,27 @@ export function ConfirmAddModalBottom({
   price?: Fraction
   currencies: { [field in Field]?: Currency }
   parsedAmounts: { [field in Field]?: CurrencyAmount }
-  poolTokenPercentage?: Percent
+  poolTokenPercentage?: { [field in Field]?: Percent }
   onAdd: () => void
 }) {
   return (
     <>
       <RowBetween>
-        <TYPE.body>{currencies[Field.CURRENCY_A]?.symbol} Deposited</TYPE.body>
+        <TYPE.body>{currencies[Field.CURRENCY_A]?.symbol} Deposited:</TYPE.body>
         <RowFixed>
           <CurrencyLogo currency={currencies[Field.CURRENCY_A]} style={{ marginRight: '8px' }} />
           <TYPE.body>{parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}</TYPE.body>
         </RowFixed>
       </RowBetween>
       <RowBetween>
-        <TYPE.body>{currencies[Field.CURRENCY_B]?.symbol} Deposited</TYPE.body>
+        <TYPE.body>{currencies[Field.CURRENCY_B]?.symbol} Deposited:</TYPE.body>
         <RowFixed>
           <CurrencyLogo currency={currencies[Field.CURRENCY_B]} style={{ marginRight: '8px' }} />
           <TYPE.body>{parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}</TYPE.body>
         </RowFixed>
       </RowBetween>
       <RowBetween>
-        <TYPE.body>Rates</TYPE.body>
+        <TYPE.body>Mean Rates: </TYPE.body>
         <TYPE.body>
           {`1 ${currencies[Field.CURRENCY_A]?.symbol} = ${price?.toSignificant(4)} ${
             currencies[Field.CURRENCY_B]?.symbol
@@ -53,13 +54,22 @@ export function ConfirmAddModalBottom({
           }`}
         </TYPE.body>
       </RowBetween>
-      <RowBetween>
-        <TYPE.body>Share of Pool:</TYPE.body>
-        <TYPE.body>{noLiquidity ? '100' : poolTokenPercentage?.toSignificant(4)}%</TYPE.body>
-      </RowBetween>
+
+      { poolTokenPercentage?.[Field.CURRENCY_A]?.greaterThan(ZERO_FRACTION) &&
+        <RowBetween>
+          <TYPE.body>Share of Pool {currencies[Field.CURRENCY_A]?.symbol}🔗{currencies[Field.CURRENCY_B]?.symbol}:</TYPE.body>
+          <TYPE.body>{poolTokenPercentage?.[Field.CURRENCY_A]?.toSignificant(4)}%</TYPE.body>
+        </RowBetween>}
+
+      { poolTokenPercentage?.[Field.CURRENCY_B]?.greaterThan(ZERO_FRACTION) &&
+        <RowBetween>
+          <TYPE.body>Share of Pool {currencies[Field.CURRENCY_B]?.symbol}🔗{currencies[Field.CURRENCY_A]?.symbol}:</TYPE.body>
+          <TYPE.body>{poolTokenPercentage?.[Field.CURRENCY_B]?.toSignificant(4)}%</TYPE.body>
+        </RowBetween>}
+
       <ButtonPrimary style={{ margin: '20px 0 0 0' }} onClick={onAdd}>
         <Text fontWeight={500} fontSize={20}>
-          {noLiquidity ? 'Create Pool & Supply' : 'Confirm Supply'}
+          Confirm Supply
         </Text>
       </ButtonPrimary>
     </>

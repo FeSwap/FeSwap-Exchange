@@ -18,6 +18,7 @@ import { StyledInternalLink } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
+import { wrappedCurrency } from '../../utils/wrappedCurrency'
 
 enum Fields {
   TOKEN0 = 0,
@@ -25,13 +26,14 @@ enum Fields {
 }
 
 export default function PoolFinder() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)
 
   const [currency0, setCurrency0] = useState<Currency | null>(ETHER)
   const [currency1, setCurrency1] = useState<Currency | null>(null)
+  const tokenA = wrappedCurrency(currency0?? undefined, chainId)
 
   const [pairState, pair] = usePair(currency0 ?? undefined, currency1 ?? undefined)
   const addPair = usePairAdder()
@@ -46,11 +48,15 @@ export default function PoolFinder() {
     Boolean(
       pairState === PairState.EXISTS &&
         pair &&
-        JSBI.equal(pair.reserve0.raw, JSBI.BigInt(0)) &&
-        JSBI.equal(pair.reserve1.raw, JSBI.BigInt(0))
+        JSBI.equal(pair.reserve00.raw, JSBI.BigInt(0)) &&
+        JSBI.equal(pair.reserve01.raw, JSBI.BigInt(0))
     )
 
-  const position: TokenAmount | undefined = useTokenBalance(account ?? undefined, pair?.liquidityToken)
+//        JSBI.equal(pair.reserve0.raw, JSBI.BigInt(0)) &&
+//        JSBI.equal(pair.reserve1.raw, JSBI.BigInt(0))
+
+
+  const position: TokenAmount | undefined = useTokenBalance(account ?? undefined, pair?.liquidityToken0)
   const hasPosition = Boolean(position && JSBI.greaterThan(position.raw, JSBI.BigInt(0)))
 
   const handleCurrencySelect = useCallback(
@@ -140,7 +146,7 @@ export default function PoolFinder() {
         {currency0 && currency1 ? (
           pairState === PairState.EXISTS ? (
             hasPosition && pair ? (
-              <MinimalPositionCard pair={pair} border="1px solid #CED0D9" />
+              <MinimalPositionCard pair={pair} tokenA= {tokenA} border="1px solid #CED0D9" />
             ) : (
               <LightCard padding="45px 10px">
                 <AutoColumn gap="sm" justify="center">

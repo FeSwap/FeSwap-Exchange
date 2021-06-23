@@ -195,6 +195,7 @@ export const BIG_INT_SECONDS_IN_WEEK = JSBI.BigInt(60 * 60 * 24 * 7)
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // one basis point
+export const ZERO_PERCENT = new Percent(JSBI.BigInt(0), JSBI.BigInt(100))
 export const ONE_BIPS = new Percent(JSBI.BigInt(1), JSBI.BigInt(10000))
 export const BIPS_BASE = JSBI.BigInt(10000)
 // used for warning states

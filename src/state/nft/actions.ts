@@ -67,8 +67,8 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.OK_TO_CLAIM]: 'Claim NFT',
   [USER_BUTTON_ID.OK_CLOSE_SALE]: 'Close NFT Sale',
   [USER_BUTTON_ID.OK_JUMP_BID]: 'Skip to Bid',
-  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Manage NFT',
-  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Change NFT Config',
+  [USER_BUTTON_ID.OK_CREATE_PAIR]: 'Create NFT Swap Pool',
+  [USER_BUTTON_ID.OK_CHNAGE_CONFIG]: 'Update NFT Pool Config',
   [USER_BUTTON_ID.OK_STATUS]: 'NO Action'
 }
 

@@ -29,7 +29,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     [chainId, currencies]
   )
 
-  const pairAddressesAAB = useMemo(
+  const pairAddressesAB = useMemo(
     () => 
       tokens.map(([tokenA, tokenB]) => {
         return tokenA && tokenB && !tokenA.equals(tokenB) ? Pair.getAddress(tokenA, tokenB) : undefined
@@ -37,7 +37,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     [tokens]
   )
 
-  const pairAddressesABB = useMemo(
+  const pairAddressesBA = useMemo(
     () => 
       tokens.map(([tokenA, tokenB]) => {
         return tokenA && tokenB && !tokenA.equals(tokenB) ? Pair.getAddress(tokenB, tokenA) : undefined
@@ -45,8 +45,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     [tokens]
   )
 
-  const resultsAAB = useMultipleContractSingleData(pairAddressesAAB, PAIR_INTERFACE, 'getReserves')
-  const resultsABB = useMultipleContractSingleData(pairAddressesABB, PAIR_INTERFACE, 'getReserves')  
+  const resultsAAB = useMultipleContractSingleData(pairAddressesAB, PAIR_INTERFACE, 'getReserves')
+  const resultsABB = useMultipleContractSingleData(pairAddressesBA, PAIR_INTERFACE, 'getReserves')  
 
   return useMemo(() => {
     return resultsAAB.map((result, i) => {

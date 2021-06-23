@@ -96,7 +96,7 @@ export default function RemoveLiquidity({
   const atMaxAmount = parsedAmounts[Field.LIQUIDITY_PERCENT]?.equalTo(new Percent('1'))
 
   // pair contract
-  const pairContract: Contract | null = usePairContract(pair?.liquidityToken?.address)
+  const pairContract: Contract | null = usePairContract(pair?.liquidityToken0?.address)
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
@@ -126,7 +126,7 @@ export default function RemoveLiquidity({
       name: 'Uniswap V2',
       version: '1',
       chainId: chainId,
-      verifyingContract: pair.liquidityToken.address
+      verifyingContract: pair.liquidityToken0.address
     }
     const Permit = [
       { name: 'owner', type: 'address' },
@@ -596,7 +596,7 @@ export default function RemoveLiquidity({
                   }}
                   showMaxButton={!atMaxAmount}
                   disableCurrencySelect
-                  currency={pair?.liquidityToken}
+                  currency={pair?.liquidityToken0}
                   pair={pair}
                   id="liquidity-amount"
                 />
@@ -687,7 +687,7 @@ export default function RemoveLiquidity({
 
       {pair ? (
         <AutoColumn style={{ minWidth: '20rem', width: '100%', maxWidth: '400px', marginTop: '1rem' }}>
-          <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} pair={pair} />
+          <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} tokenA= {tokenA} pair={pair} />
         </AutoColumn>
       ) : null}
     </>

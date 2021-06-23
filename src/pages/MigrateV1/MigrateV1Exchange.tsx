@@ -95,7 +95,7 @@ function V1PairMigration({ liquidityTokenAmount, token }: { liquidityTokenAmount
   const [v2PairState, v2Pair] = usePair(chainId ? WETH[chainId] : undefined, token)
   const isFirstLiquidityProvider: boolean = v2PairState === PairState.NOT_EXISTS
 
-  const v2SpotPrice = chainId && v2Pair ? v2Pair.reserveOf(token).divide(v2Pair.reserveOf(WETH[chainId])) : undefined
+  const v2SpotPrice = chainId && v2Pair ? v2Pair.reserveOfOutput(token).divide(v2Pair.reserveOfOutput(WETH[chainId])) : undefined
 
   const [confirmingMigration, setConfirmingMigration] = useState<boolean>(false)
   const [pendingMigrationHash, setPendingMigrationHash] = useState<string | null>(null)
