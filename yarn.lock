@@ -2018,10 +2018,10 @@
   resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.1.0.tgz#d8c23c352c709993bcecdd7b22d3e3e7cac53861"
   integrity sha512-YI209QPiZfqHhXUqXUQIN/0b2dcQhFVNqQBbj+bcBO9btkWoN/J+jSk9SwYCVJ7AAYJA+kXnRcWjUA3ftL0DXA==
 
-"@feswap/sdk@^1.3.7":
-  version "1.3.7"
-  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.3.7.tgz#9ecdc83e4c2a996a8f7d04793b3dadb156d6a66e"
-  integrity sha512-SZiUa8YehMaPTQF+upE2CQAGCJ/n6coPG/mCKccCixFpQhdx2CRvxVb5zp17oOTJvOAppz3EwoCSZOL88ScxdQ==
+"@feswap/sdk@^1.3.8":
+  version "1.3.8"
+  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.3.8.tgz#0e3de260f29a3feeb19f8f3def8a8c2158ad8f3e"
+  integrity sha512-IoUfgyuPehxZ8uVvcEbsPjpLAomQqp83+jIUS71zWHi16KF3yPam4T0D0aDFyrGHQAEHLSQP1WINaF5NsJzbeg==
   dependencies:
     "@feswap/core" "^1.1.0"
     big.js "^5.2.2"

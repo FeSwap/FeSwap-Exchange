@@ -108,7 +108,7 @@ export function useDerivedSwapInfo(): {
   currencies: { [field in Field]?: Currency }
   currencyBalances: { [field in Field]?: CurrencyAmount }
   parsedAmount: CurrencyAmount | undefined
-  v2Trade: Trade | undefined
+  FeswTrade: Trade | undefined
   inputError?: string
 } {
   const { account } = useActiveWeb3React()
@@ -137,7 +137,10 @@ export function useDerivedSwapInfo(): {
   const bestTradeExactIn = useTradeExactIn(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
   const bestTradeExactOut = useTradeExactOut(inputCurrency ?? undefined, !isExactIn ? parsedAmount : undefined)
 
-  const v2Trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
+  const FeswTrade = isExactIn ? bestTradeExactIn : bestTradeExactOut
+
+  console.log('bestTradeExactIn', bestTradeExactIn)
+  console.log('bestTradeExactOut', bestTradeExactOut)
 
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
@@ -177,7 +180,7 @@ export function useDerivedSwapInfo(): {
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  const slippageAdjustedAmounts = v2Trade && allowedSlippage && computeSlippageAdjustedAmounts(v2Trade, allowedSlippage)
+  const slippageAdjustedAmounts = FeswTrade && allowedSlippage && computeSlippageAdjustedAmounts(FeswTrade, allowedSlippage)
 
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
@@ -195,7 +198,7 @@ export function useDerivedSwapInfo(): {
     currencies,
     currencyBalances,
     parsedAmount,
-    v2Trade: v2Trade ?? undefined,
+    FeswTrade: FeswTrade ?? undefined,
     inputError
   }
 }

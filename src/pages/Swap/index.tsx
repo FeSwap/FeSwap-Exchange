@@ -76,7 +76,7 @@ export default function Swap() {
   // swap state
   const { independentField, typedValue, recipient } = useSwapState()
   const {
-    v2Trade,
+    FeswTrade,
     currencyBalances,
     parsedAmount,
     currencies,
@@ -90,7 +90,7 @@ export default function Swap() {
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const { address: recipientAddress } = useENSAddress(recipient)
 
-  const trade = showWrap ? undefined : v2Trade
+  const trade = showWrap ? undefined : FeswTrade
 
   const parsedAmounts = showWrap
     ? {
@@ -202,6 +202,9 @@ export default function Swap() {
         })
       })
       .catch(error => {
+
+        console.log('swapErrorMessage', error)  
+
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
