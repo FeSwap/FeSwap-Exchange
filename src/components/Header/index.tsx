@@ -321,9 +321,6 @@ export default function Header() {
           <StyledNavLink id={`stake-nav-link`} to={'/nft'}>
             NFT
           </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/giveaway'}>
-            GIVEAWAY<span style={{color:'red'}}><sup>❤</sup></span>
-          </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
             SPONSOR<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
