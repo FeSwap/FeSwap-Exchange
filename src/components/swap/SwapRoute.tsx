@@ -11,8 +11,6 @@ export default memo(function SwapRoute({ trade }: { trade: Trade }) {
   return (
     <Flex
       px="1rem"
-      py="0.5rem"
-      my="0.5rem"
       style={{ border: `1px solid ${theme.bg3}`, borderRadius: '1rem' }}
       flexWrap="wrap"
       width="100%"

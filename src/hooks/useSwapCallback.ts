@@ -92,13 +92,8 @@ export function useSwapCallback(
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
-
   const swapCalls = useSwapCallArguments(trade, allowedSlippage, recipientAddressOrName)
-
-  console.log('swapCalls', swapCalls)
-  
   const addTransaction = useTransactionAdder()
-
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
 
@@ -124,12 +119,6 @@ export function useSwapCallback(
               contract
             } = call
             const options = !value || isZero(value) ? {} : { value }
-
-            console.log('methodName', methodName)
-            console.log('args', args)
-            console.log('value', value)  
-            console.log('options', options)  
-            console.log('contract.estimateGas[methodName]', contract.estimateGas[methodName])  
 
             return contract.estimateGas[methodName](...args, options)
               .then(gasEstimate => {
@@ -163,8 +152,6 @@ export function useSwapCallback(
               })
           })
         )
-
-        console.log('estimatedCalls', estimatedCalls)  
 
         // a successful estimation is a bignumber gas estimate and the next call is also a bignumber gas estimate
         const successfulEstimation = estimatedCalls.find(

@@ -114,7 +114,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <TYPE.white color="white">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.white>
             </RowBetween>
             {fesw && fesw.chainId === ChainId.MAINNET ? (
-              <ExternalLink href={`https://uniswap.info/token/${fesw.address}`}>View FESW Analytics</ExternalLink>
+              <ExternalLink href={`https://info.feswap.io/token/${fesw.address}`}>View FESW Analytics</ExternalLink>
             ) : null}
           </AutoColumn>
         </CardSection>

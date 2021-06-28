@@ -1,13 +1,12 @@
 import { Trade, TradeType } from '@feswap/sdk'
 import React, { useContext, useMemo, useState } from 'react'
-import { Repeat } from 'react-feather'
+import { RefreshCcw } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
 import {
   computeSlippageAdjustedAmounts,
-  computeTradePriceBreakdown,
   formatExecutionPrice,
   warningSeverity
 } from '../../utils/prices'
@@ -37,8 +36,8 @@ export default function SwapModalFooter({
     allowedSlippage,
     trade
   ])
-  const { priceImpactWithoutFee, realizedLPFee } = useMemo(() => computeTradePriceBreakdown(trade), [trade])
-  const severity = warningSeverity(priceImpactWithoutFee)
+  const priceImpact = trade?.priceImpact
+  const severity = warningSeverity(priceImpact)
 
   return (
     <>
@@ -61,7 +60,7 @@ export default function SwapModalFooter({
           >
             {formatExecutionPrice(trade, showInverted)}
             <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-              <Repeat size={14} />
+              <RefreshCcw size={14} />
             </StyledBalanceMaxMini>
           </Text>
         </RowBetween>
@@ -93,18 +92,7 @@ export default function SwapModalFooter({
             </TYPE.black>
             <QuestionHelper text="The difference between the market price and your price due to trade size." />
           </RowFixed>
-          <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
-        </RowBetween>
-        <RowBetween>
-          <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-              Liquidity Provider Fee
-            </TYPE.black>
-            <QuestionHelper text="A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive." />
-          </RowFixed>
-          <TYPE.black fontSize={14}>
-            {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + trade.inputAmount.currency.symbol : '-'}
-          </TYPE.black>
+          <FormattedPriceImpact priceImpact={priceImpact} />
         </RowBetween>
       </AutoColumn>
 

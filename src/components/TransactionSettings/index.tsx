@@ -22,7 +22,7 @@ const FancyButton = styled.button`
   color: ${({ theme }) => theme.text1};
   align-items: center;
   height: 2rem;
-  border-radius: 36px;
+  border-radius: 8px;
   font-size: 1rem;
   width: auto;
   min-width: 3.5rem;
@@ -74,7 +74,7 @@ const OptionCustom = styled(FancyButton)<{ active?: boolean; warning?: boolean }
     width: 100%;
     height: 100%;
     border: 0px;
-    border-radius: 2rem;
+    border-radius: 8px;
   }
 `
 
@@ -157,11 +157,11 @@ export default function SlippageTabs({ rawSlippage, setRawSlippage, deadline, se
           <Option
             onClick={() => {
               setSlippageInput('')
-              setRawSlippage(10)
+              setRawSlippage(20)
             }}
-            active={rawSlippage === 10}
+            active={rawSlippage === 20}
           >
-            0.1%
+            0.2%
           </Option>
           <Option
             onClick={() => {

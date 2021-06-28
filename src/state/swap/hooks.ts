@@ -139,9 +139,6 @@ export function useDerivedSwapInfo(): {
 
   const FeswTrade = isExactIn ? bestTradeExactIn : bestTradeExactOut
 
-  console.log('bestTradeExactIn', bestTradeExactIn)
-  console.log('bestTradeExactOut', bestTradeExactOut)
-
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
     [Field.OUTPUT]: relevantTokenBalances[1]

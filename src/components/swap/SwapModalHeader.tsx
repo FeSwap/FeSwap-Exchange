@@ -7,7 +7,7 @@ import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
 import { ButtonPrimary } from '../Button'
 import { isAddress, shortenAddress } from '../../utils'
-import { computeSlippageAdjustedAmounts, computeTradePriceBreakdown, warningSeverity } from '../../utils/prices'
+import { computeSlippageAdjustedAmounts, warningSeverity } from '../../utils/prices'
 import { AutoColumn } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import { RowBetween, RowFixed } from '../Row'
@@ -30,8 +30,8 @@ export default function SwapModalHeader({
     trade,
     allowedSlippage
   ])
-  const { priceImpactWithoutFee } = useMemo(() => computeTradePriceBreakdown(trade), [trade])
-  const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
+
+  const priceImpactSeverity = warningSeverity(trade?.priceImpact)
 
   const theme = useContext(ThemeContext)
 

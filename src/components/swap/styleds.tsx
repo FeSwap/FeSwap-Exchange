@@ -48,7 +48,7 @@ export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
 export const StyledBalanceMaxMini = styled.button`
   height: 22px;
   width: 22px;
-  background-color: ${({ theme }) => theme.bg2};
+  background-color: inherit;
   border: none;
   border-radius: 50%;
   padding: 0.2rem;
@@ -66,7 +66,6 @@ export const StyledBalanceMaxMini = styled.button`
     background-color: ${({ theme }) => theme.bg3};
   }
   :focus {
-    background-color: ${({ theme }) => theme.bg3};
     outline: none;
   }
 `

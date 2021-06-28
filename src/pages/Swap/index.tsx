@@ -38,7 +38,7 @@ import {
 import { useExpertModeManager, useUserSlippageTolerance, useUserSingleHopOnly } from '../../state/user/hooks'
 import { LinkStyledButton, TYPE } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { computeTradePriceBreakdown, warningSeverity } from '../../utils/prices'
+import { warningSeverity } from '../../utils/prices'
 import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
@@ -166,12 +166,10 @@ export default function Swap() {
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient)
 
-  const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
-
   const [singleHopOnly] = useUserSingleHopOnly()
 
   const handleSwap = useCallback(() => {
-    if (priceImpactWithoutFee && !confirmPriceImpactWithoutFee(priceImpactWithoutFee)) {
+    if (trade && !confirmPriceImpactWithoutFee(trade.priceImpact)) {
       return
     }
     if (!swapCallback) {
@@ -202,9 +200,6 @@ export default function Swap() {
         })
       })
       .catch(error => {
-
-        console.log('swapErrorMessage', error)  
-
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
@@ -214,7 +209,6 @@ export default function Swap() {
         })
       })
   }, [
-    priceImpactWithoutFee,
     swapCallback,
     tradeToConfirm,
     showConfirm,
@@ -229,7 +223,7 @@ export default function Swap() {
   const [showInverted, setShowInverted] = useState<boolean>(false)
 
   // warnings on slippage
-  const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
+  const priceImpactSeverity = warningSeverity(trade?.priceImpact)
 
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
