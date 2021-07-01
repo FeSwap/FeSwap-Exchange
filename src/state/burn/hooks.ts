@@ -1,15 +1,23 @@
-import { Currency, CurrencyAmount, JSBI, Pair, Percent, TokenAmount } from '@feswap/sdk'
-import { useCallback } from 'react'
+import { Currency, CurrencyAmount, JSBI, Pair, Percent, TokenAmount, Token } from '@feswap/sdk'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { usePair } from '../../data/Reserves'
+import { PairState, usePair } from '../../data/Reserves'
 import { useTotalSupply } from '../../data/TotalSupply'
 
 import { useActiveWeb3React } from '../../hooks'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
+import { ZERO } from '../../utils'
 import { AppDispatch, AppState } from '../index'
-import { tryParseAmount } from '../swap/hooks'
+//import { tryParseAmount } from '../swap/hooks'
 import { useTokenBalances } from '../wallet/hooks'
-import { Field, typeInput } from './actions'
+import { Field, Amount, typeInput } from './actions'
+
+export interface ParsedPairAmounts {
+  readonly [Amount.PERCENTAGE]: Percent
+  readonly [Amount.LIQUIDITY]?: TokenAmount
+  readonly [Amount.CURRENCY_A]?: CurrencyAmount
+  readonly [Amount.CURRENCY_B]?: CurrencyAmount
+}
 
 export function useBurnState(): AppState['burn'] {
   return useSelector<AppState, AppState['burn']>(state => state.burn)
@@ -20,123 +28,133 @@ export function useDerivedBurnInfo(
   currencyB: Currency | undefined
 ): {
   pair?: Pair | null
-  parsedAmounts: {
-    [Field.LIQUIDITY_PERCENT]: Percent
-    [Field.LIQUIDITY]?: TokenAmount
-    [Field.CURRENCY_A]?: CurrencyAmount
-    [Field.CURRENCY_B]?: CurrencyAmount
-  }
+  tokenA: Token | undefined 
+  tokenB: Token | undefined 
+  noUserLiquidity: { [field in Field]?: boolean }
+  noRemoveLiquidity: { [field in Field]: boolean }
+  parsedAmounts: { [field in Field]?: ParsedPairAmounts }
   error?: string
 } {
   const { account, chainId } = useActiveWeb3React()
-
-  const { independentField, typedValue } = useBurnState()
+  const { Percentage_AB, Percentage_BA } = useBurnState()
 
   // pair + totalsupply
-  const [, pair] = usePair(currencyA, currencyB)
+  const [pairState, pair] = usePair(currencyA, currencyB)
+  const [tokenA, tokenB] = useMemo( () => [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)],
+                                    [ currencyA,  currencyB,  chainId ] )
+
+  const liquidity0 = useTotalSupply(pair?.liquidityToken0)
+  const liquidity1 = useTotalSupply(pair?.liquidityToken1)
+
+  const [totalSupplyAB, totalSupplyBA] =  tokenA && tokenB && tokenA.sortsBefore(tokenB) 
+                                          ? [liquidity0, liquidity1]
+                                          : [liquidity1, liquidity0]
 
   // balances
-  const relevantTokenBalances = useTokenBalances(account ?? undefined, [pair?.liquidityToken0])
-  const userLiquidity: undefined | TokenAmount = relevantTokenBalances?.[pair?.liquidityToken0?.address ?? '']
+  const relevantTokenBalances = useTokenBalances(account ?? undefined, [totalSupplyAB?.token, totalSupplyBA?.token])
+  const userLiquidity: { [field in Field]: TokenAmount | undefined } = {
+                      [Field.PAIR_AB]:  relevantTokenBalances?.[totalSupplyAB?.token.address??''],
+                      [Field.PAIR_BA]:  relevantTokenBalances?.[totalSupplyBA?.token.address??'']
+                    }
 
-  const [tokenA, tokenB] = [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
-  const tokens = {
-    [Field.CURRENCY_A]: tokenA,
-    [Field.CURRENCY_B]: tokenB,
-    [Field.LIQUIDITY]: pair?.liquidityToken0
-  }
+  const liquidityPairAB: {[Amount.CURRENCY_A]?: TokenAmount; [Amount.CURRENCY_B]?: TokenAmount} = useMemo(() => {
+    const userLiquidityAmount = userLiquidity[Field.PAIR_AB]
+    if( !pair || !totalSupplyAB || !userLiquidityAmount || !tokenA || !tokenB ) return { undefined }
+    return JSBI.greaterThanOrEqual(totalSupplyAB.raw, userLiquidityAmount.raw)
+            ? { 
+                [Amount.CURRENCY_A]: new TokenAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupplyAB, userLiquidityAmount, false).raw),
+                [Amount.CURRENCY_B]: new TokenAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupplyAB, userLiquidityAmount, false).raw)
+              }
+            : { undefined }
+  }, [pair, totalSupplyAB, userLiquidity, tokenA, tokenB] )
 
-  // liquidity values
-  const totalSupply = useTotalSupply(pair?.liquidityToken0)
-  const liquidityValueA =
-    pair &&
-    totalSupply &&
-    userLiquidity &&
-    tokenA &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
-      ? new TokenAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity, false).raw)
-      : undefined
-  const liquidityValueB =
-    pair &&
-    totalSupply &&
-    userLiquidity &&
-    tokenB &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
-      ? new TokenAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity, false).raw)
-      : undefined
-  const liquidityValues: { [Field.CURRENCY_A]?: TokenAmount; [Field.CURRENCY_B]?: TokenAmount } = {
-    [Field.CURRENCY_A]: liquidityValueA,
-    [Field.CURRENCY_B]: liquidityValueB
-  }
+  const liquidityPairBA: {[Amount.CURRENCY_A]?: TokenAmount; [Amount.CURRENCY_B]?: TokenAmount} = useMemo(() => {
+    const userLiquidityAmount = userLiquidity[Field.PAIR_BA]
+    if( !pair || !totalSupplyBA || !userLiquidityAmount || !tokenA || !tokenB ) return { undefined }
 
-  let percentToRemove: Percent = new Percent('0', '100')
-  // user specified a %
-  if (independentField === Field.LIQUIDITY_PERCENT) {
-    percentToRemove = new Percent(typedValue, '100')
-  }
-  // user specified a specific amount of liquidity tokens
-  else if (independentField === Field.LIQUIDITY) {
-    if (pair?.liquidityToken0) {
-      const independentAmount = tryParseAmount(typedValue, pair.liquidityToken0)
-      if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity)) {
-        percentToRemove = new Percent(independentAmount.raw, userLiquidity.raw)
+    return JSBI.greaterThanOrEqual(totalSupplyBA.raw, userLiquidityAmount.raw)
+            ? { 
+                [Amount.CURRENCY_A]: new TokenAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupplyBA, userLiquidityAmount, false).raw),
+                [Amount.CURRENCY_B]: new TokenAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupplyBA, userLiquidityAmount, false).raw)
+              }
+            : { undefined }
+  }, [pair, totalSupplyBA, userLiquidity, tokenA, tokenB] )
+
+  const percentToRemove: { [field in Field]: Percent } = useMemo(() => {
+    return  {
+              [Field.PAIR_AB]:  new Percent(Percentage_AB.toString(), '100'),
+              [Field.PAIR_BA]:  new Percent(Percentage_BA.toString(), '100'),
+            }
+    }, [Percentage_AB, Percentage_BA])
+  
+  const parsedAmounts:  { [field in Field]?: ParsedPairAmounts } = useMemo(() => {
+      function derivedBurnInfo( removePercentage: Percent, 
+                                userSubPooLiquidity?: TokenAmount, 
+                                userTokenALiquidity?: TokenAmount,
+                                userTokenBLiquidity?: TokenAmount
+                              ): ParsedPairAmounts {
+        const liquidity = removePercentage && userSubPooLiquidity && removePercentage.greaterThan('0')
+                          ? new TokenAmount(userSubPooLiquidity.token, removePercentage.multiply(userSubPooLiquidity.raw).quotient)
+                          : undefined
+        const AmountToRemoveA = tokenA && removePercentage && removePercentage.greaterThan('0') && userTokenALiquidity
+                                ? new TokenAmount(tokenA, removePercentage.multiply(userTokenALiquidity.raw).quotient)
+                                : undefined
+        const AmountToRemoveB = tokenB && removePercentage && removePercentage.greaterThan('0') && userTokenBLiquidity
+                                ? new TokenAmount(tokenB, removePercentage.multiply(userTokenBLiquidity.raw).quotient)
+                                : undefined
+        return {
+          [Amount.PERCENTAGE]: removePercentage,
+          [Amount.LIQUIDITY]: liquidity,
+          [Amount.CURRENCY_A]: AmountToRemoveA,
+          [Amount.CURRENCY_B]: AmountToRemoveB
+        } 
       }
-    }
-  }
-  // user specified a specific amount of token a or b
-  else {
-    if (tokens[independentField]) {
-      const independentAmount = tryParseAmount(typedValue, tokens[independentField])
-      const liquidityValue = liquidityValues[independentField]
-      if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
-        percentToRemove = new Percent(independentAmount.raw, liquidityValue.raw)
+      return {
+        [Field.PAIR_AB]:  derivedBurnInfo(  percentToRemove[Field.PAIR_AB], userLiquidity[Field.PAIR_AB],
+                                            liquidityPairAB[Amount.CURRENCY_A], liquidityPairAB[Amount.CURRENCY_B] ),
+        [Field.PAIR_BA]:  derivedBurnInfo(  percentToRemove[Field.PAIR_BA], userLiquidity[Field.PAIR_BA],
+                                            liquidityPairBA[Amount.CURRENCY_A], liquidityPairBA[Amount.CURRENCY_B] ),
       }
-    }
-  }
+    }, [tokenA, tokenB, percentToRemove, userLiquidity, liquidityPairAB, liquidityPairBA] )
 
-  const parsedAmounts: {
-    [Field.LIQUIDITY_PERCENT]: Percent
-    [Field.LIQUIDITY]?: TokenAmount
-    [Field.CURRENCY_A]?: TokenAmount
-    [Field.CURRENCY_B]?: TokenAmount
-  } = {
-    [Field.LIQUIDITY_PERCENT]: percentToRemove,
-    [Field.LIQUIDITY]:
-      userLiquidity && percentToRemove && percentToRemove.greaterThan('0')
-        ? new TokenAmount(userLiquidity.token, percentToRemove.multiply(userLiquidity.raw).quotient)
-        : undefined,
-    [Field.CURRENCY_A]:
-      tokenA && percentToRemove && percentToRemove.greaterThan('0') && liquidityValueA
-        ? new TokenAmount(tokenA, percentToRemove.multiply(liquidityValueA.raw).quotient)
-        : undefined,
-    [Field.CURRENCY_B]:
-      tokenB && percentToRemove && percentToRemove.greaterThan('0') && liquidityValueB
-        ? new TokenAmount(tokenB, percentToRemove.multiply(liquidityValueB.raw).quotient)
-        : undefined
-  }
+    const noRemoveLiquidity: { [field in Field]: boolean } =  useMemo(() => {
+      const userRemoveLiquidityAB = parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY]
+      const userRemoveLiquidityBA = parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY]
+      return  {
+                [Field.PAIR_AB]: !(pairState === PairState.EXISTS && userRemoveLiquidityAB && !(JSBI.equal(userRemoveLiquidityAB.raw, ZERO))),
+                [Field.PAIR_BA]: !(pairState === PairState.EXISTS && userRemoveLiquidityBA && !(JSBI.equal(userRemoveLiquidityBA.raw, ZERO)))
+              }
+    }, [pairState, parsedAmounts] )
+
+    const noUserLiquidity: { [field in Field]: boolean } =  useMemo(() => {
+      const userLiquidityAB = userLiquidity[Field.PAIR_AB]
+      const userLiquidityBA = userLiquidity[Field.PAIR_BA]
+      return  {
+                [Field.PAIR_AB]: !(pairState === PairState.EXISTS && userLiquidityAB && !(JSBI.equal(userLiquidityAB.raw, ZERO))),
+                [Field.PAIR_BA]: !(pairState === PairState.EXISTS && userLiquidityBA && !(JSBI.equal(userLiquidityBA.raw, ZERO)))
+              }
+    }, [pairState, userLiquidity] )
 
   let error: string | undefined
   if (!account) {
     error = 'Connect Wallet'
   }
 
-  if (!parsedAmounts[Field.LIQUIDITY] || !parsedAmounts[Field.CURRENCY_A] || !parsedAmounts[Field.CURRENCY_B]) {
+  if (  !parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY] && !parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY] ) {
     error = error ?? 'Enter an amount'
   }
 
-  return { pair, parsedAmounts, error }
+  return { pair, tokenA, tokenB, noUserLiquidity, noRemoveLiquidity, parsedAmounts, error }
 }
 
 export function useBurnActionHandlers(): {
-  onUserInput: (field: Field, typedValue: string) => void
+  onUserInput: (field: Field, percentage: number) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
   const onUserInput = useCallback(
-    (field: Field, typedValue: string) => {
-      dispatch(typeInput({ field, typedValue }))
+    (field: Field, percentage: number) => {
+      dispatch(typeInput({ field, percentage }))
     },
     [dispatch]
   )

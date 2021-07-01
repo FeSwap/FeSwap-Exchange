@@ -12,7 +12,7 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import { Separator } from '../SearchModal/styleds'
 import Loader from '../Loader'
 import { useNftBidContract, useFeswFactoryContract } from '../../hooks/useContract'
-import { useSingleCallResult } from '../../state/multicall/hooks'
+import { useSingleCallResult, NEVER_RELOAD } from '../../state/multicall/hooks'
 import { PairBidInfo } from '../../state/nft/reducer'
 import { ZERO_ADDRESS } from '../../constants'
 import { Lock, User, Coffee, Flag, MinusCircle, Activity, Clock, Volume2, Eye } from 'react-feather'
@@ -268,7 +268,7 @@ function NftTokenManageRow({
   const currencyA = tokenA ? unwrappedToken(tokenA) : undefined
   const currencyB = tokenB ? unwrappedToken(tokenB) : undefined
 
-  const feswaPairAddress =  useSingleCallResult(feswFactoryContract, 'getPair', pairTokenAddress)?.result??undefined
+  const feswaPairAddress =  useSingleCallResult(feswFactoryContract, 'getPair', pairTokenAddress, NEVER_RELOAD)?.result??undefined
 
   return ( 
     <NftItem

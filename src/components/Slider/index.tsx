@@ -94,9 +94,10 @@ interface InputSliderProps {
   min?: number
   max?: number
   size?: number
+  wwidth?: string
 }
 
-export default function Slider({ value, onChange, min = 0, step = 1, max = 100, size = 28 }: InputSliderProps) {
+export default function Slider({ value, onChange, min = 0, step = 1, max = 100, size = 28, wwidth ='90%' }: InputSliderProps) {
   const changeCallback = useCallback(
     e => {
       onChange(parseInt(e.target.value))
@@ -109,7 +110,7 @@ export default function Slider({ value, onChange, min = 0, step = 1, max = 100, 
       size={size}
       type="range"
       value={value}
-      style={{ width: '90%', marginLeft: 15, marginRight: 15, padding: '15px 0' }}
+      style={{ width: wwidth, marginLeft: 15, marginRight: 15, padding: '15px 0' }}
       onChange={changeCallback}
       aria-labelledby="input slider"
       step={step}

@@ -10,10 +10,8 @@ import { AppDispatch, AppState } from '../index'
 import { tryParseAmount } from '../swap/hooks'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, typeInput, setRateSplit } from './actions'
-import { HUNDREAD, TWO, HUNDREAD_FRACTION } from '../../utils'
+import { ZERO, HUNDREAD, TWO, HUNDREAD_FRACTION } from '../../utils'
 import { ZERO_PERCENT } from '../../constants'
-
-const ZERO = JSBI.BigInt(0)
 
 export function useMintState(): AppState['mint'] {
   return useSelector<AppState, AppState['mint']>(state => state.mint)
