@@ -182,7 +182,8 @@ export default function Pool() {
                       <FullPositionCard
                         key={stakingInfosWithBalance[i].stakingRewardAddress}
                         pair={stakingPair[1]}
-                        stakedBalance={stakingInfosWithBalance[i].stakedAmount}
+                        stakedBalance0={stakingInfosWithBalance[i].stakedAmount}
+//                      stakedBalance1={stakingInfosWithBalance[i].stakedAmount}    // To do 
                       />
                     )
                 )}

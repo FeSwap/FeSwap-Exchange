@@ -80,9 +80,9 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
             pairToFilterBy === undefined
               ? true
               : pairToFilterBy === null
-              ? false
-              : pairToFilterBy.involvesToken(stakingRewardInfo.tokens[0]) &&
-                pairToFilterBy.involvesToken(stakingRewardInfo.tokens[1])
+                ? false
+                : pairToFilterBy.involvesToken(stakingRewardInfo.tokens[0]) &&
+                  pairToFilterBy.involvesToken(stakingRewardInfo.tokens[1])
           ) ?? []
         : [],
     [chainId, pairToFilterBy]
