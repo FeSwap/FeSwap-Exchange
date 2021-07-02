@@ -215,9 +215,7 @@ export default function RemoveLiquidity({
   const { pair, tokenA, tokenB, noUserLiquidity, noRemoveLiquidity, parsedAmounts, error } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined)
   const { onUserInput: onSetPercentage } = useBurnActionHandlers()
 
-  console.log('AAAAAAAAAAAAA', pair, tokenA, tokenB, noUserLiquidity, noRemoveLiquidity, parsedAmounts, error)
-
-  const isValid = !error
+   const isValid = !error
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -268,8 +266,6 @@ export default function RemoveLiquidity({
         if(showConfirm) setShowConfirm(false)
       }
     }, [blockTimestamp, signatureDataAB, signatureDataBA, setSignatureDataAB, setSignatureDataBA, showConfirm, setShowConfirm])
-
-  console.log('signatureDataAB, approvalAB, signatureDataBA, approvalBA',signatureDataAB, approvalAB, signatureDataBA, approvalBA)
 
   const isArgentWallet = useIsArgentWallet()
 
@@ -328,8 +324,6 @@ export default function RemoveLiquidity({
       message
     })
 
-    console.log("Permit, message, data CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC", Permit, message, data)
-
     library
       .send('eth_signTypedData_v4', [account, data])
       .then(splitSignature)
@@ -340,8 +334,6 @@ export default function RemoveLiquidity({
       })
       .catch(error => {
         // for all errors other than 4001 (EIP-1193 user rejected request), fall back to manual approve
-        console.log("Error", error)
-
         if (error?.code !== 4001) {
           (field === Field.PAIR_AB) ? approveCallbackAB() : approveCallbackBA()
         }
@@ -380,7 +372,7 @@ export default function RemoveLiquidity({
 
     const liquidityAmountAB = parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY]
     const liquidityAmountBA = parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY]
-    if (!liquidityAmountAB || !liquidityAmountBA) throw new Error('missing liquidity amount')
+    if (!liquidityAmountAB && !liquidityAmountBA) throw new Error('missing liquidity amount')
 
     const amountsMin = {
       [Amount.CURRENCY_A]: tokenAAmount ? calculateSlippageAmount(tokenAAmount, allowedSlippage)[0] : ZERO ,
