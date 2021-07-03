@@ -9,7 +9,7 @@ import { ButtonPrimary } from '../../components/Button'
 
 import { Button } from 'rebass/styled-components'
 import { darken } from 'polished'
-import { CardSection, DataCard, CardNoise, CardBGImage } from '../../components/earn/styled'
+import { CardSection } from '../../components/earn/styled'
 import { useAllProposalData, ProposalData, useUserVotes, useUserDelegatee } from '../../state/governance/hooks'
 import DelegateModal from '../../components/vote/DelegateModal'
 import { useTokenBalance } from '../../state/wallet/hooks'
@@ -21,11 +21,12 @@ import Loader from '../../components/Loader'
 import FormattedCurrencyAmount from '../../components/FormattedCurrencyAmount'
 import { useModalOpen, useToggleDelegateModal } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/actions'
+import { VoteCard } from '../Pool'
 
 const PageWrapper = styled(AutoColumn)``
 
 const TopSection = styled(AutoColumn)`
-  max-width: 640px;
+  max-width: 480px;
   width: 100%;
 `
 
@@ -33,7 +34,7 @@ const Proposal = styled(Button)`
   padding: 0.75rem 1rem;
   width: 100%;
   margin-top: 1rem;
-  border-radius: 12px;
+  border-radius: 10px;
   display: grid;
   grid-template-columns: 48px 1fr 120px;
   align-items: center;
@@ -57,11 +58,6 @@ const ProposalNumber = styled.span`
 
 const ProposalTitle = styled.span`
   font-weight: 600;
-`
-
-const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #27ae60 0%, #000000 100%);
-  overflow: hidden;
 `
 
 const WrapSmall = styled(RowBetween)`
@@ -95,7 +91,7 @@ const StyledExternalLink = styled(ExternalLink)`
 const EmptyProposals = styled.div`
   border: 1px solid ${({ theme }) => theme.text4};
   padding: 16px 12px;
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -131,30 +127,26 @@ export default function Vote() {
       />
       <TopSection gap="md">
         <VoteCard>
-          <CardBGImage />
-          <CardNoise />
           <CardSection>
             <AutoColumn gap="md">
               <RowBetween>
-                <TYPE.white fontWeight={600}>Uniswap Governance</TYPE.white>
+                <TYPE.black fontWeight={600}>Feswap Governance</TYPE.black>
               </RowBetween>
               <RowBetween>
-                <TYPE.white fontSize={14}>
-                  FESW tokens represent voting shares in Uniswap governance. You can vote on each proposal yourself or
+                <TYPE.black fontSize={14}>
+                  FESW tokens represent voting shares in Feswap governance. You can vote on each proposal yourself or
                   delegate your votes to a third party.
-                </TYPE.white>
+                </TYPE.black>
               </RowBetween>
               <ExternalLink
                 style={{ color: 'white', textDecoration: 'underline' }}
                 href="https://www.feswap.io/blog/feswap"
                 target="_blank"
               >
-                <TYPE.white fontSize={14}>Read more about Uniswap governance</TYPE.white>
+                <TYPE.black fontSize={14}>Read more about Feswap governance ↗</TYPE.black>
               </ExternalLink>
             </AutoColumn>
           </CardSection>
-          <CardBGImage />
-          <CardNoise />
         </VoteCard>
       </TopSection>
       <TopSection gap="2px">
@@ -228,9 +220,11 @@ export default function Vote() {
           )
         })}
       </TopSection>
-      <TYPE.subHeader color="text3">
-        A minimum threshhold of 1% of the total FESW supply is required to submit proposals
-      </TYPE.subHeader>
+      <TopSection>
+        <TYPE.subHeader color="text3">
+          A minimum threshhold of 1% of the total FESW supply is required to submit proposals
+        </TYPE.subHeader>
+      </TopSection>
     </PageWrapper>
   )
 }

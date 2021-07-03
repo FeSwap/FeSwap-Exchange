@@ -21,7 +21,6 @@ import { StyledInternalLink } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
-//import { VoteCard } from '../Pool'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 
 enum Fields {
@@ -144,7 +143,7 @@ export default function PoolFinder() {
                 Pool Found and Recorded!
               </Text>
               <StyledInternalLink to={`/pool`}>
-                <Text textAlign="center">Manage this pool 👈</Text>
+                <Text textAlign="center">{`Manage this pool 👈`}</Text>
               </StyledInternalLink>
             </ColumnCenter>
           )}
@@ -157,7 +156,7 @@ export default function PoolFinder() {
                   <AutoColumn gap="sm" justify="center">
                     <Text textAlign="center">You don’t have liquidity in this pool</Text>
                     <StyledInternalLink to={`/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
-                      <Text textAlign="center">Add liquidity 👈</Text>
+                      <Text textAlign="center">{`Add liquidity 👈`}</Text>
                     </StyledInternalLink>
                   </AutoColumn>
                 </LightCard>
@@ -167,7 +166,7 @@ export default function PoolFinder() {
                 <AutoColumn gap="sm" justify="center">
                   <Text textAlign="center">No pool found.</Text>
                   <StyledInternalLink to={`/nft/${currencyId(currency0)}/${currencyId(currency1)}`}>
-                    Bid to create this pool 👈
+                    {`Bid to create this pool 👈`}
                   </StyledInternalLink>
                 </AutoColumn>
               </LightCard>
