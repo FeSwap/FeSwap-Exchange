@@ -24,6 +24,7 @@ import RemoveLiquidity from './RemoveLiquidity'
 import { RedirectOldRemoveLiquidityPathStructure } from './RemoveLiquidity/redirects'
 import Swap from './Swap'
 import Nft from './Nft'
+import {RedirectNftCheckSingleId, RedirectNftCheckTwoIds} from './Nft/redirects'
 import CreatePairByNft from './CreatePair'
 import Sponsor from './Sponsor'
 import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
@@ -95,7 +96,7 @@ export default function App() {
               <Route exact strict path="/send" component={RedirectPathToSwapOnly} />
               <Route exact strict path="/find" component={PoolFinder} />
               <Route exact strict path="/pool" component={Pool} />
-              <Route exact strict path="/uni" component={Earn} />
+              <Route exact strict path="/fesw" component={Earn} />
               <Route exact strict path="/vote" component={Vote} />
               <Route exact strict path="/create" component={CreatePairByNft} />
               <Route exact path="/add" component={AddLiquidity} />
@@ -105,9 +106,11 @@ export default function App() {
               <Route exact path="/create/:currencyIdA/:currencyIdB" component={RedirectDuplicateTokenIds} />
               <Route exact strict path="/remove/:tokens" component={RedirectOldRemoveLiquidityPathStructure} />
               <Route exact strict path="/remove/:currencyIdA/:currencyIdB" component={RemoveLiquidity} />
-              <Route exact strict path="/uni/:currencyIdA/:currencyIdB" component={Manage} />
+              <Route exact strict path="/fesw/:currencyIdA/:currencyIdB" component={Manage} />
               <Route exact strict path="/vote/:id" component={VotePage} />
-              <Route exact strict path="/nft" component={Nft} />
+              <Route exact path="/nft" component={Nft} />
+              <Route exact path="/nft/:currencyIdA" component={RedirectNftCheckSingleId} />
+              <Route exact path="/nft/:currencyIdA/:currencyIdB" component={RedirectNftCheckTwoIds} />
               <Route exact strict path="/sponsor" component={Sponsor} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>

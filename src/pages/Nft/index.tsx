@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useState, useMemo, useRef } from 'react
 import { PlusCircle } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
+import { RouteComponentProps } from 'react-router-dom'
 import { darken } from 'polished'
 import AddressInputPanel from '../../components/AddressInputPanel'
 import { ButtonError, ButtonLight } from '../../components/Button'
@@ -23,6 +24,7 @@ import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID, us
 import {
   NftBidTrade,
   useDerivedNftInfo,
+  useInitTokenHandler,
   useNftActionHandlers,
   useNftState,
   setBidButtonID
@@ -59,7 +61,11 @@ const LabelRow = styled.div`
   }
 `
 
-export default function Nft() {
+export default function Nft({
+  match: {
+    params: { currencyIdA, currencyIdB }
+  }
+}: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) {
   const { account, chainId, library } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
   const nftBidContract = useNftBidContract()
@@ -69,6 +75,8 @@ export default function Nft() {
   const toggleWalletModal = useWalletModalToggle()
   const [isExpertMode] = useExpertModeManager()
   const currentBlock = useBlockNumber()
+
+  useInitTokenHandler(currencyIdA??'', currencyIdB??'')
 
   // NFT Bidding state
   const {
@@ -262,6 +270,7 @@ export default function Nft() {
   const nftBid: NftBidTrade = { pairCurrencies, parsedAmounts, firtBidder: (feswaPairBidInfo?.ownerPairNft === ZERO_ADDRESS) }
   
   const { onNftUserInput, onNftCurrencySelection, onChangeNftRecipient } = useNftActionHandlers()
+
   const handleTypeInput = useCallback(
     (value: string) => { onNftUserInput(value) },
     [onNftUserInput]

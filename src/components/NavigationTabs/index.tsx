@@ -10,33 +10,23 @@ import { ArrowLeft } from 'react-feather'
 import { RowBetween, RowFixed } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 
-const Tabs = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: center;
-  border-radius: 3rem;
-  justify-content: space-evenly;
-`
-
-const ActiveText = styled.div`
-  font-weight: 500;
-  font-size: 20px;
-`
-
 const StyledArrowLeft = styled(ArrowLeft)`
   color: ${({ theme }) => theme.text1};
 `
 
 export function FindPoolTabs() {
   return (
-    <Tabs>
-      <RowBetween style={{ padding: '1rem' }}>
-        <HistoryLink  to="/pool">
-          <StyledArrowLeft />
-        </HistoryLink>
-        <ActiveText>Import Pool</ActiveText>
+    <StyledPageHeader>
+      <RowBetween>
+        <RowFixed>
+          <HistoryLink  to="/pool">
+            <StyledArrowLeft fontWeight={500} style={{marginRight:'24px'}} />
+          </HistoryLink>
+          <TYPE.black fontWeight={500}>Import Pool</TYPE.black>
+        </RowFixed>
         <QuestionHelper text={"Use this tool to find pairs that don't automatically appear in the interface."} />
       </RowBetween>
-    </Tabs>
+    </StyledPageHeader>
   )
 }
 

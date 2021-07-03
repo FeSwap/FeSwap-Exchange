@@ -1,7 +1,7 @@
 import useENS from '../../hooks/useENS'
 import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Fraction } from '@feswap/sdk'
 import { useSponsorContract, useNftBidContract, useFeswFactoryContract } from '../../hooks/useContract'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '../../hooks'
 import { isAddress, calculateGasMargin, WEI_DENOM_FRACTION, ONE_OVER_HUNDREAD } from '../../utils'
@@ -111,6 +111,16 @@ export function useGetUserNFTList(): {
 
   return {  numberOfNftToken:     nftTokenCount?? 0, 
             feswaNftPairBidInfo:  nftTokenInfoList}
+}
+
+export function useInitTokenHandler(currencyIdA: string, currencyIdB: string,) {
+  const dispatch = useDispatch<AppDispatch>()
+  useEffect(() => {
+    dispatch( selectNftCurrency({ field: Field.TOKEN_A, currencyId: currencyIdA}) )
+    dispatch( selectNftCurrency({ field: Field.TOKEN_B, currencyId: currencyIdB}) )
+  }, 
+  [currencyIdA, currencyIdB, dispatch ])
+
 }
 
 export function useNftActionHandlers(): {

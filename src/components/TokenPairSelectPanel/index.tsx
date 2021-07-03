@@ -11,7 +11,7 @@ import { TYPE } from '../../theme'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 // import { useActiveWeb3React } from '../../hooks'
 import { Link2 } from 'react-feather'
-import { useTranslation } from 'react-i18next'
+//import { useTranslation } from 'react-i18next'
 //import { errorFetchingMulticallResults } from 'state/multicall/actions'
 
 /*
@@ -120,7 +120,7 @@ export default function TokenPairSelectPanel({
   id,
   showCommonBases
 }: TokenPairSelectPanelProps) {
-  const { t } = useTranslation()
+//  const { t } = useTranslation()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [selectToken, setSelectToken] = useState('A')
@@ -175,7 +175,7 @@ export default function TokenPairSelectPanel({
                     ? currencyA.symbol.slice(0, 4) +
                       '...' +
                       currencyA.symbol.slice(currencyA.symbol.length - 5, currencyA.symbol.length)
-                    : currencyA?.symbol) || t('selectToken')}
+                    : currencyA?.symbol) || 'Select Token'}
                 </StyledTokenName>
               )}
               {pair ? (
@@ -212,7 +212,7 @@ export default function TokenPairSelectPanel({
                     ? currencyB.symbol.slice(0, 4) +
                       '...' +
                       currencyB.symbol.slice(currencyB.symbol.length - 5, currencyB.symbol.length)
-                    : currencyB?.symbol) || t('selectToken')}
+                    : currencyB?.symbol) || 'Select Token'}
                 </StyledTokenName>
               )}
             </Aligner>
