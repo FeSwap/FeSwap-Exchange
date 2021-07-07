@@ -21,8 +21,15 @@ export const DataCard = styled(AutoColumn)<{ disabled?: boolean }>`
   width: 100%;
   position: relative;
   overflow: hidden;
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #ff007a 0%, #2172e5 100%);
+  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
 `
+
+export const VoteCard = styled(DataCard)`
+  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
+  overflow: hidden;
+`
+
+//background: radial-gradient(76.02% 75.41% at 1.84% 0%, #ff007a 0%, #2172e5 100%);
 
 export const CardBGImage = styled.span<{ desaturate?: boolean }>`
   background: url(${uImage});

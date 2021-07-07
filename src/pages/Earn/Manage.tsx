@@ -27,7 +27,7 @@ import { currencyId } from '../../utils/currencyId'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import usePrevious from '../../hooks/usePrevious'
-import useUSDCPrice from '../../utils/useUSDCPrice'
+// import useUSDCPrice from '../../utils/useUSDCPrice'
 import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_WEEK } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
@@ -103,8 +103,11 @@ export default function Manage({
   const stakingInfo = useStakingInfo(stakingTokenPair)?.[0]
 
   // detect existing unstaked LP position to show add button if none found
-  const userLiquidityUnstaked = useTokenBalance(account ?? undefined, stakingInfo?.stakedAmount?.token)
-  const showAddLiquidityButton = Boolean(stakingInfo?.stakedAmount?.equalTo('0') && userLiquidityUnstaked?.equalTo('0'))
+  const userLiquidityUnstaked0 = useTokenBalance(account ?? undefined, stakingInfo?.stakedAmount?.[0].token)
+  const userLiquidityUnstaked1 = useTokenBalance(account ?? undefined, stakingInfo?.stakedAmount?.[1].token)
+  
+  const showAddLiquidityButton =  Boolean(stakingInfo?.stakedAmount?.[0].equalTo('0') && userLiquidityUnstaked0?.equalTo('0')) &&
+                                  Boolean(stakingInfo?.stakedAmount?.[1].equalTo('0') && userLiquidityUnstaked1?.equalTo('0'))                     
 
   // toggle for staking modal and unstaking modal
   const [showStakingModal, setShowStakingModal] = useState(false)
@@ -112,36 +115,39 @@ export default function Manage({
   const [showClaimRewardModal, setShowClaimRewardModal] = useState(false)
 
   // fade cards if nothing staked or nothing earned yet
-  const disableTop = !stakingInfo?.stakedAmount || stakingInfo.stakedAmount.equalTo(JSBI.BigInt(0))
+  const disableTop = (!stakingInfo?.stakedAmount[0] && !stakingInfo?.stakedAmount[1]) || 
+                      ( stakingInfo.stakedAmount[0].equalTo(JSBI.BigInt(0)) && stakingInfo.stakedAmount[1].equalTo(JSBI.BigInt(0)))
 
   const token = currencyA === ETHER ? tokenB : tokenA
   const WETH = currencyA === ETHER ? tokenA : tokenB
   const backgroundColor = useColor(token)
 
   // get WETH value of staked LP tokens
-  const totalSupplyOfStakingToken = useTotalSupply(stakingInfo?.stakedAmount?.token)
-  let valueOfTotalStakedAmountInWETH: TokenAmount | undefined
-  if (totalSupplyOfStakingToken && stakingTokenPair && stakingInfo && WETH) {
-    // take the total amount of LP tokens staked, multiply by ETH value of all LP tokens, divide by all LP tokens
-    valueOfTotalStakedAmountInWETH = new TokenAmount(
-      WETH,
-      JSBI.divide(
-        JSBI.multiply(
-          JSBI.multiply(stakingInfo.totalStakedAmount.raw, stakingTokenPair.reserveOfOutput(WETH).raw),
-          JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
-        ),
-        totalSupplyOfStakingToken.raw
-      )
-    )
-  }
+  const totalSupplyOfStakingToken0 = useTotalSupply(stakingInfo?.stakedAmount?.[0].token)
+  const totalSupplyOfStakingToken1 = useTotalSupply(stakingInfo?.stakedAmount?.[1].token)
+
+  const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = 
+        (totalSupplyOfStakingToken0 && totalSupplyOfStakingToken1 && stakingTokenPair && stakingInfo && WETH) 
+        // take the total amount of LP tokens staked, multiply by ETH value of all LP tokens, divide by all LP tokens
+        ? new TokenAmount(
+          WETH,
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.multiply(stakingInfo.totalStakedAmount[0].raw, stakingTokenPair.reserveOfOutput(WETH).raw),
+              JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
+            ),
+            JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
+          )
+        )
+        : undefined
 
   const countUpAmount = stakingInfo?.earnedAmount?.toFixed(6) ?? '0'
   const countUpAmountPrevious = usePrevious(countUpAmount) ?? '0'
 
   // get the USD value of staked WETH
-  const USDPrice = useUSDCPrice(WETH)
-  const valueOfTotalStakedAmountInUSDC =
-    valueOfTotalStakedAmountInWETH && USDPrice?.quote(valueOfTotalStakedAmountInWETH)
+//  const USDPrice = useUSDCPrice(WETH)
+//  const valueOfTotalStakedAmountInUSDC =
+//    valueOfTotalStakedAmountInWETH && USDPrice?.quote(valueOfTotalStakedAmountInWETH)
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -152,6 +158,12 @@ export default function Manage({
       toggleWalletModal()
     }
   }, [account, toggleWalletModal])
+
+//  <TYPE.body fontSize={24} fontWeight={500}>
+//  {valueOfTotalStakedAmountInUSDC
+//    ? `$${valueOfTotalStakedAmountInUSDC.toFixed(0, { groupSeparator: ',' })}`
+//    : `${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
+//  </TYPE.body>
 
   return (
     <PageWrapper gap="lg" justify="center">
@@ -167,9 +179,7 @@ export default function Manage({
           <AutoColumn gap="sm">
             <TYPE.body style={{ margin: 0 }}>Total deposits</TYPE.body>
             <TYPE.body fontSize={24} fontWeight={500}>
-              {valueOfTotalStakedAmountInUSDC
-                ? `$${valueOfTotalStakedAmountInUSDC.toFixed(0, { groupSeparator: ',' })}`
-                : `${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
+              {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
             </TYPE.body>
           </AutoColumn>
         </PoolData>
@@ -224,7 +234,8 @@ export default function Manage({
             isOpen={showStakingModal}
             onDismiss={() => setShowStakingModal(false)}
             stakingInfo={stakingInfo}
-            userLiquidityUnstaked={userLiquidityUnstaked}
+            userLiquidityUnstaked0={userLiquidityUnstaked0}
+            userLiquidityUnstaked1={userLiquidityUnstaked1}
           />
           <UnstakingModal
             isOpen={showUnstakingModal}
@@ -251,7 +262,7 @@ export default function Manage({
                 </RowBetween>
                 <RowBetween style={{ alignItems: 'baseline' }}>
                   <TYPE.white fontSize={36} fontWeight={600}>
-                    {stakingInfo?.stakedAmount?.toSignificant(6) ?? '-'}
+                    {stakingInfo?.stakedAmount?.[0].toSignificant(6) ?? '-'}
                   </TYPE.white>
                   <TYPE.white>
                   FESW {currencyA?.symbol}-{currencyB?.symbol}
@@ -260,7 +271,7 @@ export default function Manage({
               </AutoColumn>
             </CardSection>
           </StyledDataCard>
-          <StyledBottomCard dim={stakingInfo?.stakedAmount?.equalTo(JSBI.BigInt(0))}>
+          <StyledBottomCard dim={stakingInfo?.stakedAmount?.[0].equalTo(JSBI.BigInt(0))}>
             <CardBGImage desaturate />
             <CardNoise />
             <AutoColumn gap="sm">
@@ -317,11 +328,11 @@ export default function Manage({
           <DataRow style={{ marginBottom: '1rem' }}>
             {stakingInfo && stakingInfo.active && (
               <ButtonPrimary padding="8px" borderRadius="8px" width="160px" onClick={handleDepositClick}>
-                {stakingInfo?.stakedAmount?.greaterThan(JSBI.BigInt(0)) ? 'Deposit' : 'Deposit FESW LP Tokens'}
+                {stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) ? 'Deposit' : 'Deposit FESW LP Tokens'}
               </ButtonPrimary>
             )}
 
-            {stakingInfo?.stakedAmount?.greaterThan(JSBI.BigInt(0)) && (
+            {stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) && (
               <>
                 <ButtonPrimary
                   padding="8px"
@@ -335,8 +346,8 @@ export default function Manage({
             )}
           </DataRow>
         )}
-        {!userLiquidityUnstaked ? null : userLiquidityUnstaked.equalTo('0') ? null : !stakingInfo?.active ? null : (
-          <TYPE.main>{userLiquidityUnstaked.toSignificant(6)} FESW LP tokens available</TYPE.main>
+        {!userLiquidityUnstaked0 ? null : userLiquidityUnstaked0.equalTo('0') ? null : !stakingInfo?.active ? null : (
+          <TYPE.main>{userLiquidityUnstaked0.toSignificant(6)} FESW LP tokens available</TYPE.main>
         )}
       </PositionInfo>
     </PageWrapper>

@@ -77,7 +77,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
           {stakingInfo?.stakedAmount && (
             <AutoColumn justify="center" gap="md">
               <TYPE.body fontWeight={600} fontSize={36}>
-                {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount} />}
+                {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[0]} />}
               </TYPE.body>
               <TYPE.body>Deposited liquidity:</TYPE.body>
             </AutoColumn>
@@ -101,7 +101,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
       {attempting && !hash && (
         <LoadingView onDismiss={wrappedOndismiss}>
           <AutoColumn gap="12px" justify={'center'}>
-            <TYPE.body fontSize={20}>Withdrawing {stakingInfo?.stakedAmount?.toSignificant(4)} FESW</TYPE.body>
+            <TYPE.body fontSize={20}>Withdrawing {stakingInfo?.stakedAmount?.[0].toSignificant(4)} FESW</TYPE.body>
             <TYPE.body fontSize={20}>Claiming {stakingInfo?.earnedAmount?.toSignificant(4)} FESW</TYPE.body>
           </AutoColumn>
         </LoadingView>

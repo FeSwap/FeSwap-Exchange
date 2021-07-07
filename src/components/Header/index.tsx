@@ -312,7 +312,7 @@ export default function Header() {
           >
             POOL
           </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/uni'}>
+          <StyledNavLink id={`stake-nav-link`} to={'/fesw'}>
             FESW
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/vote'}>

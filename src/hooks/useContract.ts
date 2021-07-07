@@ -1,12 +1,12 @@
 import { Contract } from '@ethersproject/contracts'
-import { abi as GOVERNANCE_ABI } from '@uniswap/governance/build/GovernorAlpha.json'
+import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/GovernorAlpha.json'
 import { abi as SPONSOR_ABI } from '../constants/abis/FeswSponsor.json'
-import { abi as UNI_ABI } from '@uniswap/governance/build/Uni.json'
+import { abi as FESW_ABI } from '@feswap/governance/build/Fesw.json'
 import { abi as NFT_BID_ABI } from '../constants/abis/FeswaNFT.json'
 import { abi as NFT_FACTORY_ABI } from '../constants/abis/FeSwapFactory.json'
 import { abi as NFT_ROUTER_ABI } from '../constants/abis/FeSwapRouter.json'
-import { abi as STAKING_REWARDS_ABI } from '@uniswap/liquidity-staker/build/StakingRewards.json'
-import { abi as MERKLE_DISTRIBUTOR_ABI } from '@uniswap/merkle-distributor/build/MerkleDistributor.json'
+import { abi as STAKING_REWARDS_ABI } from '@feswap/governance/build/StakingTwinRewards.json'
+import { abi as MERKLE_DISTRIBUTOR_ABI } from '@feswap/governance/build/MerkleDistributor.json'
 import { ChainId, WETH } from '@feswap/sdk'
 import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
 import { useMemo } from 'react'
@@ -103,7 +103,7 @@ export function useGovernanceContract(): Contract | null {
 
 export function useFeswContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId ? FESW[chainId].address : undefined, UNI_ABI, true)
+  return useContract(chainId ? FESW[chainId].address : undefined, FESW_ABI, true)
 }
 
 export function useFeswFactoryContract(): Contract | null {

@@ -316,7 +316,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
               {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}🔗${currency1.symbol}`}
             </Text>
             { (!!stakedBalance0 || !!stakedBalance1) && (
-              <ButtonUNIGradient as={Link} to={`/uni/${currencyId(currency0)}/${currencyId(currency1)}`}>
+              <ButtonUNIGradient as={Link} to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`}>
                 <HideExtraSmall>Earning FESW</HideExtraSmall>
                 <ExtraSmallOnly>
                   <span role="img" aria-label="bolt">
@@ -500,8 +500,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
               </RowBetween>
             )}
 
-            { ( ( stakedBalance0 && JSBI.greaterThan(stakedBalance0.raw, BIG_INT_ZERO) ) ||
-                ( stakedBalance1 && JSBI.greaterThan(stakedBalance1.raw, BIG_INT_ZERO) ) ) && (
+            {(
               <ButtonPrimary
                 padding="8px"
                 borderRadius="8px"
@@ -518,3 +517,17 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
     </StyledPositionCard>
   )
 }
+
+
+//{ ( ( stakedBalance0 && JSBI.greaterThan(stakedBalance0.raw, BIG_INT_ZERO) ) ||
+//  ( stakedBalance1 && JSBI.greaterThan(stakedBalance1.raw, BIG_INT_ZERO) ) ) && (
+//<ButtonPrimary
+//  padding="8px"
+//  borderRadius="8px"
+//  as={Link}
+//  to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`}
+//  width="100%"
+//>
+//  Manage Liquidity in Rewards Pool
+//</ButtonPrimary>
+//)}

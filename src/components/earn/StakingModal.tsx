@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import useIsArgentWallet from '../../hooks/useIsArgentWallet'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import Modal from '../Modal'
@@ -39,25 +39,42 @@ interface StakingModalProps {
   isOpen: boolean
   onDismiss: () => void
   stakingInfo: StakingInfo
-  userLiquidityUnstaked: TokenAmount | undefined
+  userLiquidityUnstaked0: TokenAmount | undefined
+  userLiquidityUnstaked1: TokenAmount | undefined
 }
 
-export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiquidityUnstaked }: StakingModalProps) {
+enum Field {
+  PAIR0 = 'PAIR0',
+  PAIR1 = 'PAIR1'
+}
+
+export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiquidityUnstaked0, userLiquidityUnstaked1 }: StakingModalProps) {
   const { account, chainId, library } = useActiveWeb3React()
 
   // track and parse user input
-  const [typedValue, setTypedValue] = useState('')
-  const { parsedAmount, error } = useDerivedStakeInfo(typedValue, stakingInfo.stakedAmount.token, userLiquidityUnstaked)
-  const parsedAmountWrapped = wrappedCurrencyAmount(parsedAmount, chainId)
+  const [typedValue0, setTypedValue0] = useState('')
+  const [typedValue1, setTypedValue1] = useState('')
 
-  let hypotheticalRewardRate: TokenAmount = new TokenAmount(stakingInfo.rewardRate.token, '0')
-  if (parsedAmountWrapped?.greaterThan('0')) {
-    hypotheticalRewardRate = stakingInfo.getHypotheticalRewardRate(
-      stakingInfo.stakedAmount.add(parsedAmountWrapped),
-      stakingInfo.totalStakedAmount.add(parsedAmountWrapped),
-      stakingInfo.totalRewardRate
-    )
-  }
+  const { parsedAmount0, parsedAmount1, error } = useDerivedStakeInfo(typedValue0, typedValue1, stakingInfo, userLiquidityUnstaked0, userLiquidityUnstaked1)
+  const parsedAmountWrapped0 = wrappedCurrencyAmount(parsedAmount0, chainId)
+  const parsedAmountWrapped1 = wrappedCurrencyAmount(parsedAmount1, chainId)
+
+  const hypotheticalRewardRate: TokenAmount = useMemo(() => {
+      if( !parsedAmountWrapped0?.greaterThan('0') && !parsedAmountWrapped1?.greaterThan('0'))
+        return new TokenAmount(stakingInfo.rewardRate.token, '0')
+
+      const [newStakedAmount0, newTotalStakedAmount0] = parsedAmountWrapped0?.greaterThan('0')
+                                                        ? [stakingInfo.stakedAmount[0].add(parsedAmountWrapped0), 
+                                                           stakingInfo.totalStakedAmount[0].add(parsedAmountWrapped0)]
+                                                        : [stakingInfo.stakedAmount[0], stakingInfo.totalStakedAmount[0]]
+      const [newStakedAmount1, newTotalStakedAmount1] = parsedAmountWrapped1?.greaterThan('0')
+                                                        ? [stakingInfo.stakedAmount[1].add(parsedAmountWrapped1), 
+                                                           stakingInfo.totalStakedAmount[1].add(parsedAmountWrapped1)]
+                                                        : [stakingInfo.stakedAmount[1], stakingInfo.totalStakedAmount[1]]                                                        
+      return stakingInfo.getHypotheticalRewardRate( [newStakedAmount0, newStakedAmount1], 
+                                                    [newTotalStakedAmount0, newTotalStakedAmount1], 
+                                                    stakingInfo.totalRewardRate)
+      }, [stakingInfo, parsedAmountWrapped0, parsedAmountWrapped1]) 
 
   // state for pending and submitted txn views
   const addTransaction = useTransactionAdder()
@@ -70,35 +87,50 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   }, [onDismiss])
 
   // pair contract for this token to be staked
-//  const dummyPair = new Pair(new TokenAmount(stakingInfo.tokens[0], '0'), new TokenAmount(stakingInfo.tokens[1], '0'))
-//  const pairContract = usePairContract(dummyPair.liquidityToken.address)
   const dummyPair = new Pair( new TokenAmount(stakingInfo.tokens[0], '0'), new TokenAmount(stakingInfo.tokens[1], '0'),
                               new TokenAmount(stakingInfo.tokens[1], '0'), new TokenAmount(stakingInfo.tokens[0], '0'))
-  const pairContract = usePairContract(dummyPair.liquidityToken0.address)
+  const pairContract0 = usePairContract(dummyPair.liquidityToken0.address)
+  const pairContract1 = usePairContract(dummyPair.liquidityToken1.address)
 
+  const isContractReverse = useMemo(() => {
+        if(!pairContract0 || !pairContract1) return undefined
+        return (pairContract0.address.toLocaleLowerCase < pairContract1.address.toLocaleLowerCase) ? false : true
+      }, [pairContract0, pairContract1])
 
   // approval data for stake
   const deadline = useTransactionDeadline()
-  const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
-  const [approval, approveCallback] = useApproveCallback(parsedAmount, stakingInfo.stakingRewardAddress)
+  const [signatureData0, setSignatureData0] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
+  const [signatureData1, setSignatureData1] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
+
+  const [approval0, approveCallback0] = useApproveCallback(parsedAmount0, stakingInfo.stakingRewardAddress)
+  const [approval1, approveCallback1] = useApproveCallback(parsedAmount1, stakingInfo.stakingRewardAddress)
 
   const isArgentWallet = useIsArgentWallet()
   const stakingContract = useStakingContract(stakingInfo.stakingRewardAddress)
+
   async function onStake() {
+    const ZeroString = '0x0000000000000000000000000000000000000000000000000000000000000000'  
     setAttempting(true)
-    if (stakingContract && parsedAmount && deadline) {
-      if (approval === ApprovalState.APPROVED) {
-        await stakingContract.stake(`0x${parsedAmount.raw.toString(16)}`, { gasLimit: 350000 })
-      } else if (signatureData) {
-        stakingContract
-          .stakeWithPermit(
-            `0x${parsedAmount.raw.toString(16)}`,
-            signatureData.deadline,
-            signatureData.v,
-            signatureData.r,
-            signatureData.s,
-            { gasLimit: 350000 }
-          )
+    if (stakingContract && deadline && isContractReverse && (parsedAmount0 || parsedAmount1) ) {
+      const paraAmount0 = parsedAmount0 ? `0x${parsedAmount0.raw.toString(16)}` : '0x00'
+      const paraAmount1 = parsedAmount1 ? `0x${parsedAmount1.raw.toString(16)}` : '0x00'
+      const paraSignature0 = signatureData0 ? [ paraAmount0, signatureData0.deadline,
+                                                signatureData0.v, signatureData0.r,
+                                                signatureData0.s] 
+                                            : [ZeroString, ZeroString, '0x00', ZeroString, ZeroString]
+    
+      const paraSignature1 = signatureData1 ? [ paraAmount1, signatureData1.deadline,
+                                                signatureData1.v, signatureData1.r,
+                                                signatureData1.s] 
+                                            : ['0x00', '0x00', '0x00', ZeroString, ZeroString]   
+      
+      const paraAmount = isContractReverse ? [paraAmount1, paraAmount0] : [paraAmount0, paraAmount1] 
+      const paraSignature = isContractReverse ? [paraSignature1, paraSignature0] : [paraSignature0, paraSignature1]                                   
+      
+      if((approval0 === ApprovalState.APPROVED) && (approval1 === ApprovalState.APPROVED)) {
+        await stakingContract.stake(...paraAmount, { gasLimit: 350000 })
+      } else if (signatureData0 || signatureData1) {
+        stakingContract.stakeWithPermit(...paraSignature, { gasLimit: 350000 })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
               summary: `Deposit liquidity`
@@ -117,21 +149,37 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   }
 
   // wrapped onUserInput to clear signatures
-  const onUserInput = useCallback((typedValue: string) => {
-    setSignatureData(null)
-    setTypedValue(typedValue)
+  const onUserInput0 = useCallback((typedValue: string) => {
+    setSignatureData0(null)
+    setTypedValue0(typedValue)
   }, [])
 
-  // used for max input button
-  const maxAmountInput = maxAmountSpend(userLiquidityUnstaked)
-  const atMaxAmount = Boolean(maxAmountInput && parsedAmount?.equalTo(maxAmountInput))
-  const handleMax = useCallback(() => {
-    maxAmountInput && onUserInput(maxAmountInput.toExact())
-  }, [maxAmountInput, onUserInput])
+  const onUserInput1 = useCallback((typedValue: string) => {
+    setSignatureData1(null)
+    setTypedValue1(typedValue)
+  }, [])
 
-  async function onAttemptToApprove() {
+
+  // used for max input button
+  const maxAmountInput0 = maxAmountSpend(userLiquidityUnstaked0)
+  const atMaxAmount0 = Boolean(maxAmountInput0 && parsedAmount0?.equalTo(maxAmountInput0))
+  const handleMax0 = useCallback(() => {
+    maxAmountInput0 && onUserInput0(maxAmountInput0.toExact())
+  }, [maxAmountInput0, onUserInput0])
+
+  const maxAmountInput1 = maxAmountSpend(userLiquidityUnstaked1)
+  const atMaxAmount1 = Boolean(maxAmountInput1 && parsedAmount1?.equalTo(maxAmountInput1))
+  const handleMax1 = useCallback(() => {
+    maxAmountInput1 && onUserInput1(maxAmountInput1.toExact())
+  }, [maxAmountInput1, onUserInput1])
+
+  async function onAttemptToApprove(field: Field) {
+    const pairContract = (field === Field.PAIR0) ? pairContract0 : pairContract1
+    const liquidityAmount = (field === Field.PAIR0) ? parsedAmount0 : parsedAmount1
+    const setSignatureData = (field === Field.PAIR0) ? setSignatureData0 : setSignatureData1
+    const approveCallback = (field === Field.PAIR0) ? approveCallback0 : approveCallback1
+    
     if (!pairContract || !library || !deadline) throw new Error('missing dependencies')
-    const liquidityAmount = parsedAmount
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
     if (isArgentWallet) {
@@ -140,6 +188,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
 
     // try to gather a signature for permission
     const nonce = await pairContract.nonces(account)
+    const deadlineSave = deadline
 
     const EIP712Domain = [
       { name: 'name', type: 'string' },
@@ -165,7 +214,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       spender: stakingInfo.stakingRewardAddress,
       value: liquidityAmount.raw.toString(),
       nonce: nonce.toHexString(),
-      deadline: deadline.toNumber()
+      deadline: deadlineSave.toNumber()
     }
     const data = JSON.stringify({
       types: {
@@ -185,7 +234,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
           v: signature.v,
           r: signature.r,
           s: signature.s,
-          deadline: deadline.toNumber()
+          deadline: deadlineSave.toNumber()
         })
       })
       .catch(error => {
@@ -205,11 +254,24 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
             <CloseIcon onClick={wrappedOnDismiss} />
           </RowBetween>
           <CurrencyInputPanel
-            value={typedValue}
-            onUserInput={onUserInput}
-            onMax={handleMax}
-            showMaxButton={!atMaxAmount}
-            currency={stakingInfo.stakedAmount.token}
+            value={typedValue0}
+            onUserInput={onUserInput0}
+            onMax={handleMax0}
+            showMaxButton={!atMaxAmount0}
+            currency={stakingInfo.stakedAmount[0].token}
+            pair={dummyPair}
+            label={''}
+            disableCurrencySelect={true}
+            customBalanceText={'Available to deposit: '}
+            id="stake-liquidity-token"
+          />
+
+          <CurrencyInputPanel
+            value={typedValue1}
+            onUserInput={onUserInput1}
+            onMax={handleMax1}
+            showMaxButton={!atMaxAmount1}
+            currency={stakingInfo.stakedAmount[1].token}
             pair={dummyPair}
             label={''}
             disableCurrencySelect={true}
@@ -231,28 +293,41 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
           <RowBetween>
             <ButtonConfirmed
               mr="0.5rem"
-              onClick={onAttemptToApprove}
-              confirmed={approval === ApprovalState.APPROVED || signatureData !== null}
-              disabled={approval !== ApprovalState.NOT_APPROVED || signatureData !== null}
+              onClick={() => onAttemptToApprove(Field.PAIR0)}
+              confirmed={approval0 === ApprovalState.APPROVED || signatureData0 !== null}
+              disabled={approval0 !== ApprovalState.NOT_APPROVED || signatureData0 !== null}
             >
-              Approve
+              Approve 0
             </ButtonConfirmed>
+
+            <ButtonConfirmed
+              mr="0.5rem"
+              onClick={() => onAttemptToApprove(Field.PAIR1)}
+              confirmed={approval1 === ApprovalState.APPROVED || signatureData1 !== null}
+              disabled={approval1 !== ApprovalState.NOT_APPROVED || signatureData1 !== null}
+            >
+              Approve 1
+            </ButtonConfirmed>
+            </RowBetween>
+
+            <RowBetween>
             <ButtonError
-              disabled={!!error || (signatureData === null && approval !== ApprovalState.APPROVED)}
-              error={!!error && !!parsedAmount}
+              disabled={!!error || (signatureData0 === null && approval0 !== ApprovalState.APPROVED)
+                                || (signatureData0 === null && approval0 !== ApprovalState.APPROVED) }
+              error={!!error && (!!parsedAmount0 || !!parsedAmount1) }
               onClick={onStake}
             >
               {error ?? 'Deposit'}
             </ButtonError>
           </RowBetween>
-          <ProgressCircles steps={[approval === ApprovalState.APPROVED || signatureData !== null]} disabled={true} />
+          <ProgressCircles steps={[approval0 === ApprovalState.APPROVED || signatureData0 !== null]} disabled={true} />
         </ContentWrapper>
       )}
       {attempting && !hash && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Depositing Liquidity</TYPE.largeHeader>
-            <TYPE.body fontSize={20}>{parsedAmount?.toSignificant(4)} FESW</TYPE.body>
+            <TYPE.body fontSize={20}>{parsedAmount0?.toSignificant(4)} FESW</TYPE.body>
           </AutoColumn>
         </LoadingView>
       )}
@@ -260,7 +335,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
         <SubmittedView onDismiss={wrappedOnDismiss} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
-            <TYPE.body fontSize={20}>Deposited {parsedAmount?.toSignificant(4)} FESW</TYPE.body>
+            <TYPE.body fontSize={20}>Deposited {parsedAmount0?.toSignificant(4)} FESW</TYPE.body>
           </AutoColumn>
         </SubmittedView>
       )}
