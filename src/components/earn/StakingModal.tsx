@@ -132,7 +132,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
 //      const paraAmount = [paraAmount0, paraAmount1] 
 //      const paraSignature = [paraSignature0, paraSignature1]                                   
       
-      if((approval0 === ApprovalState.APPROVED) && (approval1 === ApprovalState.APPROVED)) {
+      if((approval0 >= ApprovalState.APPROVED) && (approval1 >= ApprovalState.APPROVED)) {
         await stakingContract.stake(paraAmount0, paraAmount1, { gasLimit: 350000 })
       } else if (signatureData0 || signatureData1) {
         stakingContract.stakeWithPermit(paraSignature0, paraSignature1, { gasLimit: 350000 })
@@ -250,10 +250,25 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       })
   }
 
-  const  label= ((approval1 === ApprovalState.ALL_APPROVED) && !!parsedAmount1) ? 'APPROVED' : 'test'
-  console.log('approval1, !!parsedAmount1, label VVVVVVV' , approval1, !!parsedAmount1, label)
+//  ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) ||
+//  ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) }
 
-  return (
+  const approveToDeposit = useMemo(() => {
+      let approveToDeposit = true
+      if(!!error) approveToDeposit = false
+      if(!parsedAmount0 && !parsedAmount1)  approveToDeposit = false
+      if(approval0 === ApprovalState.ALL_APPROVED && approval1 === ApprovalState.ALL_APPROVED) approveToDeposit = false
+      if(!parsedAmount0 && approval1 === ApprovalState.ALL_APPROVED)  approveToDeposit = false
+      if(!parsedAmount1 && approval0 === ApprovalState.ALL_APPROVED)  approveToDeposit = false
+      return approveToDeposit
+    }, [error, approval0, approval1, parsedAmount0, parsedAmount1])
+
+
+    //          {(((approval0 !== ApprovalState.UNKNOWN) || (approval1 !== ApprovalState.UNKNOWN)) && 
+//            ((approval0 !== ApprovalState.ALL_APPROVED) || (approval1 !== ApprovalState.ALL_APPROVED))) &&
+
+
+    return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
       {!attempting && !hash && (
         <ContentWrapper gap="lg">
@@ -299,7 +314,9 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
               FESW / week
             </TYPE.black>
           </HypotheticalRewardRate>
-          { ((approval0 !== ApprovalState.UNKNOWN) || (approval1 !== ApprovalState.UNKNOWN)) && (
+
+
+          { approveToDeposit && (
             <AutoColumn gap="sm">
               <RowBetween style={{ padding: '0px 20px 0px 20px'}}>
                 <RowFixed>
@@ -309,33 +326,64 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                 </RowFixed>
                 <Toggle isActive={approveOverall} toggle={()=>setApproveOverall(!approveOverall)} />
               </RowBetween>
-              <RowBetween>
-                <ButtonConfirmed
-                  mr="0.5rem"
-                  onClick={() => onAttemptToApprove(Field.PAIR0)}
-                  confirmed={approval0 === ApprovalState.APPROVED || signatureData0 !== null}
-                  disabled={approval0 !== ApprovalState.NOT_APPROVED || signatureData0 !== null}
-                >
-                  Approve 0
-                </ButtonConfirmed>
 
-                <ButtonConfirmed
-                  mr="0.5rem"
-                  onClick={() => onAttemptToApprove(Field.PAIR1)}
-                  confirmed={approval1 === ApprovalState.APPROVED || signatureData1 !== null}
-                  disabled={approval1 !== ApprovalState.NOT_APPROVED || signatureData1 !== null}
-                >
-                  Approve 1
-                </ButtonConfirmed>
-              </RowBetween>
+              { approveOverall && (
+                <RowBetween>
+                  { parsedAmount0 && (
+                      <ButtonConfirmed
+                        mr="0.5rem"
+                        onClick={() => onAttemptToApprove(Field.PAIR0)}
+                        confirmed={(approval0 === ApprovalState.ALL_APPROVED)}
+                        disabled={(approval0 === ApprovalState.PENDING)}
+                      >
+                        Approve 0 {(approval0 === ApprovalState.PENDING)? 'Pending' : ''}
+                      </ButtonConfirmed> )
+                  }
+                  { parsedAmount1 && (
+                      <ButtonConfirmed
+                        mr="0.5rem"
+                        onClick={() => onAttemptToApprove(Field.PAIR1)}
+                        confirmed={(approval1 === ApprovalState.ALL_APPROVED)}
+                        disabled={(approval1 === ApprovalState.PENDING)}
+                      >
+                        Approve 1 {(approval1 === ApprovalState.PENDING)? 'Pending' : ''}
+                      </ButtonConfirmed> )
+                  } 
+                </RowBetween>
+              )}
+
+              { !approveOverall && (
+                <RowBetween>
+                { !!parsedAmount0 && (
+                    <ButtonConfirmed
+                      mr="0.5rem"
+                      onClick={() => onAttemptToApprove(Field.PAIR0)}
+                      confirmed={approval0 === ApprovalState.APPROVED || signatureData0 !== null}
+                      disabled={(approval0 !== ApprovalState.NOT_APPROVED && approval0 !== ApprovalState.ALL_APPROVED) || signatureData0 !== null}
+                    >
+                      Approve 0
+                    </ButtonConfirmed> )
+                }
+                { !!parsedAmount1 && (
+                  <ButtonConfirmed
+                    mr="0.5rem"
+                    onClick={() => onAttemptToApprove(Field.PAIR1)}
+                    confirmed={approval1 === ApprovalState.APPROVED || signatureData1 !== null}
+                    disabled={ (approval1 !== ApprovalState.NOT_APPROVED && approval1 !== ApprovalState.ALL_APPROVED) || signatureData1 !== null}
+                  >
+                    Approve 1
+                  </ButtonConfirmed> )
+                } 
+                </RowBetween>
+              )}
             </AutoColumn>
           )}
             
           <RowBetween>
             <ButtonError
-              disabled={  !!error || 
+              disabled= { !!error || 
                           ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) ||
-                          ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) }
+                          ( !!parsedAmount1  && ( signatureData1 === null && approval1 < ApprovalState.APPROVED ) ) }
               error={!!error && ( !!parsedAmount0 || !!parsedAmount1) }
               onClick={onStake}
             >
