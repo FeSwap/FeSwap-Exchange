@@ -25,6 +25,7 @@ export const TEN_PERCENT_MORE = new Fraction(ELEVEN, TEN)
 export const ONE_OVER_HUNDREAD = new Fraction(ONE, HUNDREAD)
 export const WEI_DENOM_FRACTION = new Fraction(WEI_DENOM, ONE)
 export const HUNDREAD_FRACTION = new Fraction(HUNDREAD, ONE)
+export const MAXJSBI = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
 export function expandTo18Decimals(n: number): BigNumber {
   return BigNumber.from(n).mul(BigNumber.from(10).pow(18))

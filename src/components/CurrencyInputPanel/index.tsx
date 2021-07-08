@@ -1,4 +1,4 @@
-import { Currency, Pair } from '@feswap/sdk'
+import { Currency, Pair, WETH, ChainId } from '@feswap/sdk'
 import React, { useState, useContext, useCallback } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { darken } from 'polished'
@@ -6,11 +6,12 @@ import { useCurrencyBalance } from '../../state/wallet/hooks'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
+import { useCurrencyFromToken } from '../../hooks/Tokens'
 import { RowBetween } from '../Row'
 import { TYPE } from '../../theme'
 import { Input as NumericalInput } from '../NumericalInput'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
-
+import { CheckCircle } from 'react-feather'
 import { useActiveWeb3React } from '../../hooks'
 import { useTranslation } from 'react-i18next'
 
@@ -131,6 +132,8 @@ interface CurrencyInputPanelProps {
   id: string
   showCommonBases?: boolean
   customBalanceText?: string
+  approveCall?: () => void
+  approveHelp?: string
 }
 
 export default function CurrencyInputPanel({
@@ -158,6 +161,17 @@ export default function CurrencyInputPanel({
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const theme = useContext(ThemeContext)
 
+//  const pairCurrency0 = pair ? unwrappedToken(pair.token0) : undefined
+//  const pairCurrency1 = pair ? unwrappedToken(pair.token1) : undefined
+
+  const pairCurrency0 = useCurrencyFromToken(pair?.token0??WETH[ChainId.MAINNET]) ?? undefined
+  const pairCurrency1 = useCurrencyFromToken(pair?.token1??WETH[ChainId.MAINNET]) ?? undefined
+
+//const isETH = token.equals(WETH[token.chainId])
+//const curreny = useToken(isETH ? undefined : token.address)
+//return isETH ? ETHER : curreny
+
+
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
   }, [setModalOpen])
@@ -168,9 +182,10 @@ export default function CurrencyInputPanel({
         {!hideInput && (
           <LabelRow>
             <RowBetween>
-              <TYPE.body color={theme.text2} fontWeight={500} fontSize={15}>
-                {label}
-              </TYPE.body>
+              { (label === 'APPROVED')
+                ? ( <CheckCircle color={theme.green1} size={15} /> )
+                : ( <TYPE.body color={theme.text2} fontWeight={500} fontSize={15}> {label} </TYPE.body> )
+              }    
               {account && (
                 <TYPE.body
                   onClick={() => {if(!disableInput && onMax) onMax()} } 
@@ -213,13 +228,13 @@ export default function CurrencyInputPanel({
           >
             <Aligner>
               {pair ? (
-                <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
+                <DoubleCurrencyLogo currency0={pairCurrency0} currency1={pairCurrency1} size={24} margin={false} />
               ) : currency ? (
                 <CurrencyLogo currency={currency} size={'24px'} />
               ) : null}
               {pair ? (
                 <StyledTokenName className="pair-name-container">
-                  {pair?.token0.symbol}:{pair?.token1.symbol}
+                  {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}
                 </StyledTokenName>
               ) : (
                 <StyledTokenName className="token-symbol-container" active={Boolean(currency && currency.symbol)}>

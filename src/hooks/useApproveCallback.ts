@@ -1,13 +1,13 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Trade, TokenAmount, CurrencyAmount, ETHER } from '@feswap/sdk'
+import { Trade, TokenAmount, CurrencyAmount, ETHER, JSBI } from '@feswap/sdk'
 import { useCallback, useMemo } from 'react'
 import { FESW_ROUTER_ADDRESS } from '../constants'
 import { useTokenAllowance } from '../data/Allowances'
 import { Field } from '../state/swap/actions'
 import { useTransactionAdder, useHasPendingApproval } from '../state/transactions/hooks'
 import { computeSlippageAdjustedAmounts } from '../utils/prices'
-import { calculateGasMargin } from '../utils'
+import { calculateGasMargin, MAXJSBI } from '../utils'
 import { useTokenContract } from './useContract'
 import { useActiveWeb3React } from './index'
 
@@ -15,7 +15,8 @@ export enum ApprovalState {
   UNKNOWN,
   NOT_APPROVED,
   PENDING,
-  APPROVED
+  APPROVED,
+  ALL_APPROVED
 }
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
@@ -35,18 +36,24 @@ export function useApproveCallback(
     // we might not have enough data to know whether or not we need to approve
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
+    console.log("currentAllowance KKKKKKKKKK", currentAllowance, currentAllowance.toExact(), currentAllowance.numerator,
+                    JSBI.equal(currentAllowance.numerator, MAXJSBI))
+
     // amountToApprove will be defined if currentAllowance is
     return currentAllowance.lessThan(amountToApprove)
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
-      : ApprovalState.APPROVED
+      : JSBI.equal(currentAllowance.numerator, MAXJSBI)
+        ? ApprovalState.ALL_APPROVED
+        : ApprovalState.APPROVED
   }, [amountToApprove, currentAllowance, pendingApproval, spender])
 
   const tokenContract = useTokenContract(token?.address)
   const addTransaction = useTransactionAdder()
 
   const approve = useCallback(async (): Promise<void> => {
+      console.log('QQQQQQQQQQQQQQ', approvalState, CurrencyAmount, spender)
     if (approvalState !== ApprovalState.NOT_APPROVED) {
       console.error('approve was called unnecessarily')
       return

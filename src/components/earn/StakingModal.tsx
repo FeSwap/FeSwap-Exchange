@@ -4,7 +4,7 @@ import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import Modal from '../Modal'
 import { AutoColumn } from '../Column'
 import styled from 'styled-components'
-import { RowBetween } from '../Row'
+import { RowBetween, RowFixed } from '../Row'
 import { TYPE, CloseIcon } from '../../theme'
 import { ButtonConfirmed, ButtonError } from '../Button'
 import ProgressCircles from '../ProgressSteps'
@@ -20,6 +20,7 @@ import { wrappedCurrencyAmount } from '../../utils/wrappedCurrency'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { LoadingView, SubmittedView } from '../ModalViews'
+import Toggle from '../Toggle'
 
 const HypotheticalRewardRate = styled.div<{ dim: boolean }>`
   display: flex;
@@ -50,6 +51,10 @@ enum Field {
 
 export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiquidityUnstaked0, userLiquidityUnstaked1 }: StakingModalProps) {
   const { account, chainId, library } = useActiveWeb3React()
+//  const theme = useContext(ThemeContext)
+
+  // used for UI loading states
+  const [approveOverall, setApproveOverall] = useState<boolean>(false)
 
   // track and parse user input
   const [typedValue0, setTypedValue0] = useState('')
@@ -89,13 +94,11 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   // pair contract for this token to be staked
   const dummyPair = new Pair( new TokenAmount(stakingInfo.tokens[0], '0'), new TokenAmount(stakingInfo.tokens[1], '0'),
                               new TokenAmount(stakingInfo.tokens[1], '0'), new TokenAmount(stakingInfo.tokens[0], '0'))
-  const pairContract0 = usePairContract(dummyPair.liquidityToken0.address)
-  const pairContract1 = usePairContract(dummyPair.liquidityToken1.address)
 
-  const isContractReverse = useMemo(() => {
-        if(!pairContract0 || !pairContract1) return undefined
-        return (pairContract0.address.toLocaleLowerCase < pairContract1.address.toLocaleLowerCase) ? false : true
-      }, [pairContract0, pairContract1])
+  const isContractReverse = !(dummyPair.liquidityToken0.address.toLocaleLowerCase < dummyPair.liquidityToken1.address.toLocaleLowerCase)
+
+  const pairContract0 = usePairContract(isContractReverse ? dummyPair.liquidityToken1.address: dummyPair.liquidityToken0.address)
+  const pairContract1 = usePairContract(isContractReverse ? dummyPair.liquidityToken0.address: dummyPair.liquidityToken1.address)
 
   // approval data for stake
   const deadline = useTransactionDeadline()
@@ -104,6 +107,8 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
 
   const [approval0, approveCallback0] = useApproveCallback(parsedAmount0, stakingInfo.stakingRewardAddress)
   const [approval1, approveCallback1] = useApproveCallback(parsedAmount1, stakingInfo.stakingRewardAddress)
+
+  console.log('approval0, approval1, WWWWWWWWWWWWW', approval0, approval1 )
 
   const isArgentWallet = useIsArgentWallet()
   const stakingContract = useStakingContract(stakingInfo.stakingRewardAddress)
@@ -124,13 +129,13 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                                                 signatureData1.s] 
                                             : ['0x00', '0x00', '0x00', ZeroString, ZeroString]   
       
-      const paraAmount = isContractReverse ? [paraAmount1, paraAmount0] : [paraAmount0, paraAmount1] 
-      const paraSignature = isContractReverse ? [paraSignature1, paraSignature0] : [paraSignature0, paraSignature1]                                   
+//      const paraAmount = [paraAmount0, paraAmount1] 
+//      const paraSignature = [paraSignature0, paraSignature1]                                   
       
       if((approval0 === ApprovalState.APPROVED) && (approval1 === ApprovalState.APPROVED)) {
-        await stakingContract.stake(...paraAmount, { gasLimit: 350000 })
+        await stakingContract.stake(paraAmount0, paraAmount1, { gasLimit: 350000 })
       } else if (signatureData0 || signatureData1) {
-        stakingContract.stakeWithPermit(...paraSignature, { gasLimit: 350000 })
+        stakingContract.stakeWithPermit(paraSignature0, paraSignature1, { gasLimit: 350000 })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
               summary: `Deposit liquidity`
@@ -182,7 +187,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
     if (!pairContract || !library || !deadline) throw new Error('missing dependencies')
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
-    if (isArgentWallet) {
+    if (isArgentWallet || approveOverall) {
       return approveCallback()
     }
 
@@ -245,6 +250,9 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       })
   }
 
+  const  label= ((approval1 === ApprovalState.ALL_APPROVED) && !!parsedAmount1) ? 'APPROVED' : 'test'
+  console.log('approval1, !!parsedAmount1, label VVVVVVV' , approval1, !!parsedAmount1, label)
+
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
       {!attempting && !hash && (
@@ -260,11 +268,13 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
             showMaxButton={!atMaxAmount0}
             currency={stakingInfo.stakedAmount[0].token}
             pair={dummyPair}
-            label={''}
+            label={ ((approval0 === ApprovalState.ALL_APPROVED) && !!parsedAmount0) ? 'APPROVED' : ''}
             disableCurrencySelect={true}
             customBalanceText={'Available to deposit: '}
             id="stake-liquidity-token"
           />
+
+
 
           <CurrencyInputPanel
             value={typedValue1}
@@ -273,7 +283,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
             showMaxButton={!atMaxAmount1}
             currency={stakingInfo.stakedAmount[1].token}
             pair={dummyPair}
-            label={''}
+            label={ ((approval1 === ApprovalState.ALL_APPROVED) && !!parsedAmount1) ? 'APPROVED' : ''}
             disableCurrencySelect={true}
             customBalanceText={'Available to deposit: '}
             id="stake-liquidity-token"
@@ -289,32 +299,44 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
               FESW / week
             </TYPE.black>
           </HypotheticalRewardRate>
+          { ((approval0 !== ApprovalState.UNKNOWN) || (approval1 !== ApprovalState.UNKNOWN)) && (
+            <AutoColumn gap="sm">
+              <RowBetween style={{ padding: '0px 20px 0px 20px'}}>
+                <RowFixed>
+                  <TYPE.black fontWeight={600} fontSize={16}>
+                    Overall Approve
+                  </TYPE.black>
+                </RowFixed>
+                <Toggle isActive={approveOverall} toggle={()=>setApproveOverall(!approveOverall)} />
+              </RowBetween>
+              <RowBetween>
+                <ButtonConfirmed
+                  mr="0.5rem"
+                  onClick={() => onAttemptToApprove(Field.PAIR0)}
+                  confirmed={approval0 === ApprovalState.APPROVED || signatureData0 !== null}
+                  disabled={approval0 !== ApprovalState.NOT_APPROVED || signatureData0 !== null}
+                >
+                  Approve 0
+                </ButtonConfirmed>
 
+                <ButtonConfirmed
+                  mr="0.5rem"
+                  onClick={() => onAttemptToApprove(Field.PAIR1)}
+                  confirmed={approval1 === ApprovalState.APPROVED || signatureData1 !== null}
+                  disabled={approval1 !== ApprovalState.NOT_APPROVED || signatureData1 !== null}
+                >
+                  Approve 1
+                </ButtonConfirmed>
+              </RowBetween>
+            </AutoColumn>
+          )}
+            
           <RowBetween>
-            <ButtonConfirmed
-              mr="0.5rem"
-              onClick={() => onAttemptToApprove(Field.PAIR0)}
-              confirmed={approval0 === ApprovalState.APPROVED || signatureData0 !== null}
-              disabled={approval0 !== ApprovalState.NOT_APPROVED || signatureData0 !== null}
-            >
-              Approve 0
-            </ButtonConfirmed>
-
-            <ButtonConfirmed
-              mr="0.5rem"
-              onClick={() => onAttemptToApprove(Field.PAIR1)}
-              confirmed={approval1 === ApprovalState.APPROVED || signatureData1 !== null}
-              disabled={approval1 !== ApprovalState.NOT_APPROVED || signatureData1 !== null}
-            >
-              Approve 1
-            </ButtonConfirmed>
-            </RowBetween>
-
-            <RowBetween>
             <ButtonError
-              disabled={!!error || (signatureData0 === null && approval0 !== ApprovalState.APPROVED)
-                                || (signatureData0 === null && approval0 !== ApprovalState.APPROVED) }
-              error={!!error && (!!parsedAmount0 || !!parsedAmount1) }
+              disabled={  !!error || 
+                          ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) ||
+                          ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) }
+              error={!!error && ( !!parsedAmount0 || !!parsedAmount1) }
               onClick={onStake}
             >
               {error ?? 'Deposit'}
