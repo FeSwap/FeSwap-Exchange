@@ -7,9 +7,8 @@ import styled from 'styled-components'
 import { RowBetween, RowFixed } from '../Row'
 import { TYPE, CloseIcon } from '../../theme'
 import { ButtonConfirmed, ButtonError } from '../Button'
-import ProgressCircles from '../ProgressSteps'
 import CurrencyInputPanel from '../CurrencyInputPanel'
-import { TokenAmount, Pair } from '@feswap/sdk'
+import { TokenAmount, Pair, WETH, ChainId } from '@feswap/sdk'
 import { useActiveWeb3React } from '../../hooks'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { usePairContract, useStakingContract } from '../../hooks/useContract'
@@ -20,6 +19,7 @@ import { wrappedCurrencyAmount } from '../../utils/wrappedCurrency'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { LoadingView, SubmittedView } from '../ModalViews'
+import { useCurrencyFromToken } from '../../hooks/Tokens'
 import Toggle from '../Toggle'
 
 const HypotheticalRewardRate = styled.div<{ dim: boolean }>`
@@ -100,6 +100,12 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   const pairContract0 = usePairContract(isContractReverse ? dummyPair.liquidityToken1.address: dummyPair.liquidityToken0.address)
   const pairContract1 = usePairContract(isContractReverse ? dummyPair.liquidityToken0.address: dummyPair.liquidityToken1.address)
 
+  const token0 = isContractReverse ? dummyPair?.token1 : dummyPair?.token0
+  const token1 = isContractReverse ? dummyPair?.token0 : dummyPair?.token1
+
+  const pairCurrency0 = useCurrencyFromToken(token0??WETH[ChainId.MAINNET]) ?? undefined
+  const pairCurrency1 = useCurrencyFromToken(token1??WETH[ChainId.MAINNET]) ?? undefined
+
   // approval data for stake
   const deadline = useTransactionDeadline()
   const [signatureData0, setSignatureData0] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
@@ -107,8 +113,6 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
 
   const [approval0, approveCallback0] = useApproveCallback(parsedAmount0, stakingInfo.stakingRewardAddress)
   const [approval1, approveCallback1] = useApproveCallback(parsedAmount1, stakingInfo.stakingRewardAddress)
-
-  console.log('approval0, approval1, WWWWWWWWWWWWW', approval0, approval1 )
 
   const isArgentWallet = useIsArgentWallet()
   const stakingContract = useStakingContract(stakingInfo.stakingRewardAddress)
@@ -129,12 +133,20 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                                                 signatureData1.s] 
                                             : ['0x00', '0x00', '0x00', ZeroString, ZeroString]   
       
-//      const paraAmount = [paraAmount0, paraAmount1] 
-//      const paraSignature = [paraSignature0, paraSignature1]                                   
-      
-      if((approval0 >= ApprovalState.APPROVED) && (approval1 >= ApprovalState.APPROVED)) {
-        await stakingContract.stake(paraAmount0, paraAmount1, { gasLimit: 350000 })
-      } else if (signatureData0 || signatureData1) {
+      if( (!signatureData0 && !signatureData1) &&
+          ((paraAmount0 && approval0 === ApprovalState.APPROVED) || (paraAmount1 && approval1 === ApprovalState.APPROVED))) {
+        stakingContract.stake(paraAmount0, paraAmount1, { gasLimit: 350000 })
+          .then((response: TransactionResponse) => {
+            addTransaction(response, {
+              summary: `Deposit liquidity`
+            })
+            setHash(response.hash)
+          })
+          .catch((error: any) => {
+            setAttempting(false)
+            console.log(error)
+          })
+      } else if(signatureData0 || signatureData1){
         stakingContract.stakeWithPermit(paraSignature0, paraSignature1, { gasLimit: 350000 })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
@@ -257,9 +269,9 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       let approveToDeposit = true
       if(!!error) approveToDeposit = false
       if(!parsedAmount0 && !parsedAmount1)  approveToDeposit = false
-      if(approval0 === ApprovalState.ALL_APPROVED && approval1 === ApprovalState.ALL_APPROVED) approveToDeposit = false
-      if(!parsedAmount0 && approval1 === ApprovalState.ALL_APPROVED)  approveToDeposit = false
-      if(!parsedAmount1 && approval0 === ApprovalState.ALL_APPROVED)  approveToDeposit = false
+      if(approval0 === ApprovalState.APPROVED && approval1 === ApprovalState.APPROVED) approveToDeposit = false
+      if(!parsedAmount0 && approval1 === ApprovalState.APPROVED)  approveToDeposit = false
+      if(!parsedAmount1 && approval0 === ApprovalState.APPROVED)  approveToDeposit = false
       return approveToDeposit
     }, [error, approval0, approval1, parsedAmount0, parsedAmount1])
 
@@ -283,14 +295,12 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
             showMaxButton={!atMaxAmount0}
             currency={stakingInfo.stakedAmount[0].token}
             pair={dummyPair}
-            label={ ((approval0 === ApprovalState.ALL_APPROVED) && !!parsedAmount0) ? 'APPROVED' : ''}
+            pairTokenOrder={isContractReverse}
+            label={ ((approval0 === ApprovalState.APPROVED) && !!parsedAmount0) ? 'APPROVED' : ''}
             disableCurrencySelect={true}
             customBalanceText={'Available to deposit: '}
             id="stake-liquidity-token"
           />
-
-
-
           <CurrencyInputPanel
             value={typedValue1}
             onUserInput={onUserInput1}
@@ -298,7 +308,8 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
             showMaxButton={!atMaxAmount1}
             currency={stakingInfo.stakedAmount[1].token}
             pair={dummyPair}
-            label={ ((approval1 === ApprovalState.ALL_APPROVED) && !!parsedAmount1) ? 'APPROVED' : ''}
+            pairTokenOrder={!isContractReverse}
+            label={ ((approval1 === ApprovalState.APPROVED) && !!parsedAmount1) ? 'APPROVED' : ''}
             disableCurrencySelect={true}
             customBalanceText={'Available to deposit: '}
             id="stake-liquidity-token"
@@ -328,53 +339,51 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
               </RowBetween>
 
               { approveOverall && (
-                <RowBetween>
+                <>
                   { parsedAmount0 && (
                       <ButtonConfirmed
                         mr="0.5rem"
                         onClick={() => onAttemptToApprove(Field.PAIR0)}
-                        confirmed={(approval0 === ApprovalState.ALL_APPROVED)}
+                        confirmed={(approval0 === ApprovalState.APPROVED)}
                         disabled={(approval0 === ApprovalState.PENDING)}
                       >
-                        Approve 0 {(approval0 === ApprovalState.PENDING)? 'Pending' : ''}
+                        Approve {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol} {(approval0 === ApprovalState.PENDING)? ' Pending' : ''}
                       </ButtonConfirmed> )
                   }
                   { parsedAmount1 && (
                       <ButtonConfirmed
                         mr="0.5rem"
                         onClick={() => onAttemptToApprove(Field.PAIR1)}
-                        confirmed={(approval1 === ApprovalState.ALL_APPROVED)}
+                        confirmed={(approval1 === ApprovalState.APPROVED)}
                         disabled={(approval1 === ApprovalState.PENDING)}
                       >
-                        Approve 1 {(approval1 === ApprovalState.PENDING)? 'Pending' : ''}
+                        Approve {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol} {(approval1 === ApprovalState.PENDING)? ' Pending' : ''}
                       </ButtonConfirmed> )
                   } 
-                </RowBetween>
+                </>
               )}
 
               { !approveOverall && (
-                <RowBetween>
+                <>
                 { !!parsedAmount0 && (
                     <ButtonConfirmed
                       mr="0.5rem"
                       onClick={() => onAttemptToApprove(Field.PAIR0)}
-                      confirmed={approval0 === ApprovalState.APPROVED || signatureData0 !== null}
-                      disabled={(approval0 !== ApprovalState.NOT_APPROVED && approval0 !== ApprovalState.ALL_APPROVED) || signatureData0 !== null}
+                      confirmed={signatureData0 !== null}
                     >
-                      Approve 0
+                      { !!signatureData0 ? 'Approved ' : 'Approve '} {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}
                     </ButtonConfirmed> )
                 }
                 { !!parsedAmount1 && (
                   <ButtonConfirmed
                     mr="0.5rem"
                     onClick={() => onAttemptToApprove(Field.PAIR1)}
-                    confirmed={approval1 === ApprovalState.APPROVED || signatureData1 !== null}
-                    disabled={ (approval1 !== ApprovalState.NOT_APPROVED && approval1 !== ApprovalState.ALL_APPROVED) || signatureData1 !== null}
+                    confirmed={signatureData1 !== null}
                   >
-                    Approve 1
+                    { !!signatureData1 ? 'Approved' : 'Approve'} {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol}
                   </ButtonConfirmed> )
                 } 
-                </RowBetween>
+                </>
               )}
             </AutoColumn>
           )}
@@ -382,30 +391,40 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
           <RowBetween>
             <ButtonError
               disabled= { !!error || 
-                          ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) ||
-                          ( !!parsedAmount1  && ( signatureData1 === null && approval1 < ApprovalState.APPROVED ) ) }
+                          ( !!parsedAmount0  && ( signatureData0 === null && approval0 !== ApprovalState.APPROVED ) ) ||
+                          ( !!parsedAmount1  && ( signatureData1 === null && approval1 !== ApprovalState.APPROVED ) ) }
               error={!!error && ( !!parsedAmount0 || !!parsedAmount1) }
               onClick={onStake}
             >
               {error ?? 'Deposit'}
             </ButtonError>
           </RowBetween>
-          <ProgressCircles steps={[approval0 === ApprovalState.APPROVED || signatureData0 !== null]} disabled={true} />
         </ContentWrapper>
       )}
       {attempting && !hash && (
         <LoadingView onDismiss={wrappedOnDismiss}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Depositing Liquidity</TYPE.largeHeader>
-            <TYPE.body fontSize={20}>{parsedAmount0?.toSignificant(4)} FESW</TYPE.body>
+            { parsedAmount0 && (
+              <TYPE.body fontSize={20}>{parsedAmount0?.toSignificant(4)} FESP of {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}</TYPE.body> )}
+            { parsedAmount0 && parsedAmount1 && (
+              <TYPE.body fontSize={20}> and </TYPE.body> )}
+            { parsedAmount1 && (
+              <TYPE.body fontSize={20}>{parsedAmount1?.toSignificant(4)} FESP of {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol}</TYPE.body> )}
           </AutoColumn>
         </LoadingView>
       )}
       {attempting && hash && (
-        <SubmittedView onDismiss={wrappedOnDismiss} hash={hash}>
+        <SubmittedView onDismiss={()=>{onUserInput0(''); onUserInput1(''); wrappedOnDismiss()}} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
-            <TYPE.body fontSize={20}>Deposited {parsedAmount0?.toSignificant(4)} FESW</TYPE.body>
+            <TYPE.body fontSize={20}> Deposited </TYPE.body> 
+            { parsedAmount0 && (
+              <TYPE.body fontSize={20}> {parsedAmount0?.toSignificant(4)} FESP of {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}</TYPE.body> )}
+            { parsedAmount0 && parsedAmount1 && (
+              <TYPE.body fontSize={20}> and </TYPE.body> )}
+            { parsedAmount1 && (
+              <TYPE.body fontSize={20}>{parsedAmount1?.toSignificant(4)} FESP of {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol}</TYPE.body> )}
           </AutoColumn>
         </SubmittedView>
       )}

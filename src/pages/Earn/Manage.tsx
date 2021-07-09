@@ -27,20 +27,31 @@ import { currencyId } from '../../utils/currencyId'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import usePrevious from '../../hooks/usePrevious'
-// import useUSDCPrice from '../../utils/useUSDCPrice'
-import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_WEEK } from '../../constants'
+import { useUSDTPrice } from '../../utils/useUSDCPrice'
+import { transparentize } from 'polished'
+import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_DAY } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
-  max-width: 640px;
+  max-width: 480px;
   width: 100%;
 `
 
-const PositionInfo = styled(AutoColumn)<{ dim: any }>`
+const PositionInfo = styled(AutoColumn)<{ dim: any; bgColor: any}>`
   position: relative;
-  max-width: 640px;
+  max-width: 480px;
   width: 100%;
   opacity: ${({ dim }) => (dim ? 0.6 : 1)};
+  background: ${({ theme, bgColor }) =>
+              `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
 `
+
+//const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
+//  border: none;
+//  background: ${({ theme, bgColor }) =>
+//    `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
+//  position: relative;
+//  overflow: hidden;
+//`
 
 const BottomSection = styled(AutoColumn)`
   border-radius: 12px;
@@ -68,17 +79,21 @@ const StyledBottomCard = styled(DataCard)<{ dim: any }>`
 const PoolData = styled(DataCard)`
   background: none;
   border: 1px solid ${({ theme }) => theme.bg4};
+  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
+  border-radius: 12px;
   padding: 1rem;
   z-index: 1;
 `
 
 const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #27ae60 0%, #000000 100%);
+  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
   overflow: hidden;
 `
 
 const DataRow = styled(RowBetween)`
   justify-content: center;
+  overflow: hidden;
+  border-radius: 12px;
   gap: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -134,7 +149,8 @@ export default function Manage({
           WETH,
           JSBI.divide(
             JSBI.multiply(
-              JSBI.multiply(stakingInfo.totalStakedAmount[0].raw, stakingTokenPair.reserveOfOutput(WETH).raw),
+              JSBI.multiply(JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw),
+                            JSBI.add(stakingTokenPair.reserveOfOutput(WETH).raw, stakingTokenPair.reserveOfInput(WETH).raw)),
               JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
             ),
             JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
@@ -146,9 +162,8 @@ export default function Manage({
   const countUpAmountPrevious = usePrevious(countUpAmount) ?? '0'
 
   // get the USD value of staked WETH
-//  const USDPrice = useUSDCPrice(WETH)
-//  const valueOfTotalStakedAmountInUSDC =
-//    valueOfTotalStakedAmountInWETH && USDPrice?.quote(valueOfTotalStakedAmountInWETH)
+  const USDTPrice = useUSDTPrice(WETH)
+  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -160,43 +175,45 @@ export default function Manage({
     }
   }, [account, toggleWalletModal])
 
-//  <TYPE.body fontSize={24} fontWeight={500}>
-//  {valueOfTotalStakedAmountInUSDC
-//    ? `$${valueOfTotalStakedAmountInUSDC.toFixed(0, { groupSeparator: ',' })}`
-//    : `${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
-//  </TYPE.body>
-
    return (
     <PageWrapper gap="lg" justify="center">
       <RowBetween style={{ gap: '24px' }}>
+        <div/>
         <TYPE.mediumHeader style={{ margin: 0 }}>
           {currencyA?.symbol}-{currencyB?.symbol} Liquidity Mining
         </TYPE.mediumHeader>
         <DoubleCurrencyLogo currency0={currencyA ?? undefined} currency1={currencyB ?? undefined} size={24} />
       </RowBetween>
 
-      <DataRow style={{ gap: '24px' }}>
-        <PoolData>
-          <AutoColumn gap="sm">
-            <TYPE.body style={{ margin: 0 }}>Total deposits</TYPE.body>
-            <TYPE.body fontSize={24} fontWeight={500}>
-              {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
-            </TYPE.body>
-          </AutoColumn>
-        </PoolData>
-        <PoolData>
-          <AutoColumn gap="sm">
-            <TYPE.body style={{ margin: 0 }}>Pool Rate</TYPE.body>
-            <TYPE.body fontSize={24} fontWeight={500}>
-              {stakingInfo?.active
-                ? stakingInfo?.totalRewardRate
-                    ?.multiply(BIG_INT_SECONDS_IN_WEEK)
-                    ?.toFixed(0, { groupSeparator: ',' }) ?? '-'
-                : '0'}
-              {' FESW / week'}
-            </TYPE.body>
-          </AutoColumn>
-        </PoolData>
+      <DataRow style={{ gap: '10px' }}>
+          <PoolData>
+            <CardNoise />
+            <AutoColumn gap="sm">
+              <TYPE.body style={{ margin: 0 }}>Total Value of Deposits</TYPE.body>
+              <TYPE.body fontSize={24} fontWeight={500}>
+                {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
+              </TYPE.body>
+              <TYPE.body fontSize={20} fontWeight={500}>
+                {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })??' -'}`}
+              </TYPE.body>
+            </AutoColumn>
+            <CardNoise />
+          </PoolData>
+          <PoolData>
+            <CardNoise />
+            <AutoColumn gap="sm">
+              <TYPE.body style={{ margin: 0 }}>Pool Mining Rate</TYPE.body>
+              <TYPE.body fontSize={24} fontWeight={500}>
+                {stakingInfo?.active
+                  ? stakingInfo?.totalRewardRate
+                      ?.multiply(BIG_INT_SECONDS_IN_DAY)
+                      ?.toFixed(0, { groupSeparator: ',' }) ?? '-'
+                  : '0'}
+              </TYPE.body>
+              <TYPE.body fontSize={20} fontWeight={500}>{' FESW / Day'} </TYPE.body>
+            </AutoColumn>
+            <CardNoise />
+          </PoolData>
       </DataRow>
 
       {showAddLiquidityButton && (
@@ -251,11 +268,10 @@ export default function Manage({
         </>
       )}
 
-      <PositionInfo gap="lg" justify="center" dim={showAddLiquidityButton}>
+      <PositionInfo gap="lg" justify="center" dim={showAddLiquidityButton} bgColor={backgroundColor}>
         <BottomSection gap="lg" justify="center">
           <StyledDataCard disabled={disableTop} bgColor={backgroundColor} showBackground={!showAddLiquidityButton}>
             <CardSection>
-              <CardBGImage desaturate />
               <CardNoise />
               <AutoColumn gap="md">
                 <RowBetween>
@@ -272,8 +288,8 @@ export default function Manage({
               </AutoColumn>
             </CardSection>
           </StyledDataCard>
+
           <StyledBottomCard dim={stakingInfo?.stakedAmount?.[0].equalTo(JSBI.BigInt(0))}>
-            <CardBGImage desaturate />
             <CardNoise />
             <AutoColumn gap="sm">
               <RowBetween>
@@ -309,14 +325,15 @@ export default function Manage({
                   </span>
                   {stakingInfo?.active
                     ? stakingInfo?.rewardRate
-                        ?.multiply(BIG_INT_SECONDS_IN_WEEK)
+                        ?.multiply(BIG_INT_SECONDS_IN_DAY)
                         ?.toSignificant(4, { groupSeparator: ',' }) ?? '-'
                     : '0'}
-                  {' FESW / week'}
+                  {' FESW / Day'}
                 </TYPE.black>
               </RowBetween>
             </AutoColumn>
           </StyledBottomCard>
+          
         </BottomSection>
         <TYPE.main style={{ textAlign: 'center' }} fontSize={14}>
           <span role="img" aria-label="wizard-icon" style={{ marginRight: '8px' }}>

@@ -15,7 +15,7 @@ import { AutoColumn } from '../../components/Column'
 
 import { useActiveWeb3React } from '../../hooks'
 import { usePairs } from '../../data/Reserves'
-import { toV2LiquidityToken, useTrackedTokenPairs } from '../../state/user/hooks'
+import { toFeswLiquidityToken, useTrackedTokenPairs } from '../../state/user/hooks'
 import { Dots } from '../../components/swap/styleds'
 import { CardSection, DataCard, CardNoise } from '../../components/earn/styled'
 import { useStakingInfo } from '../../state/stake/hooks'
@@ -80,7 +80,7 @@ export default function Pool() {
   // fetch the user's balances of all tracked V2 LP tokens
   const trackedTokenPairs = useTrackedTokenPairs()
   const tokenPairsWithLiquidityTokens = useMemo(
-    () => trackedTokenPairs.map(tokens => ({ liquidityToken: toV2LiquidityToken(tokens), tokens })),
+    () => trackedTokenPairs.map(tokens => ({ liquidityToken: toFeswLiquidityToken(tokens), tokens })),
     [trackedTokenPairs]
   )
   const liquidityTokensFlated = useMemo(() => tokenPairsWithLiquidityTokens.flatMap(tpwlt => [tpwlt.liquidityToken[0], tpwlt.liquidityToken[1]])
@@ -126,25 +126,24 @@ export default function Pool() {
     <>
       <PageWrapper>
         <VoteCard>
-        <CardNoise />
-          <CardSection>
-            <AutoColumn gap="md">
-              <RowBetween>
-                <TYPE.black fontWeight={600}>Liquidity provider gains</TYPE.black>
-              </RowBetween>
-              <RowBetween>
-                <TYPE.black fontSize={14}>
-                  {`Liquidity providers gains from the internal exchange smoothing the price difference of sub-pools, 
-                  which is equivalent to 0.25-1% exchange fee rate based on the pool configuaration. 
-                  Gains are shared by all liquidity providers, and can be claimed any time.`}
-                </TYPE.black>
-              </RowBetween>
-            </AutoColumn>
-          </CardSection>
+          <CardNoise />
+            <CardSection>
+              <AutoColumn gap="md">
+                <RowBetween>
+                  <TYPE.black fontWeight={600}>Liquidity provider gains</TYPE.black>
+                </RowBetween>
+                <RowBetween>
+                  <TYPE.black fontSize={14}>
+                    {`Liquidity providers gains from the internal exchange smoothing the price difference of sub-pools, 
+                    which is equivalent to 0.25-1% exchange fee rate based on the pool configuaration. 
+                    Gains are shared by all liquidity providers, and can be claimed any time.`}
+                  </TYPE.black>
+                </RowBetween>
+              </AutoColumn>
+            </CardSection>
           <CardNoise />
         </VoteCard>
-        <AutoColumn gap="lg" justify="center">
-          <AutoColumn gap="lg" style={{ width: '100%' }}>
+        <AutoColumn gap="lg" justify="center" style={{ width: '100%' }}>
             <TitleRow style={{ marginTop: '1rem' }} padding={'0'}>
               <HideSmall>
                 <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
@@ -208,7 +207,6 @@ export default function Pool() {
                 </StyledInternalLink>
               </Text>
             </AutoColumn>
-          </AutoColumn>
         </AutoColumn>
       </PageWrapper>
     </>

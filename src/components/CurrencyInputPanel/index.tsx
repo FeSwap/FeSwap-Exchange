@@ -127,6 +127,7 @@ interface CurrencyInputPanelProps {
   hideBalance?: boolean
   disableInput?: boolean
   pair?: Pair | null
+  pairTokenOrder?: boolean
   hideInput?: boolean
   otherCurrency?: Currency | null
   id: string
@@ -148,6 +149,7 @@ export default function CurrencyInputPanel({
   hideBalance = false,
   disableInput = false,
   pair = null, // used for double token logo
+  pairTokenOrder,
   hideInput = false,
   otherCurrency,
   id,
@@ -163,9 +165,11 @@ export default function CurrencyInputPanel({
 
 //  const pairCurrency0 = pair ? unwrappedToken(pair.token0) : undefined
 //  const pairCurrency1 = pair ? unwrappedToken(pair.token1) : undefined
+  const token0 = pairTokenOrder ? pair?.token1 : pair?.token0
+  const token1 = pairTokenOrder ? pair?.token0 : pair?.token1
 
-  const pairCurrency0 = useCurrencyFromToken(pair?.token0??WETH[ChainId.MAINNET]) ?? undefined
-  const pairCurrency1 = useCurrencyFromToken(pair?.token1??WETH[ChainId.MAINNET]) ?? undefined
+  const pairCurrency0 = useCurrencyFromToken(token0??WETH[ChainId.MAINNET]) ?? undefined
+  const pairCurrency1 = useCurrencyFromToken(token1??WETH[ChainId.MAINNET]) ?? undefined
 
 //const isETH = token.equals(WETH[token.chainId])
 //const curreny = useToken(isETH ? undefined : token.address)

@@ -259,7 +259,7 @@ export function useURLWarningToggle(): () => void {
  * @param tokenA one of the two tokens
  * @param tokenB the other token
  */
-export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): [Token, Token] {
+export function toFeswLiquidityToken([tokenA, tokenB]: [Token, Token]): [Token, Token] {
   return  [ new Token(tokenA.chainId, Pair.getAddress(tokenA, tokenB), 18, 'FESW', 'FeSwap DAO'),
             new Token(tokenB.chainId, Pair.getAddress(tokenB, tokenA), 18, 'FESW', 'FeSwap DAO') ]
 }

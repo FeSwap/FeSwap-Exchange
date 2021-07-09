@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Pair } from '@feswap/sdk'
 import Modal from '../Modal'
 import { AutoColumn } from '../Column'
 import styled from 'styled-components'
@@ -12,6 +13,8 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import FormattedCurrencyAmount from '../FormattedCurrencyAmount'
 import { useActiveWeb3React } from '../../hooks'
+import { unwrappedToken } from '../../utils/wrappedCurrency'
+import { ZERO_FRACTION } from '../../utils'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -39,6 +42,14 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
   }
 
   const stakingContract = useStakingContract(stakingInfo.stakingRewardAddress)
+
+  const currency0 = unwrappedToken(stakingInfo.tokens[0])
+  const currency1 = unwrappedToken(stakingInfo.tokens[1])
+  
+  const isCorrectOrder = Boolean( Pair.getAddress(stakingInfo.tokens[0], stakingInfo.tokens[1]) ===
+                                      stakingInfo.stakedAmount[0].token.address)
+  
+  const [pairCurrency0, pairCurrency1] = isCorrectOrder ? [currency0, currency1] : [currency1, currency0]
 
   async function onWithdraw() {
     if (stakingContract && stakingInfo?.stakedAmount) {
@@ -76,22 +87,40 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
           </RowBetween>
           {stakingInfo?.stakedAmount && (
             <AutoColumn justify="center" gap="md">
-              <TYPE.body fontWeight={600} fontSize={36}>
-                {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[0]} />}
-              </TYPE.body>
               <TYPE.body>Deposited liquidity:</TYPE.body>
+              { stakingInfo?.stakedAmount[0].greaterThan(ZERO_FRACTION) && (
+                <AutoColumn justify="center" gap="0px">
+                  <TYPE.body fontWeight={600} fontSize={32}>
+                    {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[0]} />} FESP 
+                  </TYPE.body>
+                  <TYPE.body> of sub-pool <strong>{pairCurrency0?.symbol}
+                              <span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency1?.symbol}</strong>
+                  </TYPE.body>    
+                </AutoColumn>
+              )}
+              { stakingInfo?.stakedAmount[1].greaterThan(ZERO_FRACTION) && (
+                <AutoColumn justify="center" gap="0px">
+                  <TYPE.body fontWeight={600} fontSize={32}>
+                    {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[1]} />} FESP 
+                  </TYPE.body>
+                  <TYPE.body> of sub-pool <strong>{pairCurrency1?.symbol}
+                              <span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency0?.symbol}</strong>
+                  </TYPE.body>
+                </AutoColumn>
+              )}
             </AutoColumn>
           )}
           {stakingInfo?.earnedAmount && (
             <AutoColumn justify="center" gap="md">
+              <TYPE.body> and Unclaimed: </TYPE.body>
               <TYPE.body fontWeight={600} fontSize={36}>
-                {<FormattedCurrencyAmount currencyAmount={stakingInfo?.earnedAmount} />}
+                {<FormattedCurrencyAmount currencyAmount={stakingInfo?.earnedAmount}/>} FESW
               </TYPE.body>
-              <TYPE.body>Unclaimed FESW</TYPE.body>
             </AutoColumn>
           )}
           <TYPE.subHeader style={{ textAlign: 'center' }}>
-            When you withdraw, your FESW is claimed and your liquidity is removed from the mining pool.
+            When you withdraw, your FESW is claimed and your liquidity is removed from the mining pool 
+            and wholely returned to your original account.
           </TYPE.subHeader>
           <ButtonError disabled={!!error} error={!!error && !!stakingInfo?.stakedAmount} onClick={onWithdraw}>
             {error ?? 'Withdraw & Claim'}
@@ -101,8 +130,18 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
       {attempting && !hash && (
         <LoadingView onDismiss={wrappedOndismiss}>
           <AutoColumn gap="12px" justify={'center'}>
-            <TYPE.body fontSize={20}>Withdrawing {stakingInfo?.stakedAmount?.[0].toSignificant(4)} FESW</TYPE.body>
-            <TYPE.body fontSize={20}>Claiming {stakingInfo?.earnedAmount?.toSignificant(4)} FESW</TYPE.body>
+            <TYPE.body fontSize={20}>Withdrawing:</TYPE.body>
+            { stakingInfo?.stakedAmount[0].greaterThan(ZERO_FRACTION) && (
+              <TYPE.body fontSize={20}> {stakingInfo?.stakedAmount?.[0].toSignificant(4)} FESP
+                          ({pairCurrency0?.symbol}<span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency1?.symbol})
+              </TYPE.body>
+            )}
+            { stakingInfo?.stakedAmount[1].greaterThan(ZERO_FRACTION) && (
+              <TYPE.body fontSize={20}> {stakingInfo?.stakedAmount?.[1].toSignificant(4)} FESP
+                          ({pairCurrency1?.symbol}<span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency0?.symbol})
+              </TYPE.body>
+            )}
+            <TYPE.body fontSize={20}>Claiming: {stakingInfo?.earnedAmount?.toSignificant(4)} FESW </TYPE.body>
           </AutoColumn>
         </LoadingView>
       )}
@@ -110,7 +149,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
         <SubmittedView onDismiss={wrappedOndismiss} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
-            <TYPE.body fontSize={20}>Withdrew FESW!</TYPE.body>
+            <TYPE.body fontSize={20}>Withdrew FESP!</TYPE.body>
             <TYPE.body fontSize={20}>Claimed FESW!</TYPE.body>
           </AutoColumn>
         </SubmittedView>
