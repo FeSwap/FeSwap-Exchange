@@ -10,9 +10,9 @@ import { useCurrency } from '../../hooks/Tokens'
 import { useWalletModalToggle } from '../../state/application/hooks'
 import { TYPE } from '../../theme'
 
-import { RowBetween } from '../../components/Row'
-import { CardSection, DataCard, CardNoise, CardBGImage } from '../../components/earn/styled'
-import { ButtonPrimary, ButtonEmpty } from '../../components/Button'
+import { RowBetween, RowFixed } from '../../components/Row'
+import { DataCard, CardNoise } from '../../components/earn/styled'
+import { ButtonPrimary } from '../../components/Button'
 import StakingModal from '../../components/earn/StakingModal'
 import { useStakingInfo } from '../../state/stake/hooks'
 import UnstakingModal from '../../components/earn/UnstakingModal'
@@ -30,64 +30,79 @@ import usePrevious from '../../hooks/usePrevious'
 import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { transparentize } from 'polished'
 import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_DAY } from '../../constants'
+import { LightCard } from '../../components/Card'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 480px;
   width: 100%;
 `
 
-const PositionInfo = styled(AutoColumn)<{ dim: any; bgColor: any}>`
-  position: relative;
-  max-width: 480px;
-  width: 100%;
-  opacity: ${({ dim }) => (dim ? 0.6 : 1)};
+//const PositionInfo = styled(AutoColumn)<{ dim: any; bgColor: any}>`
+//  position: relative;
+//  max-width: 480px;
+//  width: 100%;
+//  opacity: ${({ dim }) => (dim ? 0.6 : 1)};
+//  background: ${({ theme, bgColor }) =>
+//              `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
+//`
+
+//const BottomSection = styled(AutoColumn)`
+//  border-radius: 12px;
+//  width: 100%;
+//  position: relative;
+//`
+
+//background: radial-gradient(76.02% 75.41% at 1.84% 0%, #1e1a31 0%, #3d51a5 100%);
+//<StyledDataCard disabled={disableTop} bgColor={backgroundColor} showBackground={!showAddLiquidityButton}>
+//background: ${({ theme, bgColor, showBackground }) =>
+//`radial-gradient(91.85% 100% at 1.84% 0%, ${bgColor} 0%,  ${showBackground ? theme.black : theme.bg5} 100%) `};
+
+//const StyledDataCard = styled(DataCard)<{ bgColor?: any; showBackground?: any }>`
+//  z-index: 2;
+//  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+//  background: ${({ theme, bgColor }) =>
+//              `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
+//`
+
+const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
+  border: none;
   background: ${({ theme, bgColor }) =>
-              `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
+    `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
+  position: relative;
+  overflow: hidden;
 `
 
-//const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
-//  border: none;
-//  background: ${({ theme, bgColor }) =>
-//    `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
-//  position: relative;
+//const StyledBottomCard = styled(DataCard)<{ dim: any }>`
+//  background: ${({ theme }) => theme.bg3};
+//  opacity: ${({ dim }) => (dim ? 0.4 : 1)};
+//  margin-top: -40px;
+//  padding: 0 1.25rem 1rem 1.25rem;
+//  padding-top: 32px;
+/// z-index: 1;
+//`
+
+const PoolData = styled(DataCard)`
+  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
+  border-radius: 12px;
+  padding: 12px;
+  z-index: 1;
+`
+
+const Separator = styled.div`
+  width: 100%;
+  height: 1px;
+  background-color: ${({ theme }) => theme.bg5};
+`
+
+//const VoteCard = styled(DataCard)`
+//  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
 //  overflow: hidden;
 //`
 
-const BottomSection = styled(AutoColumn)`
-  border-radius: 12px;
-  width: 100%;
-  position: relative;
-`
-
-const StyledDataCard = styled(DataCard)<{ bgColor?: any; showBackground?: any }>`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #1e1a31 0%, #3d51a5 100%);
-  z-index: 2;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  background: ${({ theme, bgColor, showBackground }) =>
-    `radial-gradient(91.85% 100% at 1.84% 0%, ${bgColor} 0%,  ${showBackground ? theme.black : theme.bg5} 100%) `};
-`
-
-const StyledBottomCard = styled(DataCard)<{ dim: any }>`
-  background: ${({ theme }) => theme.bg3};
-  opacity: ${({ dim }) => (dim ? 0.4 : 1)};
-  margin-top: -40px;
-  padding: 0 1.25rem 1rem 1.25rem;
-  padding-top: 32px;
+const CardSection = styled(AutoColumn)<{ disabled?: boolean }>`
+  padding: 12px 8px 12px 8px;
   z-index: 1;
-`
-
-const PoolData = styled(DataCard)`
-  background: none;
-  border: 1px solid ${({ theme }) => theme.bg4};
-  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
-  border-radius: 12px;
-  padding: 1rem;
-  z-index: 1;
-`
-
-const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 40% 0%, #FFB6C1 30%, #E6E6FA 100%);
-  overflow: hidden;
+  opacity: ${({ disabled }) => disabled && '0.4'};
 `
 
 const DataRow = styled(RowBetween)`
@@ -100,6 +115,10 @@ const DataRow = styled(RowBetween)`
     flex-direction: column;
     gap: 12px;
   `};
+`
+
+const FixedHeightRow = styled(RowBetween)`
+  height: 36px;
 `
 
 export default function Manage({
@@ -131,8 +150,8 @@ export default function Manage({
   const [showClaimRewardModal, setShowClaimRewardModal] = useState(false)
 
   // fade cards if nothing staked or nothing earned yet
-  const disableTop = (!stakingInfo?.stakedAmount[0] && !stakingInfo?.stakedAmount[1]) || 
-                      ( stakingInfo.stakedAmount[0].equalTo(JSBI.BigInt(0)) && stakingInfo.stakedAmount[1].equalTo(JSBI.BigInt(0)))
+//  const disableTop = (!stakingInfo?.stakedAmount[0] && !stakingInfo?.stakedAmount[1]) || 
+//                      ( stakingInfo.stakedAmount[0].equalTo(JSBI.BigInt(0)) && stakingInfo.stakedAmount[1].equalTo(JSBI.BigInt(0)))
 
   const token = currencyA === ETHER ? tokenB : tokenA
   const WETH = currencyA === ETHER ? tokenA : tokenB
@@ -179,8 +198,8 @@ export default function Manage({
     <PageWrapper gap="lg" justify="center">
       <RowBetween style={{ gap: '24px' }}>
         <div/>
-        <TYPE.mediumHeader style={{ margin: 0 }}>
-          {currencyA?.symbol}-{currencyB?.symbol} Liquidity Mining
+        <TYPE.mediumHeader style={{ margin: 0 }} fontSize={20}>
+          {currencyA?.symbol}🔗{currencyB?.symbol} Liquidity Mining
         </TYPE.mediumHeader>
         <DoubleCurrencyLogo currency0={currencyA ?? undefined} currency1={currencyB ?? undefined} size={24} />
       </RowBetween>
@@ -190,10 +209,10 @@ export default function Manage({
             <CardNoise />
             <AutoColumn gap="sm">
               <TYPE.body style={{ margin: 0 }}>Total Value of Deposits</TYPE.body>
-              <TYPE.body fontSize={24} fontWeight={500}>
+              <TYPE.body fontSize={24} fontWeight={500} style={{ textAlign: 'center' }}>
                 {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
               </TYPE.body>
-              <TYPE.body fontSize={20} fontWeight={500}>
+              <TYPE.body fontSize={20} fontWeight={500} style={{ textAlign: 'center' }}>
                 {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })??' -'}`}
               </TYPE.body>
             </AutoColumn>
@@ -203,47 +222,47 @@ export default function Manage({
             <CardNoise />
             <AutoColumn gap="sm">
               <TYPE.body style={{ margin: 0 }}>Pool Mining Rate</TYPE.body>
-              <TYPE.body fontSize={24} fontWeight={500}>
+              <TYPE.body fontSize={24} fontWeight={500} style={{ textAlign: 'center' }}>
                 {stakingInfo?.active
                   ? stakingInfo?.totalRewardRate
                       ?.multiply(BIG_INT_SECONDS_IN_DAY)
                       ?.toFixed(0, { groupSeparator: ',' }) ?? '-'
                   : '0'}
               </TYPE.body>
-              <TYPE.body fontSize={20} fontWeight={500}>{' FESW / Day'} </TYPE.body>
+              <TYPE.body fontSize={20} fontWeight={500} style={{ textAlign: 'center' }} >{' FESW / Day'} </TYPE.body>
             </AutoColumn>
             <CardNoise />
           </PoolData>
       </DataRow>
 
       {showAddLiquidityButton && (
-        <VoteCard>
-          <CardBGImage />
+        <StyledPositionCard bgColor={backgroundColor}>
           <CardNoise />
-          <CardSection>
-            <AutoColumn gap="md">
+          <CardSection gap="md">
               <RowBetween>
-                <TYPE.white fontWeight={600}>Step 1. Get FESW Liquidity tokens</TYPE.white>
+                <TYPE.black fontWeight={600} fontSize={20} >Want to Mine FESW</TYPE.black>
               </RowBetween>
               <RowBetween style={{ marginBottom: '1rem' }}>
-                <TYPE.white fontSize={14}>
-                  {`FESW LP tokens are required. Once you've added liquidity to the ${currencyA?.symbol}-${currencyB?.symbol} pool you can stake your liquidity tokens on this page.`}
-                </TYPE.white>
+                <TYPE.black fontSize={14}>
+                  {`To mine FESW token, you need to stake FeSwap liquidity token FESP, which can be minted by adding liquidity 
+                    to the ${currencyA?.symbol}🔗${currencyB?.symbol} pool. Once you have minted some FESP tokens, 
+                    you can stake them on this page.`}
+                </TYPE.black>
               </RowBetween>
-              <ButtonPrimary
-                padding="8px"
-                borderRadius="8px"
-                width={'fit-content'}
-                as={Link}
-                to={`/add/${currencyA && currencyId(currencyA)}/${currencyB && currencyId(currencyB)}`}
-              >
-                {`Add ${currencyA?.symbol}-${currencyB?.symbol} liquidity`}
-              </ButtonPrimary>
-            </AutoColumn>
+              <RowBetween>
+                <div/>
+                <ButtonPrimary
+                  padding="8px"
+                  borderRadius="8px"
+                  width={'fit-content'}
+                  as={Link}
+                  to={`/add/${currencyA && currencyId(currencyA)}/${currencyB && currencyId(currencyB)}`}
+                >
+                  {`Add ${currencyA?.symbol}🔗${currencyB?.symbol} liquidity`}
+                </ButtonPrimary>
+              </RowBetween>
           </CardSection>
-          <CardBGImage />
-          <CardNoise />
-        </VoteCard>
+        </StyledPositionCard>
       )}
 
       {stakingInfo && (
@@ -268,106 +287,124 @@ export default function Manage({
         </>
       )}
 
-      <PositionInfo gap="lg" justify="center" dim={showAddLiquidityButton} bgColor={backgroundColor}>
-        <BottomSection gap="lg" justify="center">
-          <StyledDataCard disabled={disableTop} bgColor={backgroundColor} showBackground={!showAddLiquidityButton}>
-            <CardSection>
-              <CardNoise />
-              <AutoColumn gap="md">
-                <RowBetween>
-                  <TYPE.white fontWeight={600}>Your liquidity deposits</TYPE.white>
+      <StyledPositionCard bgColor={backgroundColor}>
+        <CardNoise />
+        <FixedHeightRow>
+          <RowFixed>
+            <TYPE.mediumHeader style={{ margin: 0 }} fontSize={20}>
+              Liquidity Mining Status
+            </TYPE.mediumHeader>
+          </RowFixed>
+          <RowFixed>
+            <TYPE.mediumHeader style={{ margin: "0 6px" }} fontSize={20}>
+              {currencyA?.symbol}🔗{currencyB?.symbol} 
+            </TYPE.mediumHeader>
+            <DoubleCurrencyLogo currency0={currencyA??undefined} currency1={currencyB??undefined} size={24} />
+          </RowFixed>
+        </FixedHeightRow>
+        <Separator />
+
+        <AutoColumn gap="12px">
+          <CardSection gap="4px">
+            <RowBetween>
+              <TYPE.black fontWeight={400} fontSize={18}>Your claimable FESW</TYPE.black>
+            </RowBetween>
+            <RowBetween style={{ alignItems: 'baseline' }}>
+              <TYPE.largeHeader fontSize={36} fontWeight={600}>
+                <CountUp
+                  key={countUpAmount}
+                  isCounting
+                  decimalPlaces={4}
+                  start={parseFloat(countUpAmountPrevious)}
+                  end={parseFloat(countUpAmount)}
+                  thousandsSeparator={','}
+                  duration={1}
+                />
+              </TYPE.largeHeader>
+              <TYPE.black fontSize={16} fontWeight={500}>
+                <span role="img" aria-label="wizard-icon" style={{ marginRight: '8px ' }}>
+                  ⚡
+                </span>
+                {stakingInfo?.active
+                  ? stakingInfo?.rewardRate
+                     ?.multiply(BIG_INT_SECONDS_IN_DAY)
+                      ?.toSignificant(4, { groupSeparator: ',' }) ?? '-'
+                  : '0'}
+                {' FESW / Day'}
+              </TYPE.black>
+            </RowBetween>
+            {stakingInfo?.earnedAmount && JSBI.notEqual(BIG_INT_ZERO, stakingInfo?.earnedAmount?.raw) && (
+                <RowBetween style={{ marginTop: "12px" }}>
+                    <div/>
+                    <ButtonPrimary
+                      padding="8px"
+                      borderRadius="8px"
+                      width="50%"
+                      onClick={() => setShowClaimRewardModal(true)}
+                    >
+                      Claim
+                    </ButtonPrimary>
                 </RowBetween>
-                <RowBetween style={{ alignItems: 'baseline' }}>
-                  <TYPE.white fontSize={36} fontWeight={600}>
-                    {stakingInfo?.stakedAmount?.[0].toSignificant(6) ?? '-'}
-                  </TYPE.white>
-                  <TYPE.white>
-                  FESW {currencyA?.symbol}-{currencyB?.symbol}
-                  </TYPE.white>
-                </RowBetween>
-              </AutoColumn>
-            </CardSection>
-          </StyledDataCard>
+              )}
+          </CardSection>
 
-          <StyledBottomCard dim={stakingInfo?.stakedAmount?.[0].equalTo(JSBI.BigInt(0))}>
-            <CardNoise />
-            <AutoColumn gap="sm">
-              <RowBetween>
-                <div>
-                  <TYPE.black>Your unclaimed FESW</TYPE.black>
-                </div>
-                {stakingInfo?.earnedAmount && JSBI.notEqual(BIG_INT_ZERO, stakingInfo?.earnedAmount?.raw) && (
-                  <ButtonEmpty
-                    padding="8px"
-                    borderRadius="8px"
-                    width="fit-content"
-                    onClick={() => setShowClaimRewardModal(true)}
-                  >
-                    Claim
-                  </ButtonEmpty>
-                )}
-              </RowBetween>
-              <RowBetween style={{ alignItems: 'baseline' }}>
-                <TYPE.largeHeader fontSize={36} fontWeight={600}>
-                  <CountUp
-                    key={countUpAmount}
-                    isCounting
-                    decimalPlaces={4}
-                    start={parseFloat(countUpAmountPrevious)}
-                    end={parseFloat(countUpAmount)}
-                    thousandsSeparator={','}
-                    duration={1}
-                  />
-                </TYPE.largeHeader>
-                <TYPE.black fontSize={16} fontWeight={500}>
-                  <span role="img" aria-label="wizard-icon" style={{ marginRight: '8px ' }}>
-                    ⚡
-                  </span>
-                  {stakingInfo?.active
-                    ? stakingInfo?.rewardRate
-                        ?.multiply(BIG_INT_SECONDS_IN_DAY)
-                        ?.toSignificant(4, { groupSeparator: ',' }) ?? '-'
-                    : '0'}
-                  {' FESW / Day'}
-                </TYPE.black>
-              </RowBetween>
-            </AutoColumn>
-          </StyledBottomCard>
-          
-        </BottomSection>
-        <TYPE.main style={{ textAlign: 'center' }} fontSize={14}>
-          <span role="img" aria-label="wizard-icon" style={{ marginRight: '8px' }}>
-            ⭐️
-          </span>
-          When you withdraw, the contract will automagically claim FESW on your behalf!
-        </TYPE.main>
+          <CardSection gap="4px">
+            <RowBetween>
+              <TYPE.black fontWeight={400} fontSize={18}>Your liquidity deposits</TYPE.black>
+            </RowBetween>
+            <RowBetween style={{ alignItems: 'baseline' }}>
+              <TYPE.black fontSize={36} fontWeight={600}>
+                {stakingInfo?.stakedAmount?.[0].toSignificant(6) ?? '-'}
+              </TYPE.black>
+              <TYPE.black>
+                FESP: <strong>{currencyA?.symbol}<span role="img" aria-label="party">🔗</span>{currencyB?.symbol}</strong>
+              </TYPE.black>
+            </RowBetween>
+            <RowBetween style={{ alignItems: 'baseline' }}>
+              <TYPE.black fontSize={36} fontWeight={600}>
+                {stakingInfo?.stakedAmount?.[1].toSignificant(6) ?? '-'}
+              </TYPE.black>
+              <TYPE.black>
+                FESP: <strong>{currencyB?.symbol}<span role="img" aria-label="party">🔗</span>{currencyA?.symbol}</strong>
+              </TYPE.black>
+            </RowBetween>
+          </CardSection>
 
-        {!showAddLiquidityButton && (
-          <DataRow style={{ marginBottom: '1rem' }}>
-            {stakingInfo && stakingInfo.active && (
-              <ButtonPrimary padding="8px" borderRadius="8px" width="160px" onClick={handleDepositClick}>
-                {stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) ? 'Deposit' : 'Deposit FESW LP Tokens'}
-              </ButtonPrimary>
-            )}
+          <TYPE.main style={{ textAlign: 'center', padding: '0px 40px' }} fontSize={14}>
+            <span role="img" aria-label="wizard-icon" style={{ marginRight: '8px' }}>
+              ⭐️ 
+            </span>
+            When you withdraw, the contract will automagically claim FESW on your behalf!
+          </TYPE.main>
 
-            {stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) && (
-              <>
+          {!showAddLiquidityButton && (
+            <DataRow style={{ marginBottom: '1rem' }}>
+              {stakingInfo && stakingInfo.active && (
+                <ButtonPrimary padding="8px" borderRadius="8px" width="45%" onClick={handleDepositClick}>
+                  {stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) ? 'Deposit' : 'Deposit FeSwap Liquidity Tokens'}
+                </ButtonPrimary>
+              )}
+
+              {stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) && (
                 <ButtonPrimary
                   padding="8px"
                   borderRadius="8px"
-                  width="160px"
+                  width="45%"
                   onClick={() => setShowUnstakingModal(true)}
                 >
-                  Withdraw
+                 Withdraw
                 </ButtonPrimary>
-              </>
-            )}
-          </DataRow>
-        )}
-        {!userLiquidityUnstaked0 ? null : userLiquidityUnstaked0.equalTo('0') ? null : !stakingInfo?.active ? null : (
-          <TYPE.main>{userLiquidityUnstaked0.toSignificant(6)} FESW LP tokens available</TYPE.main>
-        )}
-      </PositionInfo>
+              )}
+            </DataRow>
+          )}
+          {!userLiquidityUnstaked0 ? null : userLiquidityUnstaked0.equalTo('0') ? null : !stakingInfo?.active ? null : (
+            <TYPE.main>{userLiquidityUnstaked0.toSignificant(6)} FESW LP tokens available</TYPE.main>
+          )}
+          {!userLiquidityUnstaked1 ? null : userLiquidityUnstaked1.equalTo('0') ? null : !stakingInfo?.active ? null : (
+            <TYPE.main>{userLiquidityUnstaked1.toSignificant(6)} FESW LP tokens available</TYPE.main>
+          )}           
+        </AutoColumn>
+      </StyledPositionCard>
     </PageWrapper>
   )
 }
