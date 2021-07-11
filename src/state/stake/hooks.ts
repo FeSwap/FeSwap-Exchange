@@ -174,8 +174,8 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
                                     new TokenAmount(tokens[1], '0'), new TokenAmount(tokens[0], '0'))
 
         // check for account, if no account set to 0
-        const [stakingTokenA, stakingTokenB] =  dummyPair.liquidityToken0.address.toLocaleLowerCase() < 
-                                                  dummyPair.liquidityToken1.address.toLocaleLowerCase()
+        const [stakingTokenA, stakingTokenB] =  dummyPair.liquidityToken0.address.toLowerCase() < 
+                                                  dummyPair.liquidityToken1.address.toLowerCase()
                                                 ? [dummyPair.liquidityToken0, dummyPair.liquidityToken1]
                                                 : [dummyPair.liquidityToken1, dummyPair.liquidityToken0]
         const stakedAmount =  [ new TokenAmount(stakingTokenA, JSBI.BigInt(balanceState?.result?.[0] ?? 0)),

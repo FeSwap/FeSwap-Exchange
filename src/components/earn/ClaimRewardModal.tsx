@@ -11,6 +11,7 @@ import { SubmittedView, LoadingView } from '../ModalViews'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useActiveWeb3React } from '../../hooks'
+import { Balance } from './styled'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -75,14 +76,12 @@ export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: Sta
           </RowBetween>
           {stakingInfo?.earnedAmount && (
             <AutoColumn justify="center" gap="md">
-              <TYPE.body fontWeight={600} fontSize={36}>
-                {stakingInfo?.earnedAmount?.toSignificant(6)}
-              </TYPE.body>
-              <TYPE.body>Unclaimed FESW</TYPE.body>
+              <Balance balance = {stakingInfo?.earnedAmount} />
+              <TYPE.body>Claimable FESW</TYPE.body>
             </AutoColumn>
           )}
-          <TYPE.subHeader style={{ textAlign: 'center' }}>
-            When you claim without withdrawing your liquidity remains in the mining pool.
+          <TYPE.subHeader style={{ textAlign: 'center', padding:'0 40px' }}>
+            When you claim without withdrawing, your liquidity remains in the mining pool.
           </TYPE.subHeader>
           <ButtonError disabled={!!error} error={!!error && !!stakingInfo?.stakedAmount} onClick={onClaimReward}>
             {error ?? 'Claim'}
@@ -90,14 +89,14 @@ export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: Sta
         </ContentWrapper>
       )}
       {attempting && !hash && (
-        <LoadingView onDismiss={wrappedOnDismiss}>
+        <LoadingView onDismiss={wrappedOnDismiss} title={'Claim'}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.body fontSize={20}>Claiming {stakingInfo?.earnedAmount?.toSignificant(6)} FESW</TYPE.body>
           </AutoColumn>
         </LoadingView>
       )}
       {hash && (
-        <SubmittedView onDismiss={wrappedOnDismiss} hash={hash}>
+        <SubmittedView onDismiss={wrappedOnDismiss} title={'Claim'} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
             <TYPE.body fontSize={20}>Claimed FESW!</TYPE.body>

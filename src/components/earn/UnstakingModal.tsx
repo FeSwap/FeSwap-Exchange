@@ -90,7 +90,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
               <TYPE.body>Deposited liquidity:</TYPE.body>
               { stakingInfo?.stakedAmount[0].greaterThan(ZERO_FRACTION) && (
                 <AutoColumn justify="center" gap="0px">
-                  <TYPE.body fontWeight={600} fontSize={32}>
+                  <TYPE.body fontWeight={600} fontSize={32} title={stakingInfo.stakedAmount[0].toExact()}>
                     {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[0]} />} FESP 
                   </TYPE.body>
                   <TYPE.body> of sub-pool <strong>{pairCurrency0?.symbol}
@@ -100,7 +100,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
               )}
               { stakingInfo?.stakedAmount[1].greaterThan(ZERO_FRACTION) && (
                 <AutoColumn justify="center" gap="0px">
-                  <TYPE.body fontWeight={600} fontSize={32}>
+                  <TYPE.body fontWeight={600} fontSize={32} title={stakingInfo.stakedAmount[1].toExact()}>
                     {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[1]} />} FESP 
                   </TYPE.body>
                   <TYPE.body> of sub-pool <strong>{pairCurrency1?.symbol}
@@ -112,13 +112,13 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
           )}
           {stakingInfo?.earnedAmount && (
             <AutoColumn justify="center" gap="md">
-              <TYPE.body> and Unclaimed: </TYPE.body>
-              <TYPE.body fontWeight={600} fontSize={36}>
+              <TYPE.body> and Claimable: </TYPE.body>
+              <TYPE.body fontWeight={600} fontSize={36} title={stakingInfo?.earnedAmount.toExact()}>
                 {<FormattedCurrencyAmount currencyAmount={stakingInfo?.earnedAmount}/>} FESW
               </TYPE.body>
             </AutoColumn>
           )}
-          <TYPE.subHeader style={{ textAlign: 'center' }}>
+          <TYPE.subHeader style={{ textAlign: 'center', padding: '0px 25px' }}>
             When you withdraw, your FESW is claimed and your liquidity is removed from the mining pool 
             and wholely returned to your original account.
           </TYPE.subHeader>
@@ -128,7 +128,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
         </ContentWrapper>
       )}
       {attempting && !hash && (
-        <LoadingView onDismiss={wrappedOndismiss}>
+        <LoadingView onDismiss={wrappedOndismiss} title={'Withdraw'}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.body fontSize={20}>Withdrawing:</TYPE.body>
             { stakingInfo?.stakedAmount[0].greaterThan(ZERO_FRACTION) && (
@@ -146,7 +146,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
         </LoadingView>
       )}
       {hash && (
-        <SubmittedView onDismiss={wrappedOndismiss} hash={hash}>
+        <SubmittedView onDismiss={wrappedOndismiss} title={'Withdraw'} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
             <TYPE.body fontSize={20}>Withdrew FESP!</TYPE.body>

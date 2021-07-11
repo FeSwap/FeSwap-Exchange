@@ -1,9 +1,14 @@
+import React from 'react'
 import styled from 'styled-components'
 import { AutoColumn } from '../Column'
+import { TokenAmount } from '@feswap/sdk'
 
 import uImage from '../../assets/images/big_unicorn.png'
 import xlUnicorn from '../../assets/images/xl_uni.png'
 import noise from '../../assets/images/noise.png'
+import { Text } from 'rebass'
+import { LightCard } from '../Card'
+import { transparentize } from 'polished'
 
 export const TextBox = styled.div`
   display: flex;
@@ -85,3 +90,27 @@ export const Break = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
   height: 1px;
 `
+
+export const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
+  border: none;
+  background: ${({ theme, bgColor }) =>
+    `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#E6E6FA'} 100%) `};
+  position: relative;
+  overflow: hidden;
+`
+
+const StyledBalanceText = styled(Text)`
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 280px;
+  text-overflow: ellipsis;
+  font-size: 36px;
+  font-weight: 600;
+  color:  ${({ theme }) => theme.text1};
+`
+
+export function Balance({ balance }: { balance: TokenAmount | undefined }) {
+  return <StyledBalanceText title={balance?.toExact()}>{balance?.toSignificant(6)??'-'}</StyledBalanceText>
+}
+
+

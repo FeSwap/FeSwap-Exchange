@@ -95,7 +95,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   const dummyPair = new Pair( new TokenAmount(stakingInfo.tokens[0], '0'), new TokenAmount(stakingInfo.tokens[1], '0'),
                               new TokenAmount(stakingInfo.tokens[1], '0'), new TokenAmount(stakingInfo.tokens[0], '0'))
 
-  const isContractReverse = !(dummyPair.liquidityToken0.address.toLocaleLowerCase < dummyPair.liquidityToken1.address.toLocaleLowerCase)
+  const isContractReverse = !(dummyPair.liquidityToken0.address.toLowerCase() < dummyPair.liquidityToken1.address.toLowerCase())
 
   const pairContract0 = usePairContract(isContractReverse ? dummyPair.liquidityToken1.address: dummyPair.liquidityToken0.address)
   const pairContract1 = usePairContract(isContractReverse ? dummyPair.liquidityToken0.address: dummyPair.liquidityToken1.address)
@@ -402,7 +402,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
         </ContentWrapper>
       )}
       {attempting && !hash && (
-        <LoadingView onDismiss={wrappedOnDismiss}>
+        <LoadingView onDismiss={wrappedOnDismiss} title={'Deposit'}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Depositing Liquidity</TYPE.largeHeader>
             { parsedAmount0 && (
@@ -415,7 +415,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
         </LoadingView>
       )}
       {attempting && hash && (
-        <SubmittedView onDismiss={()=>{onUserInput0(''); onUserInput1(''); wrappedOnDismiss()}} hash={hash}>
+        <SubmittedView onDismiss={()=>{onUserInput0(''); onUserInput1(''); wrappedOnDismiss()}} title={'Deposit'} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
             <TYPE.body fontSize={20}> Deposited </TYPE.body> 

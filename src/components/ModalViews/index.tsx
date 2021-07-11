@@ -20,11 +20,11 @@ const ConfirmedIcon = styled(ColumnCenter)`
   padding: 60px 0;
 `
 
-export function LoadingView({ children, onDismiss }: { children: any; onDismiss: () => void }) {
+export function LoadingView({ children, title, onDismiss }: { children: any; title?: string; onDismiss: () => void }) {
   return (
     <ConfirmOrLoadingWrapper>
       <RowBetween>
-        <div />
+        <TYPE.mediumHeader>{title??''}</TYPE.mediumHeader>
         <CloseIcon onClick={onDismiss} />
       </RowBetween>
       <ConfirmedIcon>
@@ -40,10 +40,12 @@ export function LoadingView({ children, onDismiss }: { children: any; onDismiss:
 
 export function SubmittedView({
   children,
+  title,
   onDismiss,
   hash
 }: {
   children: any
+  title?: string
   onDismiss: () => void
   hash: string | undefined
 }) {
@@ -53,7 +55,7 @@ export function SubmittedView({
   return (
     <ConfirmOrLoadingWrapper>
       <RowBetween>
-        <div />
+        <TYPE.mediumHeader>{title??''}</TYPE.mediumHeader>
         <CloseIcon onClick={onDismiss} />
       </RowBetween>
       <ConfirmedIcon>
