@@ -8,13 +8,14 @@ import { ButtonPrimary } from '../Button'
 import { StakingInfo } from '../../state/stake/hooks'
 import { useColor } from '../../hooks/useColor'
 import { currencyId } from '../../utils/currencyId'
-import { Break, CardNoise, StyledPositionCard } from './styled'
+import { CardNoise, StyledPositionCard } from './styled'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
-//import useUSDCPrice from '../../utils/useUSDCPrice'
-import { BIG_INT_SECONDS_IN_WEEK } from '../../constants'
+import { useUSDTPrice } from '../../utils/useUSDCPrice'
+import { BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { ZERO } from '../../utils'
+import { SeparatorBlack } from '../SearchModal/styleds'
 
 const StatContainer = styled.div`
   display: flex;
@@ -25,8 +26,8 @@ const StatContainer = styled.div`
   margin-right: 1rem;
   margin-left: 1rem;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  display: none;
-`};
+    display: none;
+  `};
 `
 
 const TopSection = styled.div`
@@ -60,8 +61,6 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const currency1 = unwrappedToken(token1)
 
   const stakedAmountAll: JSBI = JSBI.add(stakingInfo.stakedAmount[0].raw, stakingInfo.stakedAmount[1].raw)
-  const totalStakedAmountAll: JSBI = JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw)
-
   const isStaking = JSBI.greaterThan(stakedAmountAll, ZERO)
 
   // get the color of the token
@@ -69,70 +68,71 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const WETH = currency0 === ETHER ? token0 : token1
   const backgroundColor = useColor(token)
 
-  const totalSupplyOfStakingToken = useTotalSupply(stakingInfo.stakedAmount[0].token)   //to Do
+  // get WETH value of staked LP tokens
+  const totalSupplyOfStakingToken0 = useTotalSupply(stakingInfo?.stakedAmount?.[0].token)
+  const totalSupplyOfStakingToken1 = useTotalSupply(stakingInfo?.stakedAmount?.[1].token)
+
   const [, stakingTokenPair] = usePair(...stakingInfo.tokens)
 
   // let returnOverMonth: Percent = new Percent('0')
   let valueOfTotalStakedAmountInWETH: TokenAmount | undefined
-  if (totalSupplyOfStakingToken && stakingTokenPair) {
+  if (totalSupplyOfStakingToken0 && totalSupplyOfStakingToken1 && stakingTokenPair) {
     // take the total amount of LP tokens staked, multiply by ETH value of all LP tokens, divide by all LP tokens
     valueOfTotalStakedAmountInWETH = new TokenAmount(
       WETH,
       JSBI.divide(
         JSBI.multiply(
-          JSBI.multiply(totalStakedAmountAll, stakingTokenPair.reserveOfOutput(WETH).raw),
+          JSBI.multiply(JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw), 
+                        JSBI.add(stakingTokenPair.reserveOfOutput(WETH).raw, stakingTokenPair.reserveOfInput(WETH).raw)),
           JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
         ),
-        totalSupplyOfStakingToken.raw
+        JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
       )
     )
   }
 
   // get the USD value of staked WETH
-//  const USDPrice = useUSDCPrice(WETH)
-//  const valueOfTotalStakedAmountInUSDC =
-//    valueOfTotalStakedAmountInWETH && USDPrice?.quote(valueOfTotalStakedAmountInWETH)
-
-//<TYPE.white>
-//{valueOfTotalStakedAmountInWETH
-//  ? `$${valueOfTotalStakedAmountInWETH.toFixed(0, { groupSeparator: ',' })}`
-//  : `${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
-//</TYPE.white>
-// <Wrapper showBackground={isStaking} bgColor={backgroundColor}>
+  const USDTPrice = useUSDTPrice(WETH)
+  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
 
   return (
       <StyledPositionCard bgColor={backgroundColor}>
         <CardNoise />
-
         <TopSection>
           <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
           <TYPE.black fontWeight={600} fontSize={24} style={{ marginLeft: '8px' }}>
             {currency0.symbol}🔗{currency1.symbol}
           </TYPE.black>
-
           <StyledInternalLink to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`} style={{ width: '100%' }}>
             <ButtonPrimary padding="8px" borderRadius="8px">
               {isStaking ? 'Manage' : 'Deposit'}
             </ButtonPrimary>
           </StyledInternalLink>
         </TopSection>
-
         <StatContainer>
           <RowBetween>
-            <TYPE.black> Total deposited</TYPE.black>
+            <TYPE.black>Total deposited equivalent</TYPE.black>
             <TYPE.black>
               {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
             </TYPE.black>
           </RowBetween>
+          { !!USDTPrice && valueOfTotalStakedAmountInUSDT?.greaterThan(ZERO) && (
+            <RowBetween>
+              <div/>
+              <TYPE.black>
+                {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })}`}
+              </TYPE.black>
+            </RowBetween>
+          )}
           <RowBetween>
-            <TYPE.black> Pool rate </TYPE.black>
+            <TYPE.black> Pool mining rate </TYPE.black>
             <TYPE.black>
               {stakingInfo
                 ? stakingInfo.active
                   ? `${stakingInfo.totalRewardRate
-                      ?.multiply(BIG_INT_SECONDS_IN_WEEK)
-                      ?.toFixed(0, { groupSeparator: ',' })} FESW / week`
-                  : '0 FESW / week'
+                      ?.multiply(BIG_INT_SECONDS_IN_DAY)
+                      ?.toFixed(0, { groupSeparator: ',' })} FESW / Day`
+                  : '0 FESW / Day'
                 : '-'}
             </TYPE.black>
           </RowBetween>
@@ -140,12 +140,11 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
 
         {isStaking && (
           <>
-            <Break />
+            <SeparatorBlack />
             <BottomSection showBackground={true}>
               <TYPE.black color={'black'} fontWeight={500}>
-                <span>Your rate</span>
+                <span>Your mining rate</span>
               </TYPE.black>
-
               <TYPE.black style={{ textAlign: 'right' }} color={'black'} fontWeight={500}>
                 <span role="img" aria-label="wizard-icon" style={{ marginRight: '0.5rem' }}>
                   ⚡
@@ -153,9 +152,9 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
                 {stakingInfo
                   ? stakingInfo.active
                     ? `${stakingInfo.rewardRate
-                        ?.multiply(BIG_INT_SECONDS_IN_WEEK)
-                        ?.toSignificant(4, { groupSeparator: ',' })} FESW / week`
-                    : '0 FESW / week'
+                        ?.multiply(BIG_INT_SECONDS_IN_DAY)
+                        ?.toSignificant(4, { groupSeparator: ',' })} FESW / Day`
+                    : '0 FESW / Day'
                   : '-'}
               </TYPE.black>
             </BottomSection>

@@ -48,9 +48,9 @@ export function colors(darkMode: boolean): Colors {
     text5: darkMode ? '#2C2F36' : '#EDEEF2',
 
     // backgrounds / greys
-    bg1: darkMode ? '#212429' : '#E4E4E4',
+    bg1: darkMode ? '#212429' : '#F8F8F8',   // E4E4E4
     bg2: darkMode ? '#2C2F36' : '#D8D8D8',
-    bg3: darkMode ? '#40444F' : '#EDEEF2',
+    bg3: darkMode ? '#40444F' : '#C2C2C2',
     bg4: darkMode ? '#565A69' : '#CED0D9',
     bg5: darkMode ? '#6C7284' : '#888D9B',
 
@@ -59,7 +59,9 @@ export function colors(darkMode: boolean): Colors {
 
     //specialty colors
     modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
-    advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.6)',
+    advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(200,252,248)',
+
+    // 87CEFA 209,252,249 200,252,248 222,222,248,  232,216,228 , 233,199,205, 233,216,229, 188,251,247
 
     //primary colors
     primary1: darkMode ? '#2172E5' : '#ff007a',

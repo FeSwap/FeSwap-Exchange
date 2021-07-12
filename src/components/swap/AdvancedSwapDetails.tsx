@@ -13,7 +13,7 @@ import SwapRoute from './SwapRoute'
 
 const InfoLink = styled(ExternalLink)`
   width: 100%;
-  border: 1px solid ${({ theme }) => theme.bg3};
+  border: 1px solid ${({ theme }) => theme.bg4};
   padding: 6px 6px;
   border-radius: 8px;
   text-align: center;

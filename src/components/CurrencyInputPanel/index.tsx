@@ -75,25 +75,26 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${({ theme }) => theme.flexColumnNoWrap}
   position: relative;
   border-radius: ${({ hideInput }) => (hideInput ? '8px' : '12px')};
-  background-color: ${({ theme }) => theme.bg2};
+  background: transparent;
   z-index: 1;
 `
+//background-color: ${({ theme }) => theme.bg2};
 
 export const Container = styled.div<{ hideInput: boolean }>`
   border-radius: ${({ hideInput }) => (hideInput ? '8px' : '8px')};
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: ${({ theme }) => theme.bg1};
+  border: 1px solid ${({ theme }) => theme.bg5};
+  background: transparent;
 `
+//background-color: ${({ theme }) => theme.bg1};
 
 const StyledTokenName = styled.span<{ active?: boolean }>`
   ${({ active }) => (active ? '  margin: 0 0.25rem 0 0.75rem;' : '  margin: 0 0.25rem 0 0.25rem;')}
   font-size:  ${({ active }) => (active ? '20px' : '16px')};
-
 `
 
 const StyledBalanceMax = styled.button`
   height: 28px;
-  background-color: ${({ theme }) => theme.primary5};
+  background-color: ${({ theme }) => theme.bg2};
   border: 1px solid ${({ theme }) => theme.primary5};
   border-radius: 0.5rem;
   font-size: 0.875rem;

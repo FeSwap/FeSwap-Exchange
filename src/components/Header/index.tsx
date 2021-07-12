@@ -297,7 +297,7 @@ export default function Header() {
         </Title>
         <HeaderLinks>
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
-            SWAP
+            FeSwap
           </StyledNavLink>
           <StyledNavLink
             id={`pool-nav-link`}
@@ -310,19 +310,19 @@ export default function Header() {
               pathname.startsWith('/find')
             }
           >
-            POOL
+            Liquidity
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/fesw'}>
-            FESW
+            Mining
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
-            GOVERNANCE
+            DAO
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/nft'}>
             NFT
           </StyledNavLink>
           <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
-            SPONSOR<span style={{color:'red'}}><sup>❤</sup></span>
+            Sponsor<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
           <StyledExternalLink id={`stake-nav-link`} href={'https://info.feswap.io'}>
             Charts <span style={{ fontSize: '11px' }}>↗</span>

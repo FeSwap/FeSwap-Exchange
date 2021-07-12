@@ -6,6 +6,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { NEVER_RELOAD, useMultipleContractSingleData } from '../multicall/hooks'
 import { tryParseAmount } from '../swap/hooks'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
+import { ZERO_ADDRESS } from '../../constants'
 
 export const STAKING_GENESIS = 1600387200
 
@@ -121,7 +122,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
 
   const rewardsAddresses = useMemo(() => info.map(({ stakingRewardAddress }) => stakingRewardAddress), [info])
 
-  const accountArg = useMemo(() => [account ?? undefined], [account])
+  const accountArg = useMemo(() => [account ?? ZERO_ADDRESS], [account])
 
   // get all the info from the staking rewards contracts
   const balances = useMultipleContractSingleData(rewardsAddresses, STAKING_REWARDS_INTERFACE, 'balanceOf', accountArg)
@@ -131,6 +132,9 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
   // tokens per second, constants
   const rewardRates = useMultipleContractSingleData(rewardsAddresses, STAKING_REWARDS_INTERFACE, 'rewardRate', undefined, NEVER_RELOAD)
   const periodFinishes = useMultipleContractSingleData(rewardsAddresses, STAKING_REWARDS_INTERFACE, 'periodFinish', undefined, NEVER_RELOAD)
+
+  console.log('balances, earnedAmounts, totalSupplies, rewardRates, periodFinishes AAAAAAAAAAAAAAAA', 
+                            balances, earnedAmounts, totalSupplies, rewardRates, periodFinishes)
 
   return useMemo(() => {
     if (!chainId || !fesw) return []
@@ -144,6 +148,11 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
       const totalSupplyState = totalSupplies[index]
       const rewardRateState = rewardRates[index]
       const periodFinishState = periodFinishes[index]
+
+
+      console.log('balanceState, earnedAmountState, totalSupplyState, rewardRateState, periodFinishState BBBBBBBBBBBBBBBB', 
+                  balanceState, earnedAmountState, totalSupplyState, rewardRateState, periodFinishState)
+
 
       if (
         // these may be undefined if not logged in

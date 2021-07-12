@@ -74,3 +74,9 @@ export const SeparatorDark = styled.div`
   height: 1px;
   background-color: ${({ theme }) => theme.bg3};
 `
+
+export const SeparatorBlack = styled.div`
+  width: 100%;
+  height: 1px;
+  background-color: ${({ theme }) => theme.bg4};
+`

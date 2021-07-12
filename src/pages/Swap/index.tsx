@@ -19,6 +19,7 @@ import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
 import PageHeader from '../../components/PageHeader'
 import {SettingsIcon} from '../../components/Settings'
+import {StyledPageCard} from '../../components/earn/styled'
 
 import { INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
@@ -42,6 +43,7 @@ import { warningSeverity } from '../../utils/prices'
 import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
+import { CardNoise } from '../../components/earn/styled'
 
 export default function Swap() {
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -270,7 +272,9 @@ export default function Swap() {
         onConfirm={handleConfirmTokenWarning}
       />
       <AppBody>
-        <PageHeader header={'SWAP'}> <SettingsIcon /> </PageHeader>
+      <StyledPageCard bgColor={'red'}>
+        <PageHeader header={'Swap'}> <SettingsIcon /> </PageHeader>
+        <CardNoise />
         <Wrapper id="swap-page">
           <ConfirmSwapModal
             isOpen={showConfirm}
@@ -467,6 +471,7 @@ export default function Swap() {
             {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
           </BottomGrouping>
         </Wrapper>
+        </StyledPageCard>
       </AppBody>
       <AdvancedSwapDetailsDropdown trade={trade} />
     </>

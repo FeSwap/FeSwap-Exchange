@@ -7,7 +7,7 @@ import uImage from '../../assets/images/big_unicorn.png'
 import xlUnicorn from '../../assets/images/xl_uni.png'
 import noise from '../../assets/images/noise.png'
 import { Text } from 'rebass'
-import { LightCard } from '../Card'
+import { LightCard, PageCard } from '../Card'
 import { transparentize } from 'polished'
 
 export const TextBox = styled.div`
@@ -98,6 +98,16 @@ export const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
   position: relative;
   overflow: hidden;
 `
+
+export const StyledPageCard = styled(PageCard)<{ bgColor: any }>`
+  border: none;
+  background: ${({ theme, bgColor }) =>
+    `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#eaeafb'} 100%) `};
+  position: relative;
+  overflow: hidden;
+`
+
+// E6E6FA #97D1DF C6E2FF bebef2 dedef8 e2e2f9 eaeafb
 
 const StyledBalanceText = styled(Text)`
   white-space: nowrap;

@@ -43,9 +43,7 @@ export default function Earn() {
 
   // staking info for connected account
   const stakingInfos = useStakingInfo()
-
-//  console.log('AAAAAAAAAAAAA', stakingInfos)
- 
+   
   /**
    * only show staking cards with balance
    * @todo only account for this if rewards are inactive
@@ -66,12 +64,13 @@ export default function Earn() {
               </RowBetween>
               <RowBetween>
                 <TYPE.black fontSize={14}>
-                  Deposit your Liquidity Provider tokens to receive FESW, the FeSwap protocol governance token.
+                  To reward providing liquidity, FESW, the FeSwap protocol governance token, are distributed based on 
+                  depositing liquidity tokens.
                 </TYPE.black>
-              </RowBetween>{' '}
+              </RowBetween>
               <ExternalLink
                 style={{ color: 'black', textDecoration: 'underline' }}
-                href="https://www.feswap.io/blog/fesw/"
+                href="https://www.feswap.io/docs"
                 target="_blank"
               >
                 <TYPE.black fontSize={14}>Read more about FESW ↗</TYPE.black>
@@ -104,7 +103,6 @@ export default function Earn() {
     </PageWrapper>
   )
 }
-
 
 //<PoolSection>
 //{stakingRewardsExist && stakingInfos?.length === 0 ? (

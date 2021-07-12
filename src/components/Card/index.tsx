@@ -18,6 +18,13 @@ export const LightCard = styled(Card)`
   background-color: ${({ theme }) => theme.bg1};
 `
 
+export const PageCard = styled(Card)`
+  border-radius: 16px;
+  padding: 0px 0px 0px 0px;
+  border: 1px solid ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.bg1};
+`
+
 export const GreyCard = styled(Card)`
   background-color: ${({ theme }) => theme.bg3};
 `

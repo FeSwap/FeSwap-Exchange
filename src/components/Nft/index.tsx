@@ -62,7 +62,7 @@ const NFTWatchListFooter = styled.div<{ show: boolean }>`
   padding-bottom: 16px;
   margin-top: -2rem;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   color: ${({ theme }) => theme.text2};

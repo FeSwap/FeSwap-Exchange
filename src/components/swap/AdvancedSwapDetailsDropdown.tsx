@@ -5,10 +5,10 @@ import { AdvancedSwapDetails, AdvancedSwapDetailsProps } from './AdvancedSwapDet
 
 export const AdvancedDetailsFooter = styled.div<{ show: boolean }>`
   padding-top: calc(16px + 2rem);
-  padding-bottom: 16px;
+  padding-bottom: 20px;
   margin-top: -2rem;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   color: ${({ theme }) => theme.text2};

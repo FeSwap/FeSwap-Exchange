@@ -4,6 +4,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const FAKE_ADDRESS = '0xAffE3b84ed74870935B7dE70f057ac583c76CD88'
 
 export { PRELOADED_PROPOSALS } from './proposals'
 
