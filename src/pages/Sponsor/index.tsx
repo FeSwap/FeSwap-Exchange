@@ -34,6 +34,7 @@ import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useSponsorContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
+import {StyledPageCard, CardNoise} from '../../components/earn/styled'
 
 
 export default function Sponsor() {
@@ -173,6 +174,8 @@ export default function Sponsor() {
         onConfirm={handleWillSponsor}
       />
       <AppBody>
+        <StyledPageCard bgColor={'red'}>
+        <CardNoise />
         <PageHeader header="Sponsor" />
         <Wrapper id="sponsor-page">
           <ConfirmSponsorModal
@@ -309,6 +312,7 @@ export default function Sponsor() {
             {spnosorErrorMessage && !showConfirm ? <SwapCallbackError error={spnosorErrorMessage} /> : null}
            </BottomGrouping>
         </Wrapper>
+        </StyledPageCard>
       </AppBody>
     </>
   )

@@ -9,7 +9,7 @@ import { RouteComponentProps } from 'react-router'
 import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from '../../components/Button'
-import { LightCard } from '../../components/Card'
+import { TransparentCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
@@ -46,6 +46,8 @@ import { Container } from '../../components/CurrencyInputPanel'
 import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
 import { BigNumber } from '@ethersproject/bignumber'
 import useCurrentBlockTimestamp from '../../hooks/useCurrentBlockTimestamp'
+import {StyledPageCard, CardNoise} from '../../components/earn/styled'
+import { Separator } from '../../components/SearchModal/styleds'
 
 const PositionWrapper = styled.div`
   position: relative;
@@ -62,7 +64,7 @@ const CardWrapper = styled.div`
 
 const CardWrapperLiquidity = styled.div`
   display: grid;
-  grid-template-columns: 3fr 12fr;
+  grid-template-columns: 4fr 12fr;
   gap: 10px;
   width: 100%;
 `
@@ -157,7 +159,7 @@ function ShowRemoveTokenAount({
         <Row style={{ margin: '0px 6px 0px 8px', alignItems: 'center'}}>
           <ColumnCenter style={{ margin: '0 1 0 0em', width: '100%' }} >
             <Text fontSize={28} fontWeight={500} color={theme.primary1}>
-              <span role="img" aria-label="wizard-icon">💰</span>
+              Get <span role="img" aria-label="wizard-icon">💰</span>
             </Text>
           </ColumnCenter>
         </Row>
@@ -698,6 +700,8 @@ export default function RemoveLiquidity({
   return (
     <>
       <AppBody>
+        <StyledPageCard bgColor={'red'}>
+        <CardNoise />
         <AddRemoveTabs creating={false} adding={false} />
         <Wrapper>
           <TransactionConfirmationModal
@@ -724,30 +728,32 @@ export default function RemoveLiquidity({
           }
           <AutoColumn gap="md">
             {!noUserLiquidity[Field.PAIR_AB]  &&
-              <LightCard>
+              <TransparentCard>
                 <AutoColumn gap="4px">
                   <GetRemovePercentage  value={innerLiquidityPercentageAB} 
                                         onChange={setInnerLiquidityPercentageAB} 
                                         percentage = {formattedAmountsAB[Amount.PERCENTAGE]}
                                         currencyIn={currencyA} currencyOut={currencyB} /> 
+                  <Separator />                      
                   <ShowRemoveTokenAount amountCurrencyA={formattedAmountsAB[Amount.CURRENCY_A] || ''} 
                                         amountCurrencyB={formattedAmountsAB[Amount.CURRENCY_B] || ''} 
                                         currencyA={currencyA} currencyB={currencyB} /> 
                 </AutoColumn>
-              </LightCard>
+              </TransparentCard>
             }
             {!noUserLiquidity[Field.PAIR_BA] &&
-              <LightCard>
+              <TransparentCard>
                 <AutoColumn gap="4px">
                   <GetRemovePercentage  value={innerLiquidityPercentageBA} 
                                         onChange={setInnerLiquidityPercentageBA} 
                                         percentage = {formattedAmountsBA[Amount.PERCENTAGE]}
                                         currencyIn={currencyB} currencyOut={currencyA} /> 
+                  <Separator />
                   <ShowRemoveTokenAount amountCurrencyA={formattedAmountsBA[Amount.CURRENCY_A] || ''} 
                                         amountCurrencyB={formattedAmountsBA[Amount.CURRENCY_B] || ''} 
                                         currencyA={currencyA} currencyB={currencyB} /> 
                 </AutoColumn>
-              </LightCard>
+              </TransparentCard>
             }
             {pair && (
               <div style={{ padding: '10px 20px' }}>
@@ -800,7 +806,7 @@ export default function RemoveLiquidity({
                       disabled={approvalAB !== ApprovalState.NOT_APPROVED || signatureDataAB !== null}
                       mr="0.5rem"
                       fontWeight={500}
-                      fontSize={16}
+                      fontSize={20}
                     >
                       {approvalAB === ApprovalState.PENDING ? (
                         <Dots>Approving {currencyA?.symbol}🔗{currencyB?.symbol}</Dots>
@@ -818,7 +824,7 @@ export default function RemoveLiquidity({
                       disabled={approvalBA !== ApprovalState.NOT_APPROVED || signatureDataBA !== null}
                       mr="0.5rem"
                       fontWeight={500}
-                      fontSize={16}
+                      fontSize={20}
                     >
                       {approvalBA === ApprovalState.PENDING ? (
                         <Dots>Approving {currencyB?.symbol}🔗{currencyA?.symbol}</Dots>
@@ -836,7 +842,7 @@ export default function RemoveLiquidity({
                                 ( !noRemoveLiquidity[Field.PAIR_BA] && signatureDataBA === null && approvalBA !== ApprovalState.APPROVED) }
                     error={!isValid && (!noRemoveLiquidity[Field.PAIR_AB] || !noRemoveLiquidity[Field.PAIR_BA])}
                   >
-                    <Text fontSize={16} fontWeight={500}>
+                    <Text fontSize={20} fontWeight={500}>
                       {error || 'Remove'}
                     </Text>
                   </ButtonError>
@@ -845,6 +851,7 @@ export default function RemoveLiquidity({
             </div>
           </AutoColumn>
         </Wrapper>
+        </StyledPageCard>
       </AppBody>
 
       {pair ? (

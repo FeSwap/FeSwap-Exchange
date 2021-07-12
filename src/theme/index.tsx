@@ -50,17 +50,20 @@ export function colors(darkMode: boolean): Colors {
     // backgrounds / greys
     bg1: darkMode ? '#212429' : '#F8F8F8',   // E4E4E4
     bg2: darkMode ? '#2C2F36' : '#D8D8D8',
-    bg3: darkMode ? '#40444F' : '#C2C2C2',
-    bg4: darkMode ? '#565A69' : '#CED0D9',
+    bg3: darkMode ? '#40444F' : '#CED0D9',
+    bg4: darkMode ? '#565A69' : '#C2C2C2',
     bg5: darkMode ? '#6C7284' : '#888D9B',
+
+    //C2C2C2
 
     // for nav link
     navlink: darkMode ? '#BF4722' : '#BF4722',
 
     //specialty colors
     modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
-    advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(200,252,248)',
+    advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : '#d1fcf9',
 
+    // rgba(200,252,248)
     // 87CEFA 209,252,249 200,252,248 222,222,248,  232,216,228 , 233,199,205, 233,216,229, 188,251,247
 
     //primary colors

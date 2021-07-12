@@ -19,6 +19,7 @@ import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
 import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
+import {StyledPageCard, CardNoise} from '../../components/earn/styled'
 import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID, userInputTitle } from '../../state/nft/actions'
 
 import {
@@ -482,6 +483,8 @@ export default function Nft({
   return (
     <>
       <AppBody>
+        <StyledPageCard bgColor={'red'}>
+        <CardNoise />
         <PageHeader header="Nft Bid/Trade" />
         <Wrapper id="nft-bid-page">
           <ConfirmNftModal
@@ -696,6 +699,7 @@ export default function Nft({
             {nftBidErrorMessage && !showConfirm ? <SwapCallbackError error={nftBidErrorMessage} /> : null}
            </BottomGrouping>
         </Wrapper>
+        </StyledPageCard>
       </AppBody>
       { (nftTrackedList.length > 0) ?
         <NftList nftList={nftTrackedList} pairCurrencies = {pairCurrencies} onNftTokenSelect={handleNftSelect} fixedListRef={fixedList} /> : null

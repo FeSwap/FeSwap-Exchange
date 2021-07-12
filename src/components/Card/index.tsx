@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { CardProps, Text } from 'rebass'
 import { Box } from 'rebass/styled-components'
+import { transparentize } from 'polished'
 
 const Card = styled(Box)<{ padding?: string; border?: string; borderRadius?: string }>`
   width: 100%;
@@ -25,8 +26,13 @@ export const PageCard = styled(Card)`
   background-color: ${({ theme }) => theme.bg1};
 `
 
+export const TransparentCard = styled(Card)`
+  border: 1px solid ${({ theme }) => theme.bg5};
+  background-color: transparent
+`
+
 export const GreyCard = styled(Card)`
-  background-color: ${({ theme }) => theme.bg3};
+  background-color: ${({ theme }) => transparentize(0.2,theme.bg2)};
 `
 
 export const LightGreyCard = styled(Card)`

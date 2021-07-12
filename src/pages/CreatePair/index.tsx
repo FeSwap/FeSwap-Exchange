@@ -40,6 +40,7 @@ import { DateTime } from 'luxon'
 import { NftInfoList } from '../../components/Nft'
 import { FixedSizeList } from 'react-window'
 import { ZERO_ADDRESS } from '../../constants'
+import {StyledPageCard, CardNoise} from '../../components/earn/styled'
 
 const LabelRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -281,6 +282,8 @@ export default function CreatePairByNft() {
   return (
     <>
       <AppBody>
+        <StyledPageCard bgColor={'red'}>
+        <CardNoise />
         <PageHeader header="Create/Config NFT Pool" />
         <Wrapper id="nft-bid-page">
             <ConfirmNftManageModal
@@ -333,12 +336,11 @@ export default function CreatePairByNft() {
                                           Anyhow you could specify a different receiver address." />
                     </Text>
                   </LinkStyledButton>
-
                 </AutoRow>
                 <AddressInputPanel id="recipient" value={recipient} onChange={onChangeNftRecipient} />
               </>
             )}
-              <Container hideInput={false}>
+                <Container hideInput={false} style={{ padding: '0px 0px 6px 0px'}}>
                   <AutoColumn gap="6px">
                     <RowBetween>
                       <Row style={{ margin: '6px 0px 0px 8px', alignItems: 'center' }}>
@@ -403,7 +405,7 @@ export default function CreatePairByNft() {
                       </CardWrapper>
                     }
                   </AutoColumn>
-            </Container>
+                </Container>
 
             { (pairCurrencies[Field.TOKEN_A] && pairCurrencies[Field.TOKEN_B]) && (
               <Container hideInput={false}>
@@ -512,7 +514,8 @@ export default function CreatePairByNft() {
             )}
             {nftManageErrorMessage && !showConfirm ? <SwapCallbackError error={nftManageErrorMessage} /> : null}
            </BottomGrouping>
-        </Wrapper>
+         </Wrapper>
+        </StyledPageCard>
       </AppBody>
       { (feswaNftPairBidInfo.length > 0) ?
         <NftInfoList nftPairList={feswaNftPairBidInfo} pairCurrencies = {pairCurrencies} onNftTokenSelect={handleNftSelect} fixedListRef={fixedList} /> : null

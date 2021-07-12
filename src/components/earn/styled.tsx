@@ -102,12 +102,10 @@ export const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
 export const StyledPageCard = styled(PageCard)<{ bgColor: any }>`
   border: none;
   background: ${({ theme, bgColor }) =>
-    `radial-gradient(91.85% 100% at 1.84% 0%, ${transparentize(0.8, bgColor)} 0%, ${'#eaeafb'} 100%) `};
+    `radial-gradient(80% 100% at 10% 0%, ${transparentize(0.8, bgColor)} 20%, ${'#eaeafb'} 80%) `};
   position: relative;
   overflow: hidden;
 `
-
-// E6E6FA #97D1DF C6E2FF bebef2 dedef8 e2e2f9 eaeafb
 
 const StyledBalanceText = styled(Text)`
   white-space: nowrap;

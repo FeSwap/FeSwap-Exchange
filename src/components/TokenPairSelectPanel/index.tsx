@@ -2,32 +2,21 @@ import { Currency, Pair } from '@feswap/sdk'
 import React, { useState, useContext, useCallback } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { darken } from 'polished'
-// import { useCurrencyBalance } from '../../state/wallet/hooks'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { RowBetween } from '../Row'
 import { TYPE } from '../../theme'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
-// import { useActiveWeb3React } from '../../hooks'
 import { Link2 } from 'react-feather'
-//import { useTranslation } from 'react-i18next'
-//import { errorFetchingMulticallResults } from 'state/multicall/actions'
-
-/*
-const InputRow = styled.div<{ selected: boolean }>`
-  ${({ theme }) => theme.flexRowNoWrap}
-  align-items: center;
-  padding: ${({ selected }) => (selected ? '0.75rem 0.5rem 0.75rem 1rem' : '0.75rem 0.75rem 0.75rem 1rem')};
-`
-*/
+import { InputPanel, Container } from '../CurrencyInputPanel'
 
 const CurrencySelect = styled.button<{ selected: boolean }>`
   align-items: center;
   height: 2.2rem;
   font-size: 20px;
   font-weight: 500;
-  background-color: ${({ selected, theme }) => (selected ? theme.primary5: theme.primary1)};
+  background-color: ${({ selected, theme }) => (selected ? theme.bg3 : theme.primary1)};
   color: ${({ selected, theme }) => (selected ? theme.text1 : theme.white)};
   border-radius: 8px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
@@ -38,9 +27,8 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
   padding: 0 0rem;
   margin: 0 0.3rem;
 
-  :focus,
   :hover {
-    background-color: ${({ selected, theme }) => (selected ? darken(0.05, theme.primary5) : darken(0.05, theme.primary1))};
+    background-color: ${({ selected, theme }) => (selected ? darken(0.05, theme.bg4) : darken(0.05, theme.primary1))};
   }
 `
 
@@ -71,20 +59,6 @@ const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
     stroke: ${({ selected, theme }) => (selected ? theme.text1 : theme.white)};
     stroke-width: 1.5px;
   }
-`
-
-const InputPanel = styled.div<{ hideInput?: boolean }>`
-  ${({ theme }) => theme.flexColumnNoWrap}
-  position: relative;
-  border-radius: ${({ hideInput }) => (hideInput ? '8px' : '12px')};
-  background-color: ${({ theme }) => theme.bg2};
-  z-index: 1;
-`
-
-const Container = styled.div<{ hideInput: boolean }>`
-  border-radius: ${({ hideInput }) => (hideInput ? '8px' : '12px')};
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: ${({ theme }) => theme.bg1};
 `
 
 const StyledTokenName = styled.span<{ active?: boolean }>`
@@ -120,13 +94,10 @@ export default function TokenPairSelectPanel({
   id,
   showCommonBases
 }: TokenPairSelectPanelProps) {
-//  const { t } = useTranslation()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [selectToken, setSelectToken] = useState('A')
 
-//  const { account } = useActiveWeb3React()
-//  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
   const theme = useContext(ThemeContext)
 
   const handleDismissSearch = useCallback(() => {
@@ -136,7 +107,6 @@ export default function TokenPairSelectPanel({
   const onCurrencySelect =  (selectToken === 'A') ? onCurrencySelectA : onCurrencySelectB
   const currency =  (selectToken === 'A') ? currencyA : currencyB
 
-//  <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected={false}>
   return (
     <InputPanel id={id}>
       <Container hideInput={hideInput}>

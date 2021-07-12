@@ -9,7 +9,7 @@ import { useToken, useCurrencyFromToken } from '../../hooks/Tokens'
 import { bigNumberToFractionInETH } from '../../state/nft/hooks'
 import { RowFixed, RowBetween } from '../Row'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { Separator } from '../SearchModal/styleds'
+import { SeparatorBlack } from '../SearchModal/styleds'
 import Loader from '../Loader'
 import { useNftBidContract, useFeswFactoryContract } from '../../hooks/useContract'
 import { useSingleCallResult, NEVER_RELOAD } from '../../state/multicall/hooks'
@@ -19,6 +19,7 @@ import { Lock, User, Coffee, Flag, MinusCircle, Activity, Clock, Volume2, Eye } 
 import { DateTime } from 'luxon'
 import { NFT_BID_PHASE, Field } from '../../state/nft/actions'
 import { wrappedCurrency, unwrappedToken } from '../../utils/wrappedCurrency'
+import { transparentize } from 'polished'
 
 enum NFT_BID_GOING {
   ONGING,
@@ -37,14 +38,19 @@ const StyledNFTPrice = styled(Text)`
 `
 
 const Container = styled.div`
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: ${({ theme }) => theme.bg1};
+  border-radius 8px;
+  border: 1px solid ${({ theme }) => theme.bg5};
+  background-color: ${({ theme }) => transparentize(0.2,theme.bg2)};
   margin: 0 16px 0 16px;
 `
 
+//border: 1px solid ${({ theme }) => theme.bg2};
+//background-color: ${({ theme }) => theme.bg1};
+
+
 const NftItem = styled(RowBetween)<{ ifBid: boolean }>`
   padding: 4px 10px 4px 20px;
+  border-radius: 8px;
   height: 56px;
   display: grid;
   grid-template-columns:  ${({ ifBid }) => (ifBid ? '150px 15px 12px minmax(0, 150px)' : '150px minmax(0, 150px)')};
@@ -76,8 +82,8 @@ const NFTWatchListFooter = styled.div<{ show: boolean }>`
 export const StyledNFTButton = styled.button`
   height: 20px;
   width: 28px;
-  background-color: ${({ theme }) => theme.bg2};
-  border: 1px solid ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.bg3};
+  border: 1px solid ${({ theme }) => theme.bg3};
   border: none;
   border-radius: 4px;
   margin-left: 4px;
@@ -346,7 +352,7 @@ export default function NftList({
         <Text fontWeight={500} fontSize={16} color={theme.primary1} style={{margin:'6px 20px 2px 20px'}} >
           Concerned NFT tokens:
         </Text>
-        <Separator />
+        <SeparatorBlack />
           <FixedSizeList
             height={112}
             ref={fixedListRef as any}
@@ -405,7 +411,7 @@ export function NftInfoList({
         <Text fontWeight={500} fontSize={16} color={theme.primary1} style={{margin:'6px 20px 2px 20px'}} >
           Your NFT tokens:
         </Text>
-        <Separator />
+        <SeparatorBlack />
           <FixedSizeList
             height={112}
             ref={fixedListRef as any}

@@ -273,8 +273,8 @@ export default function Swap() {
       />
       <AppBody>
       <StyledPageCard bgColor={'red'}>
-        <PageHeader header={'Swap'}> <SettingsIcon /> </PageHeader>
         <CardNoise />
+        <PageHeader header={'Swap'}> <SettingsIcon /> </PageHeader>
         <Wrapper id="swap-page">
           <ConfirmSwapModal
             isOpen={showConfirm}
