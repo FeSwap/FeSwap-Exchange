@@ -44,7 +44,7 @@ import QuestionHelper from '../../components/QuestionHelper'
 import { Container } from '../../components/CurrencyInputPanel'
 import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
 import { Link2, Plus } from 'react-feather'
-import {StyledPageCard} from '../../components/earn/styled'
+import { StyledPageCard } from '../../components/earn/styled'
 
 const CardWrapper = styled.div`
   display: grid;
@@ -364,6 +364,7 @@ export default function AddLiquidity({
 
   const isCreate = history.location.pathname.includes('/create')
 
+  //<CardNoise />    background: url(${noise});
   return (
     <>
       <AppBody>

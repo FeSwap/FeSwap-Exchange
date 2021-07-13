@@ -47,6 +47,7 @@ export default function CurrencySearchModal({
     })
     setListView(true)
   }, [])
+  
   const handleClickBack = useCallback(() => {
     ReactGA.event({
       category: 'Lists',

@@ -186,7 +186,7 @@ export default function Pool() {
                         key={stakingInfosWithBalance[i].stakingRewardAddress}
                         pair={stakingPair[1]}
                         stakedBalance0={stakingInfosWithBalance[i].stakedAmount[0]}
-//                      stakedBalance1={stakingInfosWithBalance[i].stakedAmount}    // To do 
+                        stakedBalance1={stakingInfosWithBalance[i].stakedAmount[1]} 
                       />
                     )
                 )}

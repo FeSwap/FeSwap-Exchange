@@ -46,7 +46,7 @@ import { Container } from '../../components/CurrencyInputPanel'
 import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
 import { BigNumber } from '@ethersproject/bignumber'
 import useCurrentBlockTimestamp from '../../hooks/useCurrentBlockTimestamp'
-import {StyledPageCard, CardNoise} from '../../components/earn/styled'
+import { StyledPageCard } from '../../components/earn/styled'
 import { Separator } from '../../components/SearchModal/styleds'
 
 const PositionWrapper = styled.div`
@@ -697,11 +697,11 @@ export default function RemoveLiquidity({
     liquidityPercentChangeCallbackBA
   )
 
+  //<CardNoise />
   return (
     <>
       <AppBody>
         <StyledPageCard bgColor={'red'}>
-        <CardNoise />
         <AddRemoveTabs creating={false} adding={false} />
         <Wrapper>
           <TransactionConfirmationModal

@@ -1,6 +1,6 @@
 import { JSBI, Pair, Percent, TokenAmount, Token } from '@feswap/sdk'
 import { darken } from 'polished'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -12,7 +12,7 @@ import { useTokenBalance } from '../../state/wallet/hooks'
 import { ExternalLink, TYPE, HideExtraSmall, ExtraSmallOnly } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
-import { ButtonPrimary, ButtonSecondary, ButtonEmpty, ButtonUNIGradient } from '../Button'
+import { ButtonPrimary, ButtonSecondaryPosition, ButtonEmpty, ButtonUNIGradient } from '../Button'
 import { transparentize } from 'polished'
 import { CardNoise } from '../earn/styled'
 
@@ -257,17 +257,23 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
   const currency1 = unwrappedToken(pair.token1)
   const [showMore, setShowMore] = useState(false)
 
-  const iftokenAFirst = true
-  const [token0, token1] = iftokenAFirst ? [pair.token0, pair.token1] : [pair.token1, pair.token0]
+  const [stakedBalance0Inline, stakedBalance1Inline] = useMemo(() => {
+    if(!stakedBalance0 || !stakedBalance1) return [stakedBalance0, stakedBalance1]
+    if( (stakedBalance0.token.address === pair.liquidityToken1.address ) &&
+        (stakedBalance1.token.address === pair.liquidityToken0.address ) ) return [stakedBalance1, stakedBalance0]
+    return  [stakedBalance0, stakedBalance1] 
+    }, [stakedBalance0, stakedBalance1, pair])
 
-  const userPoolBalance0 = useTokenBalance(account ?? undefined, iftokenAFirst ? pair.liquidityToken0 : pair.liquidityToken1)
-  const totalPoolTokens0 = useTotalSupply(iftokenAFirst ? pair.liquidityToken0 : pair.liquidityToken1)
-
-  const userPoolBalance1 = useTokenBalance(account ?? undefined, iftokenAFirst ? pair.liquidityToken1 : pair.liquidityToken0 )
-  const totalPoolTokens1 = useTotalSupply(iftokenAFirst ? pair.liquidityToken1 : pair.liquidityToken0)
+  const [token0, token1] = [pair.token0, pair.token1]
 
   // if staked balance balance provided, add to standard liquidity amount
-//  const userPoolBalance = stakedBalance ? userDefaultPoolBalance?.add(stakedBalance) : userDefaultPoolBalance
+  const userDefaultPoolBalance0 = useTokenBalance(account ?? undefined, pair.liquidityToken0)
+  const userPoolBalance0 = stakedBalance0Inline ? userDefaultPoolBalance0?.add(stakedBalance0Inline) : userDefaultPoolBalance0
+  const totalPoolTokens0 = useTotalSupply(pair.liquidityToken0)
+
+  const userDefaultPoolBalance1 = useTokenBalance(account ?? undefined, pair.liquidityToken1)
+  const userPoolBalance1 = stakedBalance1Inline ? userDefaultPoolBalance1?.add(stakedBalance1Inline) : userDefaultPoolBalance1
+  const totalPoolTokens1 = useTotalSupply(pair.liquidityToken1)
 
   const poolTokenPercentage0 =
     !!userPoolBalance0 && !!totalPoolTokens0 && JSBI.greaterThanOrEqual(totalPoolTokens0.raw, userPoolBalance0.raw)
@@ -308,16 +314,16 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
   return (
     <StyledPositionCard border={border} bgColor={backgroundColor}>
       <CardNoise />
-      <AutoColumn gap="12px">
+      <AutoColumn gap="12px" style={{paddingBottom:'2px'}}> 
         <FixedHeightRow>
           <AutoRow gap="8px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Text fontWeight={500} fontSize={20}>
               {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}🔗${currency1.symbol}`}
             </Text>
-            { (!!stakedBalance0 || !!stakedBalance1) && (
+            { (!!stakedBalance0Inline || !!stakedBalance1Inline) && (
               <ButtonUNIGradient as={Link} to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`}>
-                <HideExtraSmall>Earning FESW</HideExtraSmall>
+                <HideExtraSmall>Mining FESW</HideExtraSmall>
                 <ExtraSmallOnly>
                   <span role="img" aria-label="bolt">
                     ⚡
@@ -369,9 +375,9 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <TextWrapper>
                     My Tokens
                   </TextWrapper>
-                  {(!!stakedBalance0 || !!stakedBalance1) && (
+                  {(!!stakedBalance0Inline || !!stakedBalance1Inline) && (
                     <TextWrapper>
-                      <strong>Staked Tokens</strong>
+                      My Stakes
                     </TextWrapper>
                   )}
                   <TextWrapper>
@@ -399,9 +405,9 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <TextWrapper>
                     {userPoolBalance0 ? userPoolBalance0.toSignificant(6) : '-'}
                   </TextWrapper>
-                  {(!!stakedBalance0 || !!stakedBalance1) && (
+                  {(!!stakedBalance0Inline || !!stakedBalance1Inline) && (
                     <TextWrapper>
-                      {!!stakedBalance0 ? stakedBalance0.toSignificant(4) : '-'}
+                      {!!stakedBalance0Inline ? stakedBalance0Inline.toSignificant(4) : '-'}
                     </TextWrapper>
                   )}
                   <TextWrapper>
@@ -437,9 +443,9 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <TextWrapper>
                     {userPoolBalance1 ? userPoolBalance1.toSignificant(4) : '-'}
                   </TextWrapper>
-                  {(!!stakedBalance0 || !!stakedBalance1) && (
+                  {(!!stakedBalance0Inline || !!stakedBalance1Inline) && (
                     <TextWrapper>
-                      {!!stakedBalance1 ? stakedBalance1.toSignificant(4) : '-'}
+                      {!!stakedBalance1Inline ? stakedBalance1Inline.toSignificant(4) : '-'}
                     </TextWrapper>
                   )}
                   <TextWrapper>
@@ -466,14 +472,14 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
             </FullPositionWrapper>
 
 
-            <ButtonSecondary padding="8px" borderRadius="8px">
+            <ButtonSecondaryPosition padding="8px" borderRadius="8px">
               <ExternalLink
                 style={{ width: '100%', textAlign: 'center' }}
                 href={`https://info.feswap.io/account/${account}`}
               >
                 View accrued fees and analytics<span style={{ fontSize: '11px' }}> ↗</span>
               </ExternalLink>
-            </ButtonSecondary>
+            </ButtonSecondaryPosition>
 
             { ( (userPoolBalance0 && JSBI.greaterThan(userPoolBalance0.raw, BIG_INT_ZERO)) ||
                 (userPoolBalance1 && JSBI.greaterThan(userPoolBalance1.raw, BIG_INT_ZERO)) )
@@ -500,7 +506,8 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
               </RowBetween>
             )}
 
-            {(
+            { ( ( stakedBalance0Inline && JSBI.greaterThan(stakedBalance0Inline.raw, BIG_INT_ZERO) ) ||
+                ( stakedBalance1Inline && JSBI.greaterThan(stakedBalance1Inline.raw, BIG_INT_ZERO) ) ) && (
               <ButtonPrimary
                 padding="8px"
                 borderRadius="8px"
@@ -517,17 +524,3 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
     </StyledPositionCard>
   )
 }
-
-
-//{ ( ( stakedBalance0 && JSBI.greaterThan(stakedBalance0.raw, BIG_INT_ZERO) ) ||
-//  ( stakedBalance1 && JSBI.greaterThan(stakedBalance1.raw, BIG_INT_ZERO) ) ) && (
-//<ButtonPrimary
-//  padding="8px"
-//  borderRadius="8px"
-//  as={Link}
-//  to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`}
-//  width="100%"
-//>
-//  Manage Liquidity in Rewards Pool
-//</ButtonPrimary>
-//)}

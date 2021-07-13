@@ -20,6 +20,8 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { LoadingView, SubmittedView } from '../ModalViews'
 import { useCurrencyFromToken } from '../../hooks/Tokens'
+import { StyledPageCard } from './styled'
+//import { CardNoise } from './styled'
 import Toggle from '../Toggle'
 
 const HypotheticalRewardRate = styled.div<{ dim: boolean }>`
@@ -120,7 +122,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
   async function onStake() {
     const ZeroString = '0x0000000000000000000000000000000000000000000000000000000000000000'  
     setAttempting(true)
-    if (stakingContract && deadline && isContractReverse && (parsedAmount0 || parsedAmount1) ) {
+    if (!!stakingContract && !!deadline && (!!parsedAmount0 || !!parsedAmount1) ) {
       const paraAmount0 = parsedAmount0 ? `0x${parsedAmount0.raw.toString(16)}` : '0x00'
       const paraAmount1 = parsedAmount1 ? `0x${parsedAmount1.raw.toString(16)}` : '0x00'
       const paraSignature0 = signatureData0 ? [ paraAmount0, signatureData0.deadline,
@@ -262,9 +264,6 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       })
   }
 
-//  ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) ||
-//  ( !!parsedAmount0  && ( signatureData0 === null && approval0 < ApprovalState.APPROVED ) ) }
-
   const approveToDeposit = useMemo(() => {
       let approveToDeposit = true
       if(!!error) approveToDeposit = false
@@ -275,13 +274,9 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       return approveToDeposit
     }, [error, approval0, approval1, parsedAmount0, parsedAmount1])
 
-
-    //          {(((approval0 !== ApprovalState.UNKNOWN) || (approval1 !== ApprovalState.UNKNOWN)) && 
-//            ((approval0 !== ApprovalState.ALL_APPROVED) || (approval1 !== ApprovalState.ALL_APPROVED))) &&
-
-
     return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
+      <StyledPageCard bgColor={'red'} style={{borderRadius: '10px'}}>
       {!attempting && !hash && (
         <ContentWrapper gap="lg">
           <RowBetween>
@@ -335,7 +330,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                     Overall Approve
                   </TYPE.black>
                 </RowFixed>
-                <Toggle isActive={approveOverall} toggle={()=>setApproveOverall(!approveOverall)} />
+                <Toggle isActive={approveOverall} toggle={()=>{console.log('ABABBAB');setApproveOverall(!approveOverall)}} />
               </RowBetween>
 
               { approveOverall && (
@@ -428,6 +423,9 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
           </AutoColumn>
         </SubmittedView>
       )}
+    </StyledPageCard>
     </Modal>
   )
 }
+
+//</StyledPageCard>

@@ -137,6 +137,10 @@ export const ButtonSecondary = styled(Base)`
   }
 `
 
+export const ButtonSecondaryPosition = styled(ButtonSecondary)`
+border: 1px solid ${({ theme }) => theme.bg3};
+`
+
 export const ButtonPink = styled(Base)`
   background-color: ${({ theme }) => theme.primary1};
   color: white;
@@ -161,8 +165,8 @@ export const ButtonPink = styled(Base)`
 
 export const ButtonUNIGradient = styled(ButtonPrimary)`
   color: white;
-  padding: 4px 8px;
-  height: 36px;
+  padding: 2px 8px;
+  height: 32px;
   font-weight: 500;
   background-color: ${({ theme }) => theme.bg3};
   background: radial-gradient(174.47% 188.91% at 1.84% 0%, #ff007a 0%, #2172e5 100%), #edeef2;
@@ -180,7 +184,7 @@ export const ButtonUNIGradient = styled(ButtonPrimary)`
 `
 
 export const ButtonOutlined = styled(Base)`
-  border: 1px solid ${({ theme }) => theme.bg2};
+  border: 1px solid ${({ theme }) => theme.bg5};
   background-color: transparent;
   color: ${({ theme }) => theme.text1};
 

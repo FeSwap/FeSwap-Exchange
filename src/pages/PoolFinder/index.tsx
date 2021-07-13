@@ -4,7 +4,7 @@ import { Link2 } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { ButtonDropdownLight } from '../../components/Button'
-import { LightCard } from '../../components/Card'
+import { TransparentCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
 import CurrencyLogo from '../../components/CurrencyLogo'
 import { FindPoolTabs } from '../../components/NavigationTabs'
@@ -22,6 +22,7 @@ import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
+import {StyledPageCard, CardNoise} from '../../components/earn/styled'
 
 enum Fields {
   TOKEN0 = 0,
@@ -79,15 +80,17 @@ export default function PoolFinder() {
   }, [setShowSearch])
 
   const prerequisiteMessage = (
-    <LightCard padding="45px 10px">
+    <TransparentCard padding="45px 10px" style={{border: 'none'}}>
       <Text textAlign="center">
         {!account ? 'Connect to a wallet to find pools' : 'Select a token to find your liquidity.'}
       </Text>
-    </LightCard>
+    </TransparentCard>
   )
 
   return (
     <AppBody>
+      <StyledPageCard bgColor={'red'}>
+      <CardNoise />
       <FindPoolTabs />
       <Wrapper>
         <AutoColumn gap="md">
@@ -152,49 +155,48 @@ export default function PoolFinder() {
               hasPosition && pair ? (
                 <MinimalPositionCard pair={pair} tokenA= {tokenA} border="1px solid #CED0D9" />
               ) : (
-                <LightCard padding="45px 10px">
+                <TransparentCard padding="45px 10px" style={{border: 'none'}}>
                   <AutoColumn gap="sm" justify="center">
                     <Text textAlign="center">You don’t have liquidity in this pool</Text>
                     <StyledInternalLink to={`/add/${currencyId(currency0)}/${currencyId(currency1)}`}>
                       <Text textAlign="center">{`Add liquidity 👈`}</Text>
                     </StyledInternalLink>
                   </AutoColumn>
-                </LightCard>
+                </TransparentCard>
               )
             ) : validPairNoLiquidity ? (
-              <LightCard padding="45px 10px">
+              <TransparentCard padding="45px 10px" style={{border: 'none'}}>
                 <AutoColumn gap="sm" justify="center">
                   <Text textAlign="center">No pool found.</Text>
                   <StyledInternalLink to={`/nft/${currencyId(currency0)}/${currencyId(currency1)}`}>
                     {`Bid to create this pool 👈`}
                   </StyledInternalLink>
                 </AutoColumn>
-              </LightCard>
+              </TransparentCard>
             ) : pairState === PairState.INVALID ? (
-              <LightCard padding="45px 10px">
+              <TransparentCard padding="45px 10px" style={{border: 'none'}}>
                 <AutoColumn gap="sm" justify="center">
                   <Text textAlign="center" fontWeight={500}>
                     Invalid pair.
                   </Text>
                 </AutoColumn>
-              </LightCard>
+              </TransparentCard>
             ) : pairState === PairState.LOADING ? (
-              <LightCard padding="45px 10px">
+              <TransparentCard padding="45px 10px" style={{border: 'none'}}>
                 <AutoColumn gap="sm" justify="center">
                   <Text textAlign="center">
                     Loading
                     <Dots />
                   </Text>
                 </AutoColumn>
-              </LightCard>
+              </TransparentCard>
             ) : null
           ) : (
             prerequisiteMessage
           )}
         </AutoColumn>
       </Wrapper>
-
-
+      </StyledPageCard>
       <CurrencySearchModal
         isOpen={showSearch}
         onCurrencySelect={handleCurrencySelect}
