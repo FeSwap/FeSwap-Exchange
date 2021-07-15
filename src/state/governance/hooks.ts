@@ -1,5 +1,5 @@
-import { FESW, PRELOADED_PROPOSALS } from './../../constants/index'
-import { TokenAmount } from '@feswap/sdk'
+import { FESW } from './../../constants/index'
+import { CurrencyAmount, TokenAmount } from '@feswap/sdk'
 import { isAddress } from 'ethers/lib/utils'
 import { useGovernanceContract, useFeswContract } from '../../hooks/useContract'
 import { useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'
@@ -9,7 +9,7 @@ import { calculateGasMargin } from '../../utils'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../transactions/hooks'
 import { useState, useEffect, useCallback } from 'react'
-import { abi as GOV_ABI } from '@feswap/governance/build/GovernorAlpha.json'
+import { abi as GOV_ABI } from '@feswap/governance/build/FeswGovernor.json'
 
 interface ProposalDetail {
   target: string
@@ -26,13 +26,34 @@ export interface ProposalData {
   forCount: number
   againstCount: number
   startBlock: number
-  endBlock: number
+  startBlockTime: number
+  endBlockTime: number
   details: ProposalDetail[]
 }
 
 const enumerateProposalState = (state: number) => {
   const proposalStates = ['pending', 'active', 'canceled', 'defeated', 'succeeded', 'queued', 'expired', 'executed']
   return proposalStates[state]
+}
+
+export interface CreateProposalData {
+  targets: string[]
+  values: string[]
+  signatures: string[]
+  calldatas: string[]
+  description: string
+}
+
+export enum ProposalState {
+  UNDETERMINED = -1,
+  PENDING,
+  ACTIVE,
+  CANCELED,
+  DEFEATED,
+  SUCCEEDED,
+  QUEUED,
+  EXPIRED,
+  EXECUTED,
 }
 
 // get count of all proposals made
@@ -112,6 +133,8 @@ export function useAllProposalData() {
   // get all proposal states
   const allProposalStates = useSingleContractMultipleData(govContract, 'state', proposalIndexes)
 
+  console.log('formattedEvents, allProposals, allProposalStates KKKKKKKKKKKKK', formattedEvents, allProposals, allProposalStates)
+
   if (formattedEvents && allProposals && allProposalStates) {
     allProposals.reverse()
     allProposalStates.reverse()
@@ -121,7 +144,7 @@ export function useAllProposalData() {
         return Boolean(p.result) && Boolean(allProposalStates[i]?.result) && Boolean(formattedEvents[i])
       })
       .map((p, i) => {
-        const description = PRELOADED_PROPOSALS.get(allProposals.length - i - 1) || formattedEvents[i].description
+        const description = formattedEvents[i].description
         const formattedProposal: ProposalData = {
           id: allProposals[i]?.result?.id.toString(),
           title: description?.split(/# |\n/g)[1] || 'Untitled',
@@ -131,7 +154,8 @@ export function useAllProposalData() {
           forCount: parseFloat(ethers.utils.formatUnits(allProposals[i]?.result?.forVotes.toString(), 18)),
           againstCount: parseFloat(ethers.utils.formatUnits(allProposals[i]?.result?.againstVotes.toString(), 18)),
           startBlock: parseInt(allProposals[i]?.result?.startBlock?.toString()),
-          endBlock: parseInt(allProposals[i]?.result?.endBlock?.toString()),
+          startBlockTime: parseInt(allProposals[i]?.result?.startBlockTime?.toString()),
+          endBlockTime: parseInt(allProposals[i]?.result?.endBlockTime?.toString()),
           details: formattedEvents[i].details
         }
         return formattedProposal
@@ -149,47 +173,47 @@ export function useProposalData(id: string): ProposalData | undefined {
 // get the users delegatee if it exists
 export function useUserDelegatee(): string {
   const { account } = useActiveWeb3React()
-  const uniContract = useFeswContract()
-  const { result } = useSingleCallResult(uniContract, 'delegates', [account ?? undefined])
+  const feswContract = useFeswContract()
+  const { result } = useSingleCallResult(feswContract, 'delegates', [account ?? undefined])
   return result?.[0] ?? undefined
 }
 
 // gets the users current votes
 export function useUserVotes(): TokenAmount | undefined {
   const { account, chainId } = useActiveWeb3React()
-  const uniContract = useFeswContract()
+  const feswContract = useFeswContract()
 
   // check for available votes
-  const uni = chainId ? FESW[chainId] : undefined
-  const votes = useSingleCallResult(uniContract, 'getCurrentVotes', [account ?? undefined])?.result?.[0]
-  return votes && uni ? new TokenAmount(uni, votes) : undefined
+  const fesw = chainId ? FESW[chainId] : undefined
+  const votes = useSingleCallResult(feswContract, 'getCurrentVotes', [account ?? undefined])?.result?.[0]
+  return votes && fesw ? new TokenAmount(fesw, votes) : undefined
 }
 
 // fetch available votes as of block (usually proposal start block)
 export function useUserVotesAsOfBlock(block: number | undefined): TokenAmount | undefined {
   const { account, chainId } = useActiveWeb3React()
-  const uniContract = useFeswContract()
+  const feswContract = useFeswContract()
 
   // check for available votes
-  const uni = chainId ? FESW[chainId] : undefined
-  const votes = useSingleCallResult(uniContract, 'getPriorVotes', [account ?? undefined, block ?? undefined])
+  const fesw = chainId ? FESW[chainId] : undefined
+  const votes = useSingleCallResult(feswContract, 'getPriorVotes', [account ?? undefined, block ?? undefined])
     ?.result?.[0]
-  return votes && uni ? new TokenAmount(uni, votes) : undefined
+  return votes && fesw ? new TokenAmount(fesw, votes) : undefined
 }
 
 export function useDelegateCallback(): (delegatee: string | undefined) => undefined | Promise<string> {
   const { account, chainId, library } = useActiveWeb3React()
   const addTransaction = useTransactionAdder()
 
-  const uniContract = useFeswContract()
+  const feswContract = useFeswContract()
 
   return useCallback(
     (delegatee: string | undefined) => {
       if (!library || !chainId || !account || !isAddress(delegatee ?? '')) return undefined
       const args = [delegatee]
-      if (!uniContract) throw new Error('No FESW Contract!')
-      return uniContract.estimateGas.delegate(...args, {}).then(estimatedGasLimit => {
-        return uniContract
+      if (!feswContract) throw new Error('No FESW Contract!')
+      return feswContract.estimateGas.delegate(...args, {}).then(estimatedGasLimit => {
+        return feswContract
           .delegate(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
@@ -199,7 +223,7 @@ export function useDelegateCallback(): (delegatee: string | undefined) => undefi
           })
       })
     },
-    [account, addTransaction, chainId, library, uniContract]
+    [account, addTransaction, chainId, library, feswContract]
   )
 }
 
@@ -230,3 +254,60 @@ export function useVoteCallback(): {
   )
   return { voteCallback }
 }
+
+export function useCreateProposalCallback(): (
+  createProposalData: CreateProposalData | undefined
+) => undefined | Promise<string> {
+  const { account, chainId } = useActiveWeb3React()
+
+  const govContract = useGovernanceContract()
+  const addTransaction = useTransactionAdder()
+
+  return useCallback(
+    (createProposalData: CreateProposalData | undefined) => {
+      if (!account || !govContract || !createProposalData || !chainId) return undefined
+
+      const args = [
+        createProposalData.targets,
+        createProposalData.values,
+        createProposalData.signatures,
+        createProposalData.calldatas,
+        createProposalData.description,
+      ]
+
+      return govContract.estimateGas.propose(...args).then((estimatedGasLimit) => {
+        return govContract
+          .propose(...args, { gasLimit: calculateGasMargin(estimatedGasLimit) })
+          .then((response: TransactionResponse) => {
+            addTransaction(response, {
+              summary: `Submitted new proposal`,
+            })
+            return response.hash
+          })
+      })
+    },
+    [account, addTransaction, govContract, chainId]
+  )
+}
+
+export function useLatestProposalId(address: string | undefined): string | undefined {
+  const govContract = useGovernanceContract()
+  const res = useSingleCallResult(govContract, 'latestProposalIds', [address])
+
+  return res?.result?.[0]?.toString()
+}
+
+export function useProposalThreshold(): CurrencyAmount | undefined {
+  const { chainId } = useActiveWeb3React()
+
+  const govContract = useGovernanceContract()
+  const res = useSingleCallResult(govContract, 'proposalThreshold')
+  const fesw = chainId ? FESW[chainId] : undefined
+
+  if (res?.result?.[0] && fesw) {
+    return new TokenAmount(fesw, res.result[0])
+  }
+
+  return undefined
+}
+

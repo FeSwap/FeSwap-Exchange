@@ -15,7 +15,7 @@ import ReactMarkdown from 'react-markdown'
 import VoteModal from '../../components/vote/VoteModal'
 import { TokenAmount, JSBI } from '@feswap/sdk'
 import { useActiveWeb3React } from '../../hooks'
-import { AVERAGE_BLOCK_TIME_IN_SECS, COMMON_CONTRACT_NAMES, FESW, ZERO_ADDRESS } from '../../constants'
+import { COMMON_CONTRACT_NAMES, FESW, ZERO_ADDRESS } from '../../constants'
 import { isAddress, getEtherscanLink } from '../../utils'
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useToggleDelegateModal, useToggleVoteModal, useBlockNumber } from '../../state/application/hooks'
@@ -23,15 +23,16 @@ import DelegateModal from '../../components/vote/DelegateModal'
 import { GreyCard } from '../../components/Card'
 import { useTokenBalance } from '../../state/wallet/hooks'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
-import { BigNumber } from 'ethers'
+import { StyledPageCard,CardNoise } from '../../components/earn/styled'
+import { AppBodyFat } from '../AppBody'
 
 const PageWrapper = styled(AutoColumn)`
   width: 100%;
 `
 
 const ProposalInfo = styled(AutoColumn)`
-  border: 1px solid ${({ theme }) => theme.bg4};
-  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.bg5};
+  border-radius: 16px;
   padding: 1.5rem;
   position: relative;
   max-width: 640px;
@@ -129,11 +130,7 @@ export default function VotePage({
   const currentBlock = useBlockNumber()
   const endDate: DateTime | undefined =
     proposalData && currentTimestamp && currentBlock
-      ? DateTime.fromSeconds(
-          currentTimestamp
-            .add(BigNumber.from(AVERAGE_BLOCK_TIME_IN_SECS).mul(BigNumber.from(proposalData.endBlock - currentBlock)))
-            .toNumber()
-        )
+      ? DateTime.fromSeconds(proposalData.endBlockTime)
       : undefined
   const now: DateTime = DateTime.local()
 
@@ -173,10 +170,14 @@ export default function VotePage({
   }
 
   return (
+    <AppBodyFat>
+    <StyledPageCard bgColor={'red'}>
+    <CardNoise />
     <PageWrapper gap="lg" justify="center">
       <VoteModal isOpen={showVoteModal} onDismiss={toggleVoteModal} proposalId={proposalData?.id} support={support} />
       <DelegateModal isOpen={showDelegateModal} onDismiss={toggelDelegateModal} title="Unlock Votes" />
       <ProposalInfo gap="lg" justify="start">
+
         <RowBetween style={{ width: '100%' }}>
           <ArrowWrapper to="/vote">
             <ArrowLeft size={20} /> All Proposals
@@ -300,7 +301,10 @@ export default function VotePage({
             <ReactMarkdown source={proposalData?.proposer} />
           </ProposerAddressLink>
         </AutoColumn>
+
       </ProposalInfo>
     </PageWrapper>
+    </StyledPageCard>
+    </AppBodyFat>
   )
 }

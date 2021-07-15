@@ -15,6 +15,10 @@ export const BodyWrapper = styled.div`
 /**
  * The styled container element that wraps the content of most pages and the tabs.
  */
-export default function AppBody({ children }: { children: React.ReactNode }) {
-  return <BodyWrapper>{children}</BodyWrapper>
+export default function AppBody({ children, ...rest }: { children: React.ReactNode }) {
+  return <BodyWrapper {...rest}>{children}</BodyWrapper>
+}
+
+export function AppBodyFat({ children }: { children: React.ReactNode }) {
+  return <BodyWrapper style={{maxWidth: '640px'}}>{children}</BodyWrapper>
 }

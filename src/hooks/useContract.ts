@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/GovernorAlpha.json'
+import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/FeswGovernor.json'
 import { abi as SPONSOR_ABI } from '../constants/abis/FeswSponsor.json'
 import { abi as FESW_ABI } from '@feswap/governance/build/Fesw.json'
 import { abi as NFT_BID_ABI } from '../constants/abis/FeswaNFT.json'

@@ -24,6 +24,7 @@ import RemoveLiquidity from './RemoveLiquidity'
 import { RedirectOldRemoveLiquidityPathStructure } from './RemoveLiquidity/redirects'
 import Swap from './Swap'
 import Nft from './Nft'
+import CreateProposal from './CreateProposal'
 import {RedirectNftCheckSingleId, RedirectNftCheckTwoIds} from './Nft/redirects'
 import CreatePairByNft from './CreatePair'
 import Sponsor from './Sponsor'
@@ -112,6 +113,7 @@ export default function App() {
               <Route exact path="/nft/:currencyIdA" component={RedirectNftCheckSingleId} />
               <Route exact path="/nft/:currencyIdA/:currencyIdB" component={RedirectNftCheckTwoIds} />
               <Route exact strict path="/sponsor" component={Sponsor} />
+              <Route exact strict path="/create-proposal" component={CreateProposal} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>
           </Web3ReactManager>

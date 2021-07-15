@@ -1,15 +1,14 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { AutoColumn } from '../../components/Column'
-import styled from 'styled-components'
+import styled, { ThemeContext }  from 'styled-components'
 import { TYPE, ExternalLink } from '../../theme'
 import { RowBetween, RowFixed } from '../../components/Row'
 import { Link } from 'react-router-dom'
 import { ProposalStatus } from './styled'
 import { ButtonPrimary } from '../../components/Button'
-
 import { Button } from 'rebass/styled-components'
 import { darken } from 'polished'
-import { CardSection } from '../../components/earn/styled'
+import { CardSection, StyledPositionCard  } from '../../components/earn/styled'
 import { useAllProposalData, ProposalData, useUserVotes, useUserDelegatee } from '../../state/governance/hooks'
 import DelegateModal from '../../components/vote/DelegateModal'
 import { useTokenBalance } from '../../state/wallet/hooks'
@@ -26,7 +25,7 @@ import { VoteCard } from '../Pool'
 const PageWrapper = styled(AutoColumn)``
 
 const TopSection = styled(AutoColumn)`
-  max-width: 480px;
+  max-width: 640px;
   width: 100%;
 `
 
@@ -100,6 +99,7 @@ const EmptyProposals = styled.div`
 
 export default function Vote() {
   const { account, chainId } = useActiveWeb3React()
+  const theme = useContext(ThemeContext)
 
   // toggle for showing delegation modal
   const showDelegateModal = useModalOpen(ApplicationModal.DELEGATE)
@@ -108,14 +108,16 @@ export default function Vote() {
   // get data to list all proposals
   const allProposals: ProposalData[] = useAllProposalData()
 
+  console.log('allProposals DDDDDDDDDDDDDDDDD', allProposals)
+
   // user data
   const availableVotes: TokenAmount | undefined = useUserVotes()
-  const uniBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, chainId ? FESW[chainId] : undefined)
+  const feswBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, chainId ? FESW[chainId] : undefined)
   const userDelegatee: string | undefined = useUserDelegatee()
 
   // show delegation option if they have have a balance, but have not delegated
   const showUnlockVoting = Boolean(
-    uniBalance && JSBI.notEqual(uniBalance.raw, JSBI.BigInt(0)) && userDelegatee === ZERO_ADDRESS
+    feswBalance && JSBI.notEqual(feswBalance.raw, JSBI.BigInt(0)) && userDelegatee === ZERO_ADDRESS
   )
 
   return (
@@ -139,7 +141,7 @@ export default function Vote() {
                 </TYPE.black>
               </RowBetween>
               <ExternalLink
-                style={{ color: 'white', textDecoration: 'underline' }}
+                style={{ color: 'black', textDecoration: 'underline' }}
                 href="https://www.feswap.io/blog/feswap"
                 target="_blank"
               >
@@ -149,79 +151,91 @@ export default function Vote() {
           </CardSection>
         </VoteCard>
       </TopSection>
-      <TopSection gap="2px">
+      <TopSection style={{padding: "0px 10px 0px 10px"}}>
         <WrapSmall>
-          <TYPE.mediumHeader style={{ margin: '0.5rem 0.5rem 0.5rem 0', flexShrink: 0 }}>Proposals</TYPE.mediumHeader>
-          {(!allProposals || allProposals.length === 0) && !availableVotes && <Loader />}
-          {showUnlockVoting ? (
-            <ButtonPrimary
-              style={{ width: 'fit-content' }}
-              padding="8px"
-              borderRadius="8px"
-              onClick={toggelDelegateModal}
-            >
-              Unlock Voting
-            </ButtonPrimary>
-          ) : availableVotes && JSBI.notEqual(JSBI.BigInt(0), availableVotes?.raw) ? (
-            <TYPE.body fontWeight={500} mr="6px">
-              <FormattedCurrencyAmount currencyAmount={availableVotes} /> Votes
-            </TYPE.body>
-          ) : uniBalance &&
-            userDelegatee &&
-            userDelegatee !== ZERO_ADDRESS &&
-            JSBI.notEqual(JSBI.BigInt(0), uniBalance?.raw) ? (
-            <TYPE.body fontWeight={500} mr="6px">
-              <FormattedCurrencyAmount currencyAmount={uniBalance} /> Votes
-            </TYPE.body>
-          ) : (
-            ''
-          )}
-        </WrapSmall>
-        {!showUnlockVoting && (
-          <RowBetween>
-            <div />
-            {userDelegatee && userDelegatee !== ZERO_ADDRESS ? (
-              <RowFixed>
-                <TYPE.body fontWeight={500} mr="4px">
-                  Delegated to:
-                </TYPE.body>
-                <AddressButton>
-                  <StyledExternalLink
-                    href={getEtherscanLink(ChainId.MAINNET, userDelegatee, 'address')}
-                    style={{ margin: '0 4px' }}
+          <RowFixed>
+            <TYPE.mediumHeader color="text2" style={{ margin: '0.5rem 0rem 0.5rem 0' }}>My Right:</TYPE.mediumHeader>
+            { !showUnlockVoting && availableVotes && JSBI.notEqual(JSBI.BigInt(0), availableVotes?.raw) 
+              ? (
+                  <TYPE.mediumHeader ml="12px" color={theme.primary1}>
+                    <FormattedCurrencyAmount currencyAmount={availableVotes} /> Votes
+                  </TYPE.mediumHeader>  ) 
+              : feswBalance &&
+                userDelegatee &&
+                userDelegatee !== ZERO_ADDRESS &&
+                JSBI.notEqual(JSBI.BigInt(0), feswBalance?.raw) 
+                ? (
+                    <TYPE.mediumHeader ml="12px" color={theme.primary1}>
+                      <FormattedCurrencyAmount currencyAmount={feswBalance} /> Votes
+                    </TYPE.mediumHeader>  ) 
+                : ('')
+            }
+          </RowFixed>
+          <RowFixed>
+            { showUnlockVoting 
+              ? ( <ButtonPrimary
+                    style={{ width: 'fit-content' }}
+                    padding="8px"
+                    borderRadius="8px"
+                    onClick={toggelDelegateModal}
                   >
-                    {userDelegatee === account ? 'Self' : shortenAddress(userDelegatee)}
-                  </StyledExternalLink>
-                  <TextButton onClick={toggelDelegateModal} style={{ marginLeft: '4px' }}>
-                    (edit)
-                  </TextButton>
-                </AddressButton>
-              </RowFixed>
-            ) : (
-              ''
-            )}
-          </RowBetween>
-        )}
-        {allProposals?.length === 0 && (
-          <EmptyProposals>
-            <TYPE.body style={{ marginBottom: '8px' }}>No proposals found.</TYPE.body>
-            <TYPE.subHeader>
-              <i>Proposals submitted by community members will appear here.</i>
-            </TYPE.subHeader>
-          </EmptyProposals>
-        )}
-        {allProposals?.map((p: ProposalData, i) => {
-          return (
-            <Proposal as={Link} to={'/vote/' + p.id} key={i}>
-              <ProposalNumber>{p.id}</ProposalNumber>
-              <ProposalTitle>{p.title}</ProposalTitle>
-              <ProposalStatus status={p.status}>{p.status}</ProposalStatus>
-            </Proposal>
-          )
-        })}
-      </TopSection>
+                    Unlock Voting
+                  </ButtonPrimary>  ) 
+              : ( (userDelegatee && userDelegatee !== ZERO_ADDRESS) 
+                  ? ( <RowFixed>
+                        <TYPE.body fontWeight={500} mr="4px" color="text2">
+                          Delegated to:
+                        </TYPE.body>
+                        <AddressButton>
+                          <StyledExternalLink
+                            href={getEtherscanLink(chainId??ChainId.MAINNET, userDelegatee, 'address')}
+                            style={{ margin: '0 4px' }}
+                          >
+                            {userDelegatee === account ? 'Self' : shortenAddress(userDelegatee)}
+                          </StyledExternalLink>
+                          <TextButton onClick={toggelDelegateModal} style={{ marginLeft: '4px' }}>
+                            (edit)
+                          </TextButton>
+                        </AddressButton>
+                      </RowFixed> ) 
+                  : ('')
+                )
+            }
+            {(!allProposals || allProposals.length === 0) && !availableVotes && <Loader />}
+          </RowFixed>
+        </WrapSmall>
+        </TopSection>
+
+        <StyledPositionCard bgColor={'blue'} style={{padding: '10px 10px 16px 10px'}}>
+          <WrapSmall style={{alignItems: 'center', paddingBottom: '10px'}}>
+            <TYPE.mediumHeader>
+              All Proposals
+            </TYPE.mediumHeader>
+            <ButtonPrimary as={Link} to="/create-proposal" style={{ width: 'fit-content', borderRadius: '8px' }} padding="8px" >
+              Create Proposal
+            </ButtonPrimary>
+          </WrapSmall>
+
+          {allProposals?.length === 0 && (
+            <EmptyProposals>
+              <TYPE.body style={{ marginBottom: '8px' }}>No proposals found.</TYPE.body>
+              <TYPE.subHeader>
+                <i>Proposals submitted by community members will appear here.</i>
+              </TYPE.subHeader>
+            </EmptyProposals>
+          )}
+          {allProposals?.map((p: ProposalData, i) => {
+            return (
+              <Proposal as={Link} to={'/vote/' + p.id} key={i}>
+                <ProposalNumber>{p.id}</ProposalNumber>
+                <ProposalTitle>{p.title}</ProposalTitle>
+                <ProposalStatus status={p.status}>{p.status}</ProposalStatus>
+              </Proposal>
+            )
+          })}
+      </StyledPositionCard>
       <TopSection>
-        <TYPE.subHeader color="text3">
+        <TYPE.subHeader color="text3" style={{ textAlign: 'center' }}>
           A minimum threshhold of 1% of the total FESW supply is required to submit proposals
         </TYPE.subHeader>
       </TopSection>

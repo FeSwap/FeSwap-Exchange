@@ -22,8 +22,8 @@ const ContainerRow = styled.div<{ error: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 12px;
-  border: 1px solid ${({ error, theme }) => (error ? theme.red1 : theme.bg2)};
+  border-radius: 8px;
+  border: 1px solid ${({ error, theme }) => (error ? theme.red1 : theme.bg5)};
   transition: border-color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')},
     color 500ms ${({ error }) => (error ? 'step-end' : 'step-start')};
   background-color: ${({ theme }) => theme.bg1};
@@ -99,7 +99,7 @@ export default function AddressInputPanel({
 //  </TYPE.black>
 
   return (
-    <InputPanel id={id}>
+    <InputPanel id={id} style={{borderRadius:'8px'}}>
       <ContainerRow error={error}>
         <InputContainer>
           <AutoColumn gap="md">
