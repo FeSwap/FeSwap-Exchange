@@ -22,7 +22,6 @@ const ProposalEditorContainer = styled.div`
   background-color: ${({ theme }) => theme.bg1};
 `
 
-
 export const ProposalEditor = ({
   className,
   title,

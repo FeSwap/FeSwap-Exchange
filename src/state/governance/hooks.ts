@@ -133,8 +133,6 @@ export function useAllProposalData() {
   // get all proposal states
   const allProposalStates = useSingleContractMultipleData(govContract, 'state', proposalIndexes)
 
-  console.log('formattedEvents, allProposals, allProposalStates KKKKKKKKKKKKK', formattedEvents, allProposals, allProposalStates)
-
   if (formattedEvents && allProposals && allProposalStates) {
     allProposals.reverse()
     allProposalStates.reverse()

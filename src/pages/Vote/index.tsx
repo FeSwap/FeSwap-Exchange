@@ -108,8 +108,6 @@ export default function Vote() {
   // get data to list all proposals
   const allProposals: ProposalData[] = useAllProposalData()
 
-  console.log('allProposals DDDDDDDDDDDDDDDDD', allProposals)
-
   // user data
   const availableVotes: TokenAmount | undefined = useUserVotes()
   const feswBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, chainId ? FESW[chainId] : undefined)
