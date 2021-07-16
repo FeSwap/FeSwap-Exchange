@@ -1,6 +1,8 @@
 {
   "name": "fexchange",
   "version": "0.1.0",
+  "description": "FeSwap Interface",
+  "homepage": "https://app.feswap.io",
   "private": true,
   "devDependencies": {
     "@ethersproject/experimental": "^5.0.1",
