@@ -324,7 +324,7 @@ export default function Header() {
           <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
             Sponsor<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
-          <StyledExternalLink id={`stake-nav-link`} href={'https://info.feswap.io'}>
+          <StyledExternalLink id={`stake-nav-link`} href={'https://docs.feswap.io'}>
             Charts <span style={{ fontSize: '11px' }}>↗</span>
           </StyledExternalLink>	  
         </HeaderLinks>
