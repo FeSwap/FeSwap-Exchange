@@ -38,18 +38,13 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.0
         with:
           ssh-private-key: ${{ secrets.GH_DAPP_DEPLOY }}
-      - name: Release to GitHub Pages
-        env:
-          USE_SSH: true
-          GIT_USER: git
-        run: |
-          git config --global user.email "ldru@163.com"
-          git config --global user.name "ldru"
-          if [ -e yarn.lock ]; then
-          yarn install --frozen-lockfile
-          elif [ -e package-lock.json ]; then
-          npm ci
-          else
-          npm i
-          fi
-          npm run deploy
+
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+        run: yarn build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build # The folder the action should deploy.
+          ssh-key: true
