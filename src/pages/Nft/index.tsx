@@ -17,7 +17,7 @@ import { BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swa
 import PageHeader from '../../components/PageHeader'
 import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
-import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
+import { useWalletModalToggle } from '../../state/application/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
 import {StyledPageCard, CardNoise} from '../../components/earn/styled'
 import { Field, USER_UI_INFO, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID, userInputTitle } from '../../state/nft/actions'
@@ -75,7 +75,6 @@ export default function Nft({
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
   const [isExpertMode] = useExpertModeManager()
-  const currentBlock = useBlockNumber()
 
   useInitTokenHandler(currencyIdA??'', currencyIdB??'')
 
@@ -223,7 +222,7 @@ export default function Nft({
       inputTitleID = inputTitleID?? USER_BUTTON_ID.OK_INIT_BID      // to solve code warning
       return [buttonID, nftStatusString, inputTitleID]
 
-    },[feswaPairBidInfo, account, inputError, parsedAmounts, currentBlock, savedButtonID, setSavedButtonID, txHash, nftBidErrorMessage])
+    },[feswaPairBidInfo, account, inputError, parsedAmounts, savedButtonID, setSavedButtonID, txHash, nftBidErrorMessage])
 
   const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1

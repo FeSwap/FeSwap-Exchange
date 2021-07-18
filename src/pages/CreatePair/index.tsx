@@ -15,7 +15,7 @@ import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../
 import PageHeader from '../../components/PageHeader'
 import { useActiveWeb3React } from '../../hooks'
 import useENSAddress from '../../hooks/useENSAddress'
-import { useWalletModalToggle, useBlockNumber } from '../../state/application/hooks'
+import { useWalletModalToggle } from '../../state/application/hooks'
 import { Field, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../state/nft/actions'
 import { Link } from 'react-router-dom'
 import Slider from '../../components/Slider'
@@ -72,7 +72,6 @@ export default function CreatePairByNft() {
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
 //  const [isExpertMode] = useExpertModeManager()
-  const currentBlock = useBlockNumber()
 
   const {feswaNftPairBidInfo} = useGetUserNFTList()
 
@@ -161,7 +160,7 @@ export default function CreatePairByNft() {
           nftStatusString = nftStatusString??'Unknown Status'
       }
       return [buttonID, nftStatusString]
-    },[feswaPairBidInfo, account, inputError, currentBlock, txHash, nftManageErrorMessage])
+    },[feswaPairBidInfo, account, inputError, feswaPoolPair])
 
   const nftStatus: number = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return -1
