@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build the IPFS bundle
+      - name: Build the release
         run: yarn build
 
       - name: Upload Artifacts 🔺 # The project is then uploaded as an artifact named 'site'.
@@ -63,7 +63,11 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
+          repository-name: FeSwap/Dapp
+          token: ${{ secrets.GH_DEPLOY_TOKEN }}
           folder: 'site' # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
+
+
 
 #  gh-release:
 #    if: github.event_name != 'pull_request'
