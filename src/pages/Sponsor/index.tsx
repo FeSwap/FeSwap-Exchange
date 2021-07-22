@@ -35,6 +35,7 @@ import { useSponsorContract } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin, FIVE_FRACTION } from '../../utils'
 import {StyledPageCard, CardNoise} from '../../components/earn/styled'
+import { useCurrency } from '../../hooks/Tokens'
 
 
 export default function Sponsor() {
@@ -46,7 +47,7 @@ export default function Sponsor() {
 
   const currencies: { [field in Field]?: Currency } = {
     [Field.INPUT]:  ETHER,
-    [Field.OUTPUT]: chainId ? FESW[chainId] : undefined
+    [Field.OUTPUT]: useCurrency(chainId ? FESW[chainId].address : undefined) ?? undefined
   }
 
   const [showSponsorWarning, clearShowSponsorWarning] = useState<boolean>(true)
