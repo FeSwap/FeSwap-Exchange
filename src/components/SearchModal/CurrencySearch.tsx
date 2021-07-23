@@ -137,6 +137,8 @@ export function CurrencySearch({
 
   const selectedListInfo = useSelectedListInfo()
 
+  console.log("selectedListInfo AAAAAAAAAAAAAAAAA", selectedListInfo)
+
   return (
     <Column style={{ width: '100%', flex: '1 1' }}>
       <PaddedColumn gap="14px">

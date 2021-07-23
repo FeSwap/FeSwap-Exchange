@@ -16,6 +16,7 @@ import { BigNumber} from 'ethers'
 import { useMemo } from 'react'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionResponse } from '@ethersproject/providers'
+import { useCurrency } from '../../hooks/Tokens'
 
 export interface SponsorTrade {
   readonly parsedAmounts: { [field in Field]?: CurrencyAmount }
@@ -94,7 +95,8 @@ export function useDerivedSponsorInfo(): {
   } = useSponsorState()
 
   const inputCurrency = ETHER
-  const outputCurrency = chainId ? FESW[chainId] : undefined
+  const outputCurrency = useCurrency(chainId ? FESW[chainId].address : undefined)
+
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
 

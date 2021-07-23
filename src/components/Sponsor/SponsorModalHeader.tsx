@@ -82,8 +82,8 @@ export default function SponsorModalHeader({
       ) : null}
       <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
         <TYPE.italic textAlign="left" style={{ width: '100%' }}>
-          The giveaway FESW amount is estimated, which may be less than the value above 
-          if your tranaction confirmatoin is delayed in the Ethereum blockchain
+          The giveaway FESW amount is estimated, which may be a little bit less than the value shown above 
+          if your tranaction is confirmed by the Ethereum blockchain some delayed.
         </TYPE.italic>
       </AutoColumn>
       {recipient !== null ? (
