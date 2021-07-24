@@ -45,6 +45,7 @@ import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
 import { CardNoise } from '../../components/earn/styled'
 
+//export default function Swap({ history }: RouteComponentProps) {
 export default function Swap() {
   const loadedUrlParams = useDefaultsFromURLSearch()
 

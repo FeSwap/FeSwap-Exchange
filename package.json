@@ -2,7 +2,7 @@
   "name": "fexchange",
   "version": "0.1.0",
   "description": "FeSwap Interface",
-  "homepage": "http://www.feswap.io",
+  "homepage": ".",
   "private": true,
   "devDependencies": {
     "@ethersproject/experimental": "^5.0.1",
@@ -93,6 +93,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:service-worker": "yarn build && yarn serve -s build",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
