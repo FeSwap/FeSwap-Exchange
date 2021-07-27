@@ -53,7 +53,6 @@ export function useApproveCallback(
   const addTransaction = useTransactionAdder()
 
   const approve = useCallback(async (): Promise<void> => {
-      console.log('QQQQQQQQQQQQQQ', approvalState, CurrencyAmount, spender)
     if (approvalState !== ApprovalState.NOT_APPROVED) {
       console.error('approve was called unnecessarily')
       return

@@ -113,7 +113,9 @@ function ifBidEnded( pairBidInfo: PairBidInfo ): NFT_BID_GOING {
   const timeNftCreation: number = pairBidInfo.timeCreated.toNumber()
   const timeNftLastBid: number = pairBidInfo.lastBidTime.toNumber()
   const now = DateTime.now().toSeconds()
-  const timeNormalEnd = timeNftCreation + 3600 * 10                     // Normal: 3600 * 24 * 14
+//const timeNormalEnd = timeNftCreation + 3600 * 10                     // Normal: 3600 * 24 * 14
+  const timeNormalEnd = timeNftCreation + 3600 * 24 *14                 // Normal: 3600 * 24 * 14
+
 
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidToStart)  return NFT_BID_GOING.ONGING
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidPhase){

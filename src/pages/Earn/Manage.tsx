@@ -22,7 +22,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { useColor } from '../../hooks/useColor'
 import { CountUp } from 'use-count-up'
 
-import { wrappedCurrency } from '../../utils/wrappedCurrency'
+import { wrappedCurrency, unwrappedToken } from '../../utils/wrappedCurrency'
 import { currencyId } from '../../utils/currencyId'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
@@ -31,6 +31,7 @@ import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { transparentize } from 'polished'
 import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { LightCard } from '../../components/Card'
+import { ZERO } from '../../utils'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 480px;
@@ -106,7 +107,9 @@ export default function Manage({
               Boolean(stakingTokenPair.liquidityToken0.address.toLowerCase() < stakingTokenPair.liquidityToken1.address.toLowerCase())
     }, [token0, token1, stakingTokenPair])
  
-  const [currencyA, currencyB] = isSameOrder ? [currency0, currency1] : [currency1, currency0]
+  //const [currencyA, currencyB] = isSameOrder ? [currency0, currency1] : [currency1, currency0]
+  const [currencyA, currencyB] = isSameOrder  ? [token0?unwrappedToken(token0):currency0, token1?unwrappedToken(token1):currency1] 
+                                              : [token1?unwrappedToken(token1):currency1, token0?unwrappedToken(token0):currency0]
 
   const showAddLiquidityButton =  Boolean(stakingInfo?.stakedAmount?.[0].equalTo('0') && userLiquidityUnstaked0?.equalTo('0')) &&
                                   Boolean(stakingInfo?.stakedAmount?.[1].equalTo('0') && userLiquidityUnstaked1?.equalTo('0'))                     
@@ -124,21 +127,23 @@ export default function Manage({
   const totalSupplyOfStakingToken0 = useTotalSupply(stakingInfo?.stakedAmount?.[0].token)
   const totalSupplyOfStakingToken1 = useTotalSupply(stakingInfo?.stakedAmount?.[1].token)
 
-  const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = 
-        (totalSupplyOfStakingToken0 && totalSupplyOfStakingToken1 && stakingTokenPair && stakingInfo && WETH) 
-        // take the total amount of LP tokens staked, multiply by ETH value of all LP tokens, divide by all LP tokens
-        ? new TokenAmount(
-          WETH,
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.multiply(JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw),
-                            JSBI.add(stakingTokenPair.reserveOfOutput(WETH).raw, stakingTokenPair.reserveOfInput(WETH).raw)),
-              JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
-            ),
-            JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
-          )
-        )
-        : undefined
+
+  const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
+    if (!totalSupplyOfStakingToken0 || !totalSupplyOfStakingToken1 || !stakingTokenPair || !stakingInfo || !WETH ) return undefined
+    if(JSBI.equal(totalSupplyOfStakingToken0.raw, ZERO) && JSBI.equal(totalSupplyOfStakingToken1.raw, ZERO)) return undefined
+
+    return new TokenAmount(
+      WETH,
+      JSBI.divide(
+        JSBI.multiply(
+          JSBI.multiply(JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw), 
+                        JSBI.add(stakingTokenPair.reserveOfOutput(WETH).raw, stakingTokenPair.reserveOfInput(WETH).raw)),
+          JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
+        ),
+        JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
+      )
+    )
+  }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WETH, stakingInfo])
 
   const countUpAmount = stakingInfo?.earnedAmount?.toFixed(6) ?? '0'
   const countUpAmountPrevious = usePrevious(countUpAmount) ?? '0'

@@ -116,7 +116,8 @@ export default function CreatePairByNft() {
     const timeNftCreation: number = feswaPairBidInfo.pairBidInfo.timeCreated.toNumber()
     const timeNftLastBid: number = feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()
     const now = DateTime.now().toSeconds()
-    const timeNormalEnd = timeNftCreation + 3600 * 10                 // Normal: 3600 * 24 * 14
+//  const timeNormalEnd = timeNftCreation + 3600 * 10                 // Normal: 3600 * 24 * 14
+    const timeNormalEnd = timeNftCreation + 3600 * 24 * 14            // Normal: 3600 * 24 * 14
     
     function setButtonAndInputTitleID(buttonID: USER_BUTTON_ID, force?: boolean): USER_BUTTON_ID {
       return setBidButtonID(inputError, buttonID, force)
@@ -185,7 +186,8 @@ export default function CreatePairByNft() {
 
       if (timeNftCreation === 0) return ''
       const now = DateTime.now().toSeconds()
-      const timeNormalEnd = timeNftCreation + 3600 * 10       // Normal: 3600 * 24 * 14
+//    const timeNormalEnd = timeNftCreation + 3600 * 10       // Normal: 3600 * 24 * 14
+      const timeNormalEnd = timeNftCreation + 3600 * 24 *14   // Normal: 3600 * 24 * 14
 
       if(timeNftLastBid < (timeNormalEnd - 3600 * 2)){
         if(now > timeNormalEnd){

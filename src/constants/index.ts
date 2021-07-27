@@ -15,7 +15,10 @@ export const DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC
 export const USDC = new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD//C')
 export const USDT:  { [chainId: number]: Token }  = {
       [ChainId.MAINNET]:  new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
-      [ChainId.RINKEBY]:  new Token(ChainId.RINKEBY, '0xD9BA894E0097f8cC2BBc9D24D308b98e36dc6D02', 6, 'USDT', 'Tether USD')   
+      [ChainId.ROPSTEN]:  new Token(ChainId.ROPSTEN, '0x110a13FC3efE6A245B50102D2d79B3E76125Ae83', 6, 'USDT', 'Tether USD'),
+      [ChainId.RINKEBY]:  new Token(ChainId.RINKEBY, '0xD9BA894E0097f8cC2BBc9D24D308b98e36dc6D02', 6, 'USDT', 'Tether USD'),
+      [ChainId.GÖRLI]:  new Token(ChainId.GÖRLI, '0xC73253A937F829aF45f86abC0a5C540373645f88', 6, 'USDT', 'Tether USD'),
+      [ChainId.KOVAN]:  new Token(ChainId.KOVAN, '0x07de306FF27a2B630B1141956844eB1552B956B5', 6, 'USDT', 'Tether USD')   
     }
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
 export const MKR = new Token(ChainId.MAINNET, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 18, 'MKR', 'Maker')
@@ -33,19 +36,22 @@ export const PROPOSAL_LENGTH_IN_SECS = AVERAGE_BLOCK_TIME_IN_SECS * PROPOSAL_LEN
 export const GOVERNANCE_ADDRESS = '0x433adCE1695eBb2554232d32493C7498E1605DaD'
 export const TIMELOCK_ADDRESS   = '0x0F0C989960299460C461c9fC907e1D6195769B2d'
 //export const SPONSOR_ADDRESS  = '0x9b185eCEbff41B991FdA0A268fEc31454779d276'             // Test for dev on Goerli
-export const SPONSOR_ADDRESS    = '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234'
+export const SPONSOR_ADDRESS    = '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234'              // On test Chain
 
 //export const NFT_BID_ADDRESS  = '0xbc288BF91880bb849F004A1Dc4d783a435040d08'
 //export const NFT_BID_ADDRESS  = '0xef7cf61dad6a2cf7b402482ef574b5dd20ef2b5b'
 //export const NFT_BID_ADDRESS  = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'
 //export const NFT_BID_ADDRESS  = '0xa1fbe179e8791ab4fc0060b2b881577e68dcd6dd'            // Goerli
 //export const NFT_BID_ADDRESS  = '0x9bb53A4d89768fb9277eE83016F08Eff21DDd576'            // Rinkeby
-export const NFT_BID_ADDRESS    = '0x06C2De45973Df34DaB22AD0b767d2bE3eca5D178'
+export const NFT_BID_ADDRESS    = '0x06C2De45973Df34DaB22AD0b767d2bE3eca5D178'            // on test Chain
 
-export const FESW_FACTORY_ADDRESS  = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'        // Rinkeby
+//export const FESW_FACTORY_ADDRESS   = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'       // Rinkeby
+export const FESW_FACTORY_ADDRESS     = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
+
 //export const FESW_ROUTER_ADDRESS  = '0x09179ceebad6b676F6E6B0474907335be3E30D89'       // Rinkeby (2021/06/14)
 //export const FESW_ROUTER_ADDRESS  = '0x6E923637948657BB1b5610C81b9C6a44bBa63297'       // Rinkeby (2021/06/26)
-export const FESW_ROUTER_ADDRESS  = '0x34D3fB8402c2c666bEcC16363520dC28F810e4FF'         // Rinkeby (2021/06/27)
+//export const FESW_ROUTER_ADDRESS  = '0x34D3fB8402c2c666bEcC16363520dC28F810e4FF'       // Rinkeby (2021/06/27)
+export const FESW_ROUTER_ADDRESS    = '0x657db4e8c4258570cc7dd61031777901439e8079'       // on test Chain
 
 //const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                     // Test for dev
 //const FESW_TEST_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                // Test for dev

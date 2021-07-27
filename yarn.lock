@@ -2013,22 +2013,22 @@
     "@ethersproject/properties" "^5.1.0"
     "@ethersproject/strings" "^5.1.0"
 
-"@feswap/core@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.1.0.tgz#d8c23c352c709993bcecdd7b22d3e3e7cac53861"
-  integrity sha512-YI209QPiZfqHhXUqXUQIN/0b2dcQhFVNqQBbj+bcBO9btkWoN/J+jSk9SwYCVJ7AAYJA+kXnRcWjUA3ftL0DXA==
+"@feswap/core@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.2.1.tgz#1e59bfd10de5cf3b7d2bb36fd7751c1d2338380b"
+  integrity sha512-YTvdq8szti+epnoT2Dv+viQ41KE2AfmeQTRkRBp9wbJblCf+fSbI4ZUXOuRJuiwCsWhnybQWDPyzPlpQnPvKIw==
 
-"@feswap/governance@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@feswap/governance/-/governance-1.1.0.tgz#8f9adea5f157eca776a1e6afc49278bf13c4ad43"
-  integrity sha512-OIniT0cSwfy7B1mrqxosHShqqYRj+4uw2muPGj1UR81QRYR4sNM/+ScRDtusOcfUOlVdSa9QKubBI/Rh3ttg3g==
+"@feswap/governance@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@feswap/governance/-/governance-1.1.2.tgz#c0a5d3885073079a1a872448a661dc062290e78c"
+  integrity sha512-PIEK8uGrtx//E8m3pjXnwsv7b8k/Pf18/i9I7JM4QG2xamInNXcmpiQrFvcKBDPp+hVJHTS1/ACH2xHOpFglpA==
 
-"@feswap/sdk@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.4.0.tgz#2d9c8284b576924dfc3d4d97d7527360a2669e0c"
-  integrity sha512-lza3OHkNjvYa2SNEmNwPdX5Y7mKSoADhvFqy4Vb57nc4aWU7BEVYmWr6BgZ2NP0IKxQt/FMX6O/eodXV3/QbqQ==
+"@feswap/sdk@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.5.1.tgz#8693c7b7de405895500a360299e9643d7423201b"
+  integrity sha512-uoJAnmqEgFSnzo6fmc8CxQgsgd0NlYHGKcTsUwsTYlRXjisW9Cj0LPZBGIyO3gpANOKmRuYB86kioq4/2RH2tA==
   dependencies:
-    "@feswap/core" "^1.1.0"
+    "@feswap/core" "^1.2.1"
     big.js "^5.2.2"
     decimal.js-light "^2.5.0"
     jsbi "^3.1.1"

@@ -40,16 +40,16 @@ export function ConfirmAddModalBottom({
         </RowFixed>
       </RowBetween>
       <RowBetween>
-        <TYPE.body>Mean Rates: </TYPE.body>
+        <TYPE.body>Mean Token Rates: </TYPE.body>
         <TYPE.body>
-          {`1 ${currencies[Field.CURRENCY_A]?.symbol} = ${price?.toSignificant(4)} ${
+          {`1 ${currencies[Field.CURRENCY_A]?.symbol} = ${price?.toSignificant(5)} ${
             currencies[Field.CURRENCY_B]?.symbol
           }`}
         </TYPE.body>
       </RowBetween>
       <RowBetween style={{ justifyContent: 'flex-end' }}>
         <TYPE.body>
-          {`1 ${currencies[Field.CURRENCY_B]?.symbol} = ${price?.invert().toSignificant(4)} ${
+          {`1 ${currencies[Field.CURRENCY_B]?.symbol} = ${price?.invert().toSignificant(5)} ${
             currencies[Field.CURRENCY_A]?.symbol
           }`}
         </TYPE.body>

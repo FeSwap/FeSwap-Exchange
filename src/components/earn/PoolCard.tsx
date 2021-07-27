@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { RowBetween } from '../Row'
 import styled from 'styled-components'
 import { TYPE, StyledInternalLink } from '../../theme'
@@ -9,13 +9,14 @@ import { StakingInfo } from '../../state/stake/hooks'
 import { useColor } from '../../hooks/useColor'
 import { currencyId } from '../../utils/currencyId'
 import { CardNoise, StyledPositionCard } from './styled'
-import { unwrappedToken } from '../../utils/wrappedCurrency'
+//import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { ZERO } from '../../utils'
 import { SeparatorBlack } from '../SearchModal/styleds'
+import { useCurrencyFromToken } from '../../hooks/Tokens'
 
 const StatContainer = styled.div`
   display: flex;
@@ -57,8 +58,11 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const token0 = stakingInfo.tokens[0]
   const token1 = stakingInfo.tokens[1]
 
-  const currency0 = unwrappedToken(token0)
-  const currency1 = unwrappedToken(token1)
+//  const currency0 = unwrappedToken(token0)
+//  const currency1 = unwrappedToken(token1)
+
+  const currency0 = useCurrencyFromToken(token0)??undefined
+  const currency1 = useCurrencyFromToken(token1)??undefined
 
   const stakedAmountAll: JSBI = JSBI.add(stakingInfo.stakedAmount[0].raw, stakingInfo.stakedAmount[1].raw)
   const isStaking = JSBI.greaterThan(stakedAmountAll, ZERO)
@@ -75,10 +79,11 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const [, stakingTokenPair] = usePair(...stakingInfo.tokens)
 
   // let returnOverMonth: Percent = new Percent('0')
-  let valueOfTotalStakedAmountInWETH: TokenAmount | undefined
-  if (totalSupplyOfStakingToken0 && totalSupplyOfStakingToken1 && stakingTokenPair) {
-    // take the total amount of LP tokens staked, multiply by ETH value of all LP tokens, divide by all LP tokens
-    valueOfTotalStakedAmountInWETH = new TokenAmount(
+  const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
+    if (!totalSupplyOfStakingToken0 || !totalSupplyOfStakingToken1 || !stakingTokenPair) return undefined
+    if(JSBI.equal(totalSupplyOfStakingToken0.raw, ZERO) && JSBI.equal(totalSupplyOfStakingToken1.raw, ZERO)) return undefined
+
+    return new TokenAmount(
       WETH,
       JSBI.divide(
         JSBI.multiply(
@@ -89,11 +94,11 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
         JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
       )
     )
-  }
+  }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WETH, stakingInfo])
 
   // get the USD value of staked WETH
   const USDTPrice = useUSDTPrice(WETH)
-  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
+  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH ? USDTPrice?.quote(valueOfTotalStakedAmountInWETH) : undefined
 
   return (
       <StyledPositionCard bgColor={backgroundColor}>
@@ -101,11 +106,11 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
         <TopSection>
           <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
           <TYPE.black fontWeight={600} fontSize={24} style={{ marginLeft: '8px' }}>
-            {currency0.symbol}🔗{currency1.symbol}
+            {currency0?.symbol}🔗{currency1?.symbol}
           </TYPE.black>
-          <StyledInternalLink to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`} style={{ width: '100%' }}>
+          <StyledInternalLink to={`/fesw/${currencyId(token0)}/${currencyId(token1)}`} style={{ width: '100%' }}>
             <ButtonPrimary padding="8px" borderRadius="8px">
-              {isStaking ? 'Manage' : 'Deposit'}
+              {isStaking ? 'Manage' : 'Mine'}
             </ButtonPrimary>
           </StyledInternalLink>
         </TopSection>

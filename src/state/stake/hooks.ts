@@ -8,9 +8,9 @@ import { tryParseAmount } from '../swap/hooks'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import { ZERO_ADDRESS } from '../../constants'
 
-export const STAKING_GENESIS = 1600387200
+export const STAKING_GENESIS = 1627318800     // 1600387200
 
-export const REWARDS_DURATION_DAYS = 60
+export const REWARDS_DURATION_DAYS = 122      // 60
 
 // TODO add staking rewards addresses here
 export const STAKING_REWARDS_INFO: {
@@ -33,18 +33,60 @@ export const STAKING_REWARDS_INFO: {
       stakingRewardAddress: '0x25C46Cb81C3B0f6eDa66F72223A859CCB09520FA'
     }
   ],
+  [ChainId.ROPSTEN]: [
+    //    {
+    //      tokens: [WETH[ChainId.RINKEBY], USDT[ChainId.RINKEBY]],
+    //      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
+    //    },
+    //    {
+    //      tokens: [WETH[ChainId.RINKEBY], WBTC[ChainId.RINKEBY]],
+    //      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
+    //    },
+        {
+          tokens: [WETH[ChainId.ROPSTEN], FESW[ChainId.ROPSTEN]],
+          stakingRewardAddress: '0xC6e82Ec5B319bbBC8ad63F94873c8E9fD9B1EfDf'
+        }
+  ],
+  [ChainId.KOVAN]: [
+    //    {
+    //      tokens: [WETH[ChainId.RINKEBY], USDT[ChainId.RINKEBY]],
+    //      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
+    //    },
+    //    {
+    //      tokens: [WETH[ChainId.RINKEBY], WBTC[ChainId.RINKEBY]],
+    //      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
+    //    },
+        {
+          tokens: [WETH[ChainId.KOVAN], FESW[ChainId.KOVAN]],
+          stakingRewardAddress: '0xC6e82Ec5B319bbBC8ad63F94873c8E9fD9B1EfDf'
+        }
+  ],  
   [ChainId.RINKEBY]: [
-    {
-      tokens: [WETH[ChainId.RINKEBY], USDT[ChainId.RINKEBY]],
-      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
-    },
-    {
-      tokens: [WETH[ChainId.RINKEBY], WBTC[ChainId.RINKEBY]],
-      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
-    },
+//    {
+//      tokens: [WETH[ChainId.RINKEBY], USDT[ChainId.RINKEBY]],
+//      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
+//   },
+//    {
+//      tokens: [WETH[ChainId.RINKEBY], WBTC[ChainId.RINKEBY]],
+//      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
+//    },
     {
       tokens: [WETH[ChainId.RINKEBY], FESW[ChainId.RINKEBY]],
-      stakingRewardAddress: '0x25C46Cb81C3B0f6eDa66F72223A859CCB09520FA'
+      stakingRewardAddress: '0xC6e82Ec5B319bbBC8ad63F94873c8E9fD9B1EfDf'
+    }
+  ],
+  [ChainId.GÖRLI]: [
+//    {
+//      tokens: [WETH[ChainId.RINKEBY], USDT[ChainId.RINKEBY]],
+//      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
+//    },
+//    {
+//      tokens: [WETH[ChainId.RINKEBY], WBTC[ChainId.RINKEBY]],
+//      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
+//    },
+    {
+      tokens: [WETH[ChainId.GÖRLI], FESW[ChainId.GÖRLI]],
+      stakingRewardAddress: '0xC6e82Ec5B319bbBC8ad63F94873c8E9fD9B1EfDf'
     }
   ]
 }

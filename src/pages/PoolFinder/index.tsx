@@ -22,7 +22,7 @@ import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
-import {StyledPageCard, CardNoise} from '../../components/earn/styled'
+import {StyledPageCard } from '../../components/earn/styled'
 
 enum Fields {
   TOKEN0 = 0,
@@ -87,10 +87,10 @@ export default function PoolFinder() {
     </TransparentCard>
   )
 
+//  <CardNoise />
   return (
     <AppBody>
       <StyledPageCard bgColor={'red'}>
-      <CardNoise />
       <FindPoolTabs />
       <Wrapper>
         <AutoColumn gap="md">

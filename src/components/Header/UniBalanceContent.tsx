@@ -15,7 +15,8 @@ import { computeUniCirculation } from '../../utils/computeUniCirculation'
 import useUSDCPrice from '../../utils/useUSDCPrice'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
-import { Break, CardSection, DataCard } from '../earn/styled'
+import { CardSection, DataCard, CardNoise } from '../earn/styled'
+import { SeparatorBBlack } from '../../components/SearchModal/styleds'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -62,62 +63,64 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
   return (
     <ContentWrapper gap="lg">
       <ModalUpper>
+      <CardNoise />
         <CardSection gap="md">
           <RowBetween>
-            <TYPE.white color="white">Your FESW Breakdown</TYPE.white>
-            <StyledClose stroke="white" onClick={() => setShowUniBalanceModal(false)} />
+            <TYPE.black color="black">Your FESW Breakdown</TYPE.black>
+            <StyledClose stroke="black" onClick={() => setShowUniBalanceModal(false)} />
           </RowBetween>
         </CardSection>
-        <Break />
+        <SeparatorBBlack />
         {account && (
           <>
             <CardSection gap="sm">
               <AutoColumn gap="md" justify="center">
                 <UniTokenAnimated width="48px" src={tokenLogo} />{' '}
-                <TYPE.white fontSize={48} fontWeight={600} color="white">
+                <TYPE.black fontSize={48} fontWeight={600} color="black">
                   {total?.toFixed(2, { groupSeparator: ',' })}
-                </TYPE.white>
+                </TYPE.black>
               </AutoColumn>
               <AutoColumn gap="md">
                 <RowBetween>
-                  <TYPE.white color="white">Balance:</TYPE.white>
-                  <TYPE.white color="white">{feswBalance?.toFixed(2, { groupSeparator: ',' })}</TYPE.white>
+                  <TYPE.black color="black">Balance:</TYPE.black>
+                  <TYPE.black color="black">{feswBalance?.toFixed(2, { groupSeparator: ',' })}</TYPE.black>
                 </RowBetween>
                 <RowBetween>
-                  <TYPE.white color="white">Unclaimed:</TYPE.white>
-                  <TYPE.white color="white">
+                  <TYPE.black color="black">Unclaimed:</TYPE.black>
+                  <TYPE.black color="black">
                     {feswToClaim?.toFixed(4, { groupSeparator: ',' })}{' '}
                     {feswToClaim && feswToClaim.greaterThan('0') && (
                       <StyledInternalLink onClick={() => setShowUniBalanceModal(false)} to="/fesw">
                         (claim)
                       </StyledInternalLink>
                     )}
-                  </TYPE.white>
+                  </TYPE.black>
                 </RowBetween>
               </AutoColumn>
             </CardSection>
-            <Break />
+            <SeparatorBBlack />
           </>
         )}
         <CardSection gap="sm">
           <AutoColumn gap="md">
             <RowBetween>
-              <TYPE.white color="white">FESW price:</TYPE.white>
-              <TYPE.white color="white">${feswPrice?.toFixed(2) ?? '-'}</TYPE.white>
+              <TYPE.black color="black">FESW price:</TYPE.black>
+              <TYPE.black color="black">${feswPrice?.toFixed(2) ?? '-'}</TYPE.black>
             </RowBetween>
             <RowBetween>
-              <TYPE.white color="white">FESW in circulation:</TYPE.white>
-              <TYPE.white color="white">{circulation?.toFixed(0, { groupSeparator: ',' })}</TYPE.white>
+              <TYPE.black color="black">FESW in circulation:</TYPE.black>
+              <TYPE.black color="black">{circulation?.toFixed(0, { groupSeparator: ',' })}</TYPE.black>
             </RowBetween>
             <RowBetween>
-              <TYPE.white color="white">Total Supply</TYPE.white>
-              <TYPE.white color="white">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.white>
+              <TYPE.black color="black">Total Supply</TYPE.black>
+              <TYPE.black color="black">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.black>
             </RowBetween>
             {fesw && fesw.chainId === ChainId.MAINNET ? (
               <ExternalLink href={`https://info.feswap.io/token/${fesw.address}`}>View FESW Analytics</ExternalLink>
             ) : null}
           </AutoColumn>
         </CardSection>
+        <CardNoise />
       </ModalUpper>
     </ContentWrapper>
   )

@@ -2,9 +2,9 @@ import { JSBI, Token, TokenAmount } from '@feswap/sdk'
 import { BigNumber } from 'ethers'
 import { STAKING_GENESIS } from '../state/stake/hooks'
 
-const STAKING_END = STAKING_GENESIS + 60 * 60 * 24 * 60
+const STAKING_END = STAKING_GENESIS + 60 * 60 * 24 * 122
 
-const TREASURY_VESTING_GENESIS = 1600387200
+const TREASURY_VESTING_GENESIS = 1627318800       // 1600387200
 
 // 30 days
 const TREASURY_VESTING_CLIFF: number = 60 * 60 * 24 * 30

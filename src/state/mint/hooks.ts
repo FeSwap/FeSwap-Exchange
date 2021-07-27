@@ -77,10 +77,6 @@ export function useDerivedMintInfo(
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, currencies[independentField])
   const wrappedIndependentAmount = wrappedCurrencyAmount(independentAmount, chainId)
-  const meanPrice = useMemo(() => {
-          if ( !tokenA || !pair) return undefined
-          return pair.priceOfMean(tokenA)
-        }, [ tokenA, pair])
   
   const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
     if (noLiquidity) {
@@ -129,6 +125,18 @@ export function useDerivedMintInfo(
       }
     }
   }, [noLiquidity, pair, tokenA, tokenB, currencyAAmount, currencyBAmount])
+
+  const meanPrice = useMemo(() => {
+    if ( !tokenA || !pair) return undefined
+
+    if (noLiquidity) {
+      if (currencyAAmount && currencyBAmount) {
+          return new Price(currencyAAmount.currency, currencyBAmount.currency, currencyAAmount.raw, currencyBAmount.raw)
+      }
+      return undefined
+    }
+    return pair.priceOfMean(tokenA)
+  }, [ tokenA, pair, noLiquidity, currencyAAmount, currencyBAmount])
 
   // liquidity minted
   const liquidityMinted = useMemo(() => {
