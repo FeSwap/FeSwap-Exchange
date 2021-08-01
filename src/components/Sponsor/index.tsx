@@ -1,5 +1,3 @@
-
-//import { transparentize } from 'polished'
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
 
@@ -10,14 +8,6 @@ import { AutoRow, RowBetween } from '../Row'
 import { AutoColumn } from '../Column'
 import { Award, CheckSquare, XSquare } from 'react-feather'
 import { ButtonError } from '../Button'
-
-/*
-const Wrapper = styled.div<{ error: boolean }>`
-  background: ${({ theme }) => transparentize(0.6, theme.bg3)};
-  padding: 0.75rem;
-  border-radius: 20px;
-`
-*/
 
 const WarningContainer = styled.div`
   max-width: 480px;

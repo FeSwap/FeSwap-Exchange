@@ -234,16 +234,9 @@ body {
   background-image: linear-gradient(rgba(0,192,239,0.3), rgba(250,234,229,0.3));
 }
 `
+
 //body {
 //  min-height: 100vh;
-//  background-position: 0 -30vh;
-//  background-repeat: no-repeat;
-//  background-image: ${({ theme }) =>
-//    `radial-gradient(50% 50% at 50% 50%, ${transparentize(0.9, theme.primary1)} 0%, ${transparentize(
-//      1,
-//      theme.bg1
-//    )} 100%)`};
-//background-color:rgba(0,189,212,0.1);
-//background-color:rgba(191,71,34,0.5);
-//background-color:rgba(0,0,32,0.1);
-//background-image: linear-gradient(rgba(0,192,239,0.3), rgba(250,234,229,0.3));
+//  background-image: linear-gradient(rgba(0,192,239,0.3), rgba(250,234,229,0.3));
+// background-image: linear-gradient(rgba(255,255,255,1), rgba(255,255,255,1));
+

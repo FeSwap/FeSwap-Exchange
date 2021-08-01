@@ -156,6 +156,10 @@ export function useDerivedSponsorInfo(): {
     inputError = inputError ?? 'Enter an amount'
   }
 
+  if(!feswGiveRate) {
+    inputError = inputError ?? 'Sponsor Not Started'
+  }
+
   const formattedTo = isAddress(to)
   if (!to || !formattedTo) {
     inputError = inputError ?? 'Enter a recipient'

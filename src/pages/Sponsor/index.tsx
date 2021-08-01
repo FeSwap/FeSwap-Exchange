@@ -305,7 +305,7 @@ export default function Sponsor() {
                     ? 'NOT Sponsor'
                     : SponsorInputError
                       ? SponsorInputError
-                      : `Sponosor${isHighValueSponsor ? ' Anyway' : ''}`}
+                      : `Sponsor${isHighValueSponsor ? ' Anyway' : ''}`}
                 </Text>
               </ButtonError>
               </AutoColumn>              

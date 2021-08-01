@@ -25,6 +25,7 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import Row, { RowBetween, RowFixed, AutoRow } from '../Row'
 import { Dots } from '../swap/styleds'
 import { BIG_INT_ZERO } from '../../constants'
+import { useCurrencyFromToken } from '../../hooks/Tokens'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 28px;
@@ -253,8 +254,12 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
 export default function FullPositionCard({ pair, border, stakedBalance0, stakedBalance1 }: PositionCardProps) {
   const { account } = useActiveWeb3React()
 
-  const currency0 = unwrappedToken(pair.token0)
-  const currency1 = unwrappedToken(pair.token1)
+//  const currency0 = unwrappedToken(pair.token0)
+//  const currency1 = unwrappedToken(pair.token1)
+
+  const currency0 = useCurrencyFromToken(pair.token0)??undefined
+  const currency1 = useCurrencyFromToken(pair.token1)??undefined
+
   const [showMore, setShowMore] = useState(false)
 
   const [stakedBalance0Inline, stakedBalance1Inline] = useMemo(() => {
@@ -384,10 +389,10 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                     My Share
                   </TextWrapper>
                   <TextWrapper>
-                    My {currency0.symbol}
+                    My {currency0?.symbol}
                   </TextWrapper>
                   <TextWrapper>
-                    My {currency1.symbol}
+                    My {currency1?.symbol}
                   </TextWrapper>
                 </ColumnLeft>
               </Row>
@@ -396,7 +401,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <RowFixed>
                     <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={false} size={16} />
                     <TextWrapper>
-                      <strong>{currency0.symbol}/{currency1.symbol}</strong>
+                      <strong>{currency0?.symbol}/{currency1?.symbol}</strong>
                     </TextWrapper>
                   </RowFixed>
                   <TextWrapper>
@@ -434,7 +439,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <RowFixed>
                     <DoubleCurrencyLogo currency0={currency1} currency1={currency0} margin={false} size={16} />
                     <TextWrapper>
-                      <strong>{currency1.symbol}/{currency0.symbol}</strong>
+                      <strong>{currency1?.symbol}/{currency0?.symbol}</strong>
                     </TextWrapper>
                   </RowFixed>
                   <TextWrapper>

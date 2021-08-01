@@ -68,7 +68,7 @@ export default function SponsorModalFooter({
           error = {highSponsor}
         >
           <Text fontSize={20} fontWeight={500}>
-            {'Confirm Sponosr'}
+            {'Confirm Sponsor'}
           </Text>
         </ButtonError>
         {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}

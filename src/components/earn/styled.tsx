@@ -107,6 +107,15 @@ export const StyledPageCard = styled(PageCard)<{ bgColor: any }>`
   overflow: hidden;
 `
 
+//export const StyledPageCard = styled(PageCard)<{ bgColor: any }>`
+//  border: none;
+//  background: ${({ theme, bgColor }) =>
+//    `radial-gradient(80% 100% at 10% 0%, ${transparentize(0.8, bgColor)} 20%, ${'#eaeafb'} 80%) `};
+//  position: relative;
+//  overflow: hidden;
+//`
+
+
 const StyledBalanceText = styled(Text)`
   white-space: nowrap;
   overflow: hidden;
