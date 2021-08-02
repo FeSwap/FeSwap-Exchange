@@ -325,7 +325,7 @@ export default function Header() {
             Sponsor<span style={{color:'red'}}><sup>❤</sup></span>
           </StyledNavLink>
           <StyledExternalLink id={`stake-nav-link`} href={'https://www.feswap.io/docs'}>
-            Charts <span style={{ fontSize: '11px' }}>↗</span>
+            Docs <span style={{ fontSize: '11px' }}>↗</span>
           </StyledExternalLink>	  
         </HeaderLinks>
       </HeaderRow>
