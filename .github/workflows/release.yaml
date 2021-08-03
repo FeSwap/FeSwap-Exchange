@@ -63,9 +63,9 @@ jobs:
       - name: Update DNS with new IPFS hash
         env:
           CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
-          RECORD_DOMAIN: 'yeswap.io'
+          RECORD_DOMAIN: 'feswap.io'
           RECORD_NAME: '_dnslink.ipfs'
-          CLOUDFLARE_ZONE_ID: ${{ secrets.YESWAP_ZONE_ID }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.FESWAP_ZONE_ID }}
         uses: textileio/cloudflare-update-dnslink@0fe7b7a1ffc865db3a4da9773f0f987447ad5848
         with:
           cid: ${{ steps.upload.outputs.hash }}
