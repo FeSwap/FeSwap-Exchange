@@ -535,7 +535,7 @@ export default function Nft({
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
                 <div></div>
                 <LinkStyledButton id="add-recipient-button" onClick={() => onChangeNftRecipient('')}>
-                  + Add a send (optional)
+                  + Add a receiver (optional)
                 </LinkStyledButton>
               </AutoRow>
             )}
@@ -547,7 +547,7 @@ export default function Nft({
                     High-Value NFT Bid:
                   </Text>
                   <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeNftRecipient(null)}>
-                    - Remove send
+                    - Remove receiver
                   </LinkStyledButton>
                 </AutoRow>
                 <AddressInputPanel id="recipient" value={recipient} onChange={onChangeNftRecipient} />
@@ -582,45 +582,45 @@ export default function Nft({
                   { (nftStatus === NFT_BID_PHASE.BidToStart) && (
                     <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
                       You will be the first bidder <br />
-                      Minimum Bid price: <strong> 0.2 ETH </strong>
+                      Minimum Bid Price: <strong> 0.2 ETH </strong>
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidPhase) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Current price: <strong> {nftBidPriceString} ETH </strong>  <br />
+                      Current Price: <strong> {nftBidPriceString} ETH </strong>  <br />
                       Last Bid Time: <strong> {nftLastBidTime} </strong>  <br />
                       { nftBidEndingTime.startsWith('Ended')
                         ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> </span>
                         : <span>  Bid Ending Time: <strong> {nftBidEndingTime} </strong>  <br /> 
-                                  Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong> </span> 
+                                  Minimum Bid Price: <strong> {newNftBidPriceString} ETH </strong> </span> 
                       }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidDelaying) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Current price: <strong> {nftBidPriceString} ETH </strong> <br />
+                      Current Price: <strong> {nftBidPriceString} ETH </strong> <br />
                       Last Bid Time: <strong>{nftLastBidTime}</strong>  <br />
                       { nftBidEndingTime.startsWith('Extra')
                         ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> <br /> </span>
                         : <span>  Bid Extra Ending Time: <strong> {nftBidEndingTime} </strong> <br /> 
-                                  Minimum Bid price: <strong> {newNftBidPriceString} ETH </strong> </span>
+                                  Minimum Bid Price: <strong> {newNftBidPriceString} ETH </strong> </span>
                       }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidSettled) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
                       { (feswaPairBidInfo.ownerPairNft === account) 
-                        ? <span>  Your NFT bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                        ? <span>  Your NFT Bid Price: <strong> {nftBidPriceString} ETH </strong> <br />
                                   Cherish this NFT which brings <strong> WEALTH </strong><br />
                                   You also could list it <strong> FOR SALE </strong> </span> 
-                        : <span>  Final bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                        : <span>  Final Bid Price: <strong> {nftBidPriceString} ETH </strong> <br />
                                   Bid Time Window is <strong>CLOSED</strong> </span> 
                       }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.PoolHolding) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Final bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                      Final Bid Price: <strong> {nftBidPriceString} ETH </strong> <br />
                       { (feswaPairBidInfo.ownerPairNft === account) 
                         ? <span>  You could hold it , or sell it at specified price </span> 
                         : <span>  The owner is holding </span> 
@@ -630,7 +630,7 @@ export default function Nft({
                   { (nftStatus === NFT_BID_PHASE.PoolForSale) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
                       This token-pair NFT is for sale <br/> 
-                      Current NFT sale price: <strong> {nftBidPriceString} ETH </strong> <br/>
+                      Current NFT Sale Price: <strong> {nftBidPriceString} ETH </strong> <br/>
                       { (feswaPairBidInfo.ownerPairNft === account) 
                         ? <span>  You could set new sale price or just close the sale </span> 
                         : <span>  You could buy it for holding and profit yielding </span> 

@@ -120,7 +120,7 @@ function ifBidEnded( pairBidInfo: PairBidInfo ): NFT_BID_GOING {
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidToStart)  return NFT_BID_GOING.ONGING
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidPhase){
       if(now >= timeNormalEnd) return NFT_BID_GOING.ENDED  
-      if(now >= timeNftCreation + 3600 *8) return NFT_BID_GOING.VERYSOON  
+      if(now >= (timeNormalEnd - 3600 * 2)) return NFT_BID_GOING.VERYSOON  
       return NFT_BID_GOING.ONGING
   }      
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidDelaying) return (now >= (timeNftLastBid + 3600 * 2)) 

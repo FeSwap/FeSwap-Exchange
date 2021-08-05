@@ -429,12 +429,12 @@ export default function CreatePairByNft() {
                   { (nftStatus === NFT_BID_PHASE.BidToStart) && (
                     <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
                       You will be the first bidder <br />
-                      Minimum Bid price: <strong> 0.2 ETH </strong>
+                      Minimum Bid Price: <strong> 0.2 ETH </strong>
                     </TYPE.italic>
                   )}
                   { ((nftStatus === NFT_BID_PHASE.BidPhase) || (nftStatus === NFT_BID_PHASE.BidDelaying)) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Current price: <strong> {nftBidPriceString} ETH </strong>  <br />
+                      Current Price: <strong> {nftBidPriceString} ETH </strong>  <br />
                       Last Bid Time: <strong> {nftLastBidTime} </strong>  <br />
                       { nftBidEndingTime.startsWith('Ended')
                         ? (feswaPairBidInfo.ownerPairNft === account)
@@ -449,16 +449,16 @@ export default function CreatePairByNft() {
                   { (nftStatus === NFT_BID_PHASE.BidSettled) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
                       { (feswaPairBidInfo.ownerPairNft === account) 
-                        ? <span>  Your NFT bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                        ? <span>  Your NFT Bid price: <strong> {nftBidPriceString} ETH </strong> <br />
                                   Cherish this NFT which brings <strong> WEALTH </strong></span> 
-                        : <span>  Final bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                        : <span>  Final Bid price: <strong> {nftBidPriceString} ETH </strong> <br />
                                   Bid Time Window is <strong>CLOSED</strong> </span> 
                       }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.PoolHolding) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
-                      Final bid price: <strong> {nftBidPriceString} ETH </strong> <br />
+                      Final Bid price: <strong> {nftBidPriceString} ETH </strong> <br />
                       { (feswaPairBidInfo.ownerPairNft === account) 
                         ? <span>  Cherish this NFT which brings <strong> WEALTH </strong> </span> 
                         : <span>  The owner is holding </span> 
@@ -468,7 +468,7 @@ export default function CreatePairByNft() {
                   { (nftStatus === NFT_BID_PHASE.PoolForSale) && (
                     <TYPE.italic textAlign="center" fontSize={14} style={{ width: '100%' }}>
                       This token-pair NFT is for sale <br/> 
-                      Current NFT sale price: <strong> {nftBidPriceString} ETH </strong> <br/>
+                      Current NFT Sale Price: <strong> {nftBidPriceString} ETH </strong> <br/>
                       { (feswaPairBidInfo.ownerPairNft === account) 
                         ? <span>  You could keep it for sale </span> 
                         : <span>  You could buy it for holding </span> 

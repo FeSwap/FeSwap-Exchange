@@ -214,7 +214,7 @@ export default function Sponsor() {
                 </ArrowWrapper>
                 {recipient === null && isExpertMode ? (
                   <LinkStyledButton id="add-recipient-button" onClick={() => onChangeSponsorRecipient('')}>
-                    + Add a send (optional)
+                    + Add a receiver (optional)
                   </LinkStyledButton>
                 ) : null}
               </AutoRow>
@@ -237,7 +237,7 @@ export default function Sponsor() {
                     <ArrowDown size="16" color={theme.primary1} />
                   </ArrowWrapper>
                   <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeSponsorRecipient(null)}>
-                    - Remove send
+                    - Remove receiver
                   </LinkStyledButton>
                 </AutoRow>
                 <AddressInputPanel id="recipient" value={recipient} onChange={onChangeSponsorRecipient} />
