@@ -201,6 +201,8 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   }
 }
 
+// href: 'https://go.cb-w.com/mtUDhEZPy1',
+
 export const NetworkContextName = 'NETWORK'
 
 // default allowed slippage, in bips

@@ -20,7 +20,9 @@ import { BlueCard } from '../Card'
 import Settings from '../Settings'
 import Menu from '../Menu'
 
-import Row, { RowFixed } from '../Row'
+//import Row, { RowFixed } from '../Row'
+import Row from '../Row'
+
 import Web3Status from '../Web3Status'
 import ClaimModal from '../claim/ClaimModal'
 import { useToggleSelfClaimModal, useShowClaimPopup } from '../../state/application/hooks'
@@ -30,10 +32,11 @@ import { Dots } from '../swap/styleds'
 import Modal from '../Modal'
 import UniBalanceContent from './UniBalanceContent'
 import usePrevious from '../../hooks/usePrevious'
+//import { Menu as MenuIcon } from 'react-feather'
 
 const HeaderFrame = styled.div`
   display: grid;
-  grid-template-columns: 1fr 120px;
+  grid-template-columns: 48px 1fr 120px;
   align-items: center;
   justify-content: space-between;
   align-items: center;
@@ -44,16 +47,25 @@ const HeaderFrame = styled.div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem 1.5rem; 
   z-index: 2;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    grid-template-columns: 48px 1fr 1fr;
+  `};
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr;
-    padding: 0 1rem;
-    width: calc(100%);
-    position: relative;
+    padding:  1rem;
+    grid-template-columns: 48px 1fr;
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding:  1rem;
+    grid-template-columns: 36px 1fr;
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        padding: 0.5rem 1rem;
-  `}
+    padding: 0.5rem 1rem;
+  `};
+
 `
 
 const HeaderControls = styled.div`
@@ -68,14 +80,13 @@ const HeaderControls = styled.div`
     justify-self: center;
     width: 100%;
     max-width: 960px;
-    padding: 1rem;
+    padding: 0.5rem;
     position: fixed;
     bottom: 0px;
     left: 0px;
     width: 100%;
     z-index: 99;
-    height: 72px;
-    border-radius: 12px 12px 0 0;
+    height: 48px;
     background-color: ${({ theme }) => theme.bg1};
   `};
 `
@@ -96,18 +107,9 @@ const HeaderElementWrap = styled.div`
   align-items: center;
 `
 
-const HeaderRow = styled(RowFixed)`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-   width: 100%;
-  `};
-`
 
 const HeaderLinks = styled(Row)`
-  justify-content: center;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1rem 0 1rem 1rem;
-    justify-content: flex-end;
-`};
+  justify-content: left;
 `
 
 const AccountElement = styled.div<{ active: boolean }>`
@@ -154,6 +156,18 @@ const HideSmall = styled.span`
     display: none;
   `};
 `
+
+/*
+const HideMenuLarge = styled.span`
+  display: none;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    display: inherit;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: inherit;
+  `};
+`
+*/
 
 const NetworkCard = styled(BlueCard)`
   border-radius: 8px;
@@ -222,6 +236,17 @@ const StyledNavLink = styled(NavLink).attrs({
   :focus {
     color: ${({ theme }) => theme.navlink};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 1.0rem;
+    margin: 0 3px;
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 1.0rem;
+    margin: 0 3px;
+  `};
+  
 `
 
 const StyledExternalLink = styled(ExternalLink).attrs({
@@ -249,10 +274,17 @@ const StyledExternalLink = styled(ExternalLink).attrs({
   :focus {
     color: ${({ theme }) => darken(0.1, theme.text1)};
   }
+  
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 1.0rem;
+    margin: 0 3px;
+  `};
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      display: none;
-`}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 1.0rem;
+    margin: 0 3px;
+  `};
+
 `
 
 export const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
@@ -289,46 +321,44 @@ export default function Header() {
       <Modal isOpen={showUniBalanceModal} onDismiss={() => setShowUniBalanceModal(false)}>
         <UniBalanceContent setShowUniBalanceModal={setShowUniBalanceModal} />
       </Modal>
-      <HeaderRow>
         <Title href=".">
           <UniIcon>
             <img width={'24px'} src={isDark ? LogoDark : Logo} alt="logo" />
           </UniIcon>
         </Title>
         <HeaderLinks>
-          <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
-            FeSwap
-          </StyledNavLink>
-          <StyledNavLink
-            id={`pool-nav-link`}
-            to={'/liquidity'}
-            isActive={(match, { pathname }) =>
-              Boolean(match) ||
-              pathname.startsWith('/add') ||
-              pathname.startsWith('/remove') ||
-              pathname.startsWith('/create') ||
-              pathname.startsWith('/find')
-            }
-          >
-            Liquidity
-          </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/fesw'}>
-            Mining
-          </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/nft'}>
-            NFT
-          </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
-            DAO
-          </StyledNavLink>
-          <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
-            Sponsor<span style={{color:'red'}}><sup>❤</sup></span>
-          </StyledNavLink>
-          <StyledExternalLink id={`stake-nav-link`} href={'https://www.feswap.io/docs'}>
-            Docs <span style={{ fontSize: '11px' }}>↗</span>
-          </StyledExternalLink>	  
+              <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
+                FeSwap
+              </StyledNavLink>
+              <StyledNavLink
+                id={`pool-nav-link`}
+                to={'/liquidity'}
+                isActive={(match, { pathname }) =>
+                  Boolean(match) ||
+                  pathname.startsWith('/add') ||
+                  pathname.startsWith('/remove') ||
+                  pathname.startsWith('/create') ||
+                  pathname.startsWith('/find')
+                }
+              >
+                Liquidity
+              </StyledNavLink>
+              <StyledNavLink id={`stake-nav-link`} to={'/fesw'}>
+                Mining
+              </StyledNavLink>
+              <StyledNavLink id={`stake-nav-link`} to={'/nft'}>
+                NFT
+              </StyledNavLink>
+              <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
+                DAO
+              </StyledNavLink>
+              <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
+                Sponsor<span style={{color:'red', fontSize:'0.8em'}}><sup>❤</sup></span>
+              </StyledNavLink>
+              <StyledExternalLink id={`stake-nav-link`} href={'https://www.feswap.io/docs'}>
+                Docs <span style={{ fontSize: '11px' }}>↗</span>
+              </StyledExternalLink>	 
         </HeaderLinks>
-      </HeaderRow>
       <HeaderControls>
         <HeaderElement>
           <HideSmall>
