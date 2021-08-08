@@ -54,12 +54,12 @@ const HeaderFrame = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding:  1rem;
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: 32px 1fr;
   `};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding:  1rem;
-    grid-template-columns: 36px 1fr;
+    grid-template-columns: 32px 1fr;
   `};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
@@ -244,6 +244,10 @@ const StyledNavLink = styled(NavLink).attrs({
     color: ${({ theme }) => theme.navlink};
   }
   
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 1rem;
+    margin: 0 3px;
+  `};
 `
 
 const StyledExternalLink = styled(ExternalLink).attrs({
@@ -271,6 +275,11 @@ const StyledExternalLink = styled(ExternalLink).attrs({
   :focus {
     color: ${({ theme }) => darken(0.1, theme.text1)};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    font-size: 1rem;
+    margin: 0 3px;
+`};
 
 `
 
