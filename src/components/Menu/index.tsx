@@ -84,7 +84,7 @@ const MenuItem = styled(ExternalLink)`
   }
 `
 
-const CODE_LINK = 'https://github.com/Uniswap/uniswap-interface'
+const CODE_LINK = 'https://github.com/FeSwap'
 
 export default function Menu() {
   const { account } = useActiveWeb3React()
@@ -108,7 +108,7 @@ export default function Menu() {
             <Info size={14} />
             About
           </MenuItem>
-          <MenuItem id="link" href="https://www.feswap.io/docs/v2">
+          <MenuItem id="link" href="https://www.feswap.io/docs/">
             <BookOpen size={14} />
             Docs
           </MenuItem>
@@ -116,11 +116,11 @@ export default function Menu() {
             <Code size={14} />
             Code
           </MenuItem>
-          <MenuItem id="link" href="https://discord.gg/EwFs3Pp">
+          <MenuItem id="link" href="https://twitter.com/feswap66">
             <MessageCircle size={14} />
-            Discord
+            Twitter
           </MenuItem>
-          <MenuItem id="link" href="https://info.feswap.io/">
+          <MenuItem id="link" href="https://www.feswap.io/">
             <PieChart size={14} />
             Analytics
           </MenuItem>

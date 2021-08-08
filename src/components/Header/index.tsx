@@ -65,7 +65,6 @@ const HeaderFrame = styled.div`
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     padding: 0.5rem 1rem;
   `};
-
 `
 
 const HeaderControls = styled.div`
@@ -110,6 +109,14 @@ const HeaderElementWrap = styled.div`
 
 const HeaderLinks = styled(Row)`
   justify-content: left;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    align-items: center;
+    justify-items: left;
+    grid-row-gap: 8px;
+  `};
 `
 
 const AccountElement = styled.div<{ active: boolean }>`
@@ -236,16 +243,6 @@ const StyledNavLink = styled(NavLink).attrs({
   :focus {
     color: ${({ theme }) => theme.navlink};
   }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    font-size: 1.0rem;
-    margin: 0 3px;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 1.0rem;
-    margin: 0 3px;
-  `};
   
 `
 
@@ -259,14 +256,14 @@ const StyledExternalLink = styled(ExternalLink).attrs({
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme }) => theme.text2};
-  font-size: 1rem;
+  font-size: 1.2rem;
   width: fit-content;
   margin: 0 12px;
   font-weight: 500;
 
   &.${activeClassName} {
     border-radius: 12px;
-    font-weight: 600;
+    font-weight: 900;
     color: ${({ theme }) => theme.text1};
   }
 
@@ -274,16 +271,6 @@ const StyledExternalLink = styled(ExternalLink).attrs({
   :focus {
     color: ${({ theme }) => darken(0.1, theme.text1)};
   }
-  
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    font-size: 1.0rem;
-    margin: 0 3px;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 1.0rem;
-    margin: 0 3px;
-  `};
 
 `
 
@@ -327,7 +314,7 @@ export default function Header() {
           </UniIcon>
         </Title>
         <HeaderLinks>
-              <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
+              <StyledNavLink id={`swap-nav-link`} to={'/swap'} style={{gridColumn:'1/2', gridRow:'1/3'}}>
                 FeSwap
               </StyledNavLink>
               <StyledNavLink
