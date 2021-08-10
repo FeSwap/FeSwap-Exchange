@@ -58,9 +58,6 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const token0 = stakingInfo.tokens[0]
   const token1 = stakingInfo.tokens[1]
 
-//  const currency0 = unwrappedToken(token0)
-//  const currency1 = unwrappedToken(token1)
-
   const currency0 = useCurrencyFromToken(token0)??undefined
   const currency1 = useCurrencyFromToken(token1)??undefined
 
@@ -108,7 +105,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
           <TYPE.black fontWeight={600} fontSize={24} style={{ marginLeft: '8px' }}>
             {currency0?.symbol}🔗{currency1?.symbol}
           </TYPE.black>
-          <StyledInternalLink to={`/fesw/${currencyId(token0)}/${currencyId(token1)}`} style={{ width: '100%' }}>
+          <StyledInternalLink to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`} style={{ width: '100%' }}>
             <ButtonPrimary padding="8px" borderRadius="8px">
               {isStaking ? 'Manage' : 'Mine'}
             </ButtonPrimary>

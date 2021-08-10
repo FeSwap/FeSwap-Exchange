@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, currencyEquals, ETHER, TokenAmount, WETH } from '@feswap/sdk'
-import React, { useCallback, useContext, useState } from 'react'
+import { Currency, currencyEquals, ETHER, TokenAmount, WETH, JSBI } from '@feswap/sdk'
+import React, { useCallback, useContext, useState, useMemo } from 'react'
 import ReactGA from 'react-ga'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -31,7 +31,8 @@ import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../s
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
 import { TYPE } from '../../theme'
-import { ZERO_FRACTION, calculateGasMargin, calculateSlippageAmount, getRouterContract } from '../../utils'
+import { ZERO_FRACTION, calculateGasMargin, calculateSlippageAmount, getRouterContract, 
+          THREE_FRACTION, TEN_THOUSAND_FRACTION } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import AppBody from '../AppBody'
@@ -43,7 +44,7 @@ import Slider from '../../components/Slider'
 import QuestionHelper from '../../components/QuestionHelper'
 import { Container } from '../../components/CurrencyInputPanel'
 import { AdvancedDetailsFooter } from '../../components/swap/AdvancedSwapDetailsDropdown'
-import { Link2, Plus } from 'react-feather'
+import { Link2, Plus, Shuffle } from 'react-feather'
 import { StyledPageCard } from '../../components/earn/styled'
 
 const CardWrapper = styled.div`
@@ -115,6 +116,8 @@ export default function AddLiquidity({
     noLiquidity,
     liquidityMinted,
     poolTokenPercentage,
+    priceGap,
+    priceDiff,
     percentProposal,
     error
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined)
@@ -128,8 +131,17 @@ export default function AddLiquidity({
 
   // txn values
   const deadline = useTransactionDeadline() // custom from users settings
-  const [allowedSlippage] = useUserSlippageTolerance() // custom from users
+  const [swapSlippage] = useUserSlippageTolerance() // custom from users
   const [txHash, setTxHash] = useState<string>('')
+
+  const allowedSlippage = swapSlippage + (priceDiff ? JSBI.toNumber(priceDiff?.multiply(TEN_THOUSAND_FRACTION).quotient) : 0)
+
+    const showWarning = useMemo(() => {
+    if(!priceDiff || !priceGap) return false
+    if( priceGap.greaterThan(THREE_FRACTION)) return true
+    if(JSBI.greaterThan( priceDiff.multiply(TEN_THOUSAND_FRACTION).quotient, JSBI.BigInt(swapSlippage))) return true
+    return false
+  }, [ swapSlippage, priceDiff, priceGap ])
 
   // get formatted amounts
   const formattedAmounts = {
@@ -494,6 +506,17 @@ export default function AddLiquidity({
                     <TYPE.body fontWeight={500} fontSize={15} color={theme.text2}>
                       {noLiquidity ? 'Initial prices' : 'Prices'} and pool share
                     </TYPE.body>
+                    <RowFixed>
+                      { showWarning && <Shuffle size="16px" color={theme.primary1} /> }
+                      <QuestionHelper warning={showWarning} text={ (showWarning===false) 
+                                            ? `Current price deviation is: ${priceGap?.toSignificant(5)}%.
+                                              Normally the token price among the two sub-pools are a little different. 
+                                              Once the difference surpass the arbitrage rate (1.0% by default), 
+                                              internal token swap will be enforced to alleviate the difference.`
+                                            : `Current price deviation is ${priceGap?.toSignificant(5)}%, 
+                                               and slippage tolerance is ${swapSlippage/100}%. Too high price deviation
+                                               or too low slippage tolerance will make the liquidity-adding transaction fail.` }/>
+                  </RowFixed>
                   </RowBetween>
                   <LightGreyCard padding="8px 0px" borderRadius={'8px'}>
                     <PoolPriceBar

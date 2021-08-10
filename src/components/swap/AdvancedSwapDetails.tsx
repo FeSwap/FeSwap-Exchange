@@ -1,9 +1,11 @@
 import { Trade, TradeType } from '@feswap/sdk'
 import React, { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+//import styled, { ThemeContext } from 'styled-components'
+import { ThemeContext } from 'styled-components'
 import { Field } from '../../state/swap/actions'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
-import { TYPE, ExternalLink } from '../../theme'
+//import { TYPE, ExternalLink } from '../../theme'
+import { TYPE } from '../../theme'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { AutoColumn } from '../Column'
 import QuestionHelper from '../QuestionHelper'
@@ -11,6 +13,7 @@ import { RowBetween, RowFixed } from '../Row'
 import FormattedPriceImpact from './FormattedPriceImpact'
 import SwapRoute from './SwapRoute'
 
+/*
 const InfoLink = styled(ExternalLink)`
   width: 100%;
   border: 1px solid ${({ theme }) => theme.bg4};
@@ -20,6 +23,7 @@ const InfoLink = styled(ExternalLink)`
   font-size: 14px;
   color: ${({ theme }) => theme.text1};
 `
+*/
 
 function TradeSummary({ trade, allowedSlippage }: { trade: Trade; allowedSlippage: number }) {
   const theme = useContext(ThemeContext)
@@ -88,16 +92,17 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
                 <SwapRoute trade={trade} />
               </AutoColumn>
           )}
-          <AutoColumn style={{ padding: '0 20px' }}>
-            <InfoLink href={'https://info.feswap.io/pair/' + trade.route.pairs[0].liquidityToken0.address} target="_blank">
-              View pair analytics ↗
-            </InfoLink>
-          </AutoColumn>
         </>
       )}
     </AutoColumn>
   )
 }
+
+//<AutoColumn style={{ padding: '0 20px' }}>
+//  <InfoLink href={'https://info.feswap.io/pair/' + trade.route.pairs[0].liquidityToken0.address} target="_blank">
+//    View pair analytics ↗
+//  </InfoLink>
+//  </AutoColumn>
 
 //<AutoColumn style={{ padding: '0 16px' }}>
 //<RowFixed>

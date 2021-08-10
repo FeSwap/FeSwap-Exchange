@@ -10,7 +10,7 @@ import { AppDispatch, AppState } from '../index'
 import { tryParseAmount } from '../swap/hooks'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, typeInput, setRateSplit } from './actions'
-import { ZERO, HUNDREAD, TWO, HUNDREAD_FRACTION } from '../../utils'
+import { ZERO, HUNDREAD, TWO, ONE_FRACTION, HUNDREAD_FRACTION } from '../../utils'
 import { ZERO_PERCENT } from '../../constants'
 
 export function useMintState(): AppState['mint'] {
@@ -32,6 +32,8 @@ export function useDerivedMintInfo(
   noLiquidity?: boolean
   liquidityMinted?:  { [field in Field]?: TokenAmount }
   poolTokenPercentage?: { [field in Field]?: Percent }
+  priceGap?: Fraction
+  priceDiff?: Fraction
   percentProposal: number 
   error?: string
 } {
@@ -138,6 +140,22 @@ export function useDerivedMintInfo(
     return pair.priceOfMean(tokenA)
   }, [ tokenA, pair, noLiquidity, currencyAAmount, currencyBAmount])
 
+
+  const [priceGap, priceDiff] = useMemo(() => {
+    if( !price || !price[Field.CURRENCY_A] || !price[Field.CURRENCY_B] || !meanPrice)  return [undefined, undefined]
+
+    const priceTokenA =  price[Field.CURRENCY_A] as Price
+    const priceTokenB =  price[Field.CURRENCY_B] as Price
+
+    const meanPriceInvert = meanPrice.invert()
+    const priceTokenDiffA = meanPrice.subtract(priceTokenA).divide(meanPrice.raw)
+    const priceTokenDiffB = meanPriceInvert.subtract(priceTokenB).divide(meanPriceInvert.raw)
+
+    return  [ priceTokenA.multiply(priceTokenB).invert().subtract(ONE_FRACTION).multiply(HUNDREAD_FRACTION),
+              priceTokenDiffA.greaterThan(priceTokenDiffB) ? priceTokenDiffA : priceTokenDiffB ]
+
+  }, [price, meanPrice])   
+
   // liquidity minted
   const liquidityMinted = useMemo(() => {
     const rateSplitPercent = new Fraction(JSBI.BigInt(rateSplit), HUNDREAD)
@@ -229,6 +247,8 @@ export function useDerivedMintInfo(
     noLiquidity,
     liquidityMinted,
     poolTokenPercentage,
+    priceGap,
+    priceDiff,
     percentProposal,
     error
   }

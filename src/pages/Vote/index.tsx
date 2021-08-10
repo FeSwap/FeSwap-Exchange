@@ -196,10 +196,15 @@ export default function Vote() {
                           </TextButton>
                         </AddressButton>
                       </RowFixed> ) 
-                  : ('')
+                  : ( (!account)
+                      ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > Please Connect Your Wallet </TYPE.body> )
+                      : (!feswBalance || JSBI.equal(JSBI.BigInt(0), feswBalance?.raw))
+                        ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > No FESW Token </TYPE.body> )
+                        : ( allProposals.length === 0)
+                          ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > No Proposal </TYPE.body> )
+                          : (!allProposals || !availableVotes) && <Loader /> )
                 )
             }
-            {(!allProposals || allProposals.length === 0) && !availableVotes && <Loader />}
           </RowFixed>
         </WrapSmall>
         </TopSection>
@@ -240,3 +245,7 @@ export default function Vote() {
     </PageWrapper>
   )
 }
+
+
+//? ( <TYPE.body fontWeight={500} mr="4px" color="text2"> Please Connect Wallet </TYPE.body> )
+//('Please Connect Wallet' )

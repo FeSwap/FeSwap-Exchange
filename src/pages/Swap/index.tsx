@@ -10,7 +10,7 @@ import Card, { GreyCard } from '../../components/Card'
 import Column, { AutoColumn } from '../../components/Column'
 import ConfirmSwapModal from '../../components/swap/ConfirmSwapModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { AutoRow, RowBetween } from '../../components/Row'
+import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
 import AdvancedSwapDetailsDropdown from '../../components/swap/AdvancedSwapDetailsDropdown'
 import confirmPriceImpactWithoutFee from '../../components/swap/confirmPriceImpactWithoutFee'
 import { ArrowWrapper, BottomGrouping, SwapCallbackError, Wrapper } from '../../components/swap/styleds'
@@ -44,6 +44,7 @@ import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
 import { CardNoise } from '../../components/earn/styled'
+import QuestionHelper from '../../components/QuestionHelper'
 
 //export default function Swap({ history }: RouteComponentProps) {
 export default function Swap() {
@@ -83,6 +84,7 @@ export default function Swap() {
     currencyBalances,
     parsedAmount,
     currencies,
+    priceGap,
     inputError: swapInputError
   } = useDerivedSwapInfo()
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
@@ -353,7 +355,7 @@ export default function Swap() {
                   {Boolean(trade) && (
                     <RowBetween align="center">
                       <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        Price
+                        Swap Price
                       </Text>
                       <TradePrice
                         price={trade?.executionPrice}
@@ -370,6 +372,21 @@ export default function Swap() {
                       <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
                         {allowedSlippage / 100}%
                       </ClickableText>
+                    </RowBetween>
+                  )}
+                  { (priceGap)  && (
+                    <RowBetween align="center">
+                      <RowFixed>
+                        <Text fontWeight={500} fontSize={14} color={theme.text2}>
+                          Pool Price Deviation
+                        </Text>
+                        <QuestionHelper text="This is the token price difference among the two sub-pools. 
+                                Once the difference surpass the arbitrage rate (1.0% by default), internal token swap will be enforced 
+                                to alleviate the difference." />
+                      </RowFixed>
+                      <Text fontWeight={500} fontSize={14} color={theme.text2}>
+                        {priceGap.toSignificant(4)}%
+                      </Text>
                     </RowBetween>
                   )}
                 </AutoColumn>

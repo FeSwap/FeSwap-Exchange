@@ -1,8 +1,8 @@
 import useENS from '../../hooks/useENS'
 import { parseUnits } from '@ethersproject/units'
-import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, Trade } from '@feswap/sdk'
+import { Currency, CurrencyAmount, ETHER, Fraction, JSBI, Token, TokenAmount, Trade } from '@feswap/sdk'
 import { ParsedQs } from 'qs'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -15,6 +15,8 @@ import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies
 import { SwapState } from './reducer'
 import { useUserSlippageTolerance } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
+import { PairState, usePair } from '../../data/Reserves'
+import { ONE_FRACTION, HUNDREAD_FRACTION } from '../../utils'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -109,6 +111,7 @@ export function useDerivedSwapInfo(): {
   currencyBalances: { [field in Field]?: CurrencyAmount }
   parsedAmount: CurrencyAmount | undefined
   FeswTrade: Trade | undefined
+  priceGap?: Fraction
   inputError?: string
 } {
   const { account } = useActiveWeb3React()
@@ -130,6 +133,15 @@ export function useDerivedSwapInfo(): {
     inputCurrency ?? undefined,
     outputCurrency ?? undefined
   ])
+
+  // pair
+  const [pairState, pair] = usePair(inputCurrency??undefined, outputCurrency??undefined)
+  const priceGap = useMemo(() => {
+      if ( (pairState !== PairState.EXISTS) || !pair ) return undefined
+      const priceToken0 =  pair.token0Price
+      const priceToken1 =  pair.token1Price
+      return priceToken0.multiply(priceToken1).invert().subtract(ONE_FRACTION).multiply(HUNDREAD_FRACTION)
+    }, [pairState, pair])              
 
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
@@ -196,6 +208,7 @@ export function useDerivedSwapInfo(): {
     currencyBalances,
     parsedAmount,
     FeswTrade: FeswTrade ?? undefined,
+    priceGap,
     inputError
   }
 }

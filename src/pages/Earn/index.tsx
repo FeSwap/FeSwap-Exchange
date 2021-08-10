@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { AutoColumn } from '../../components/Column'
-import styled from 'styled-components'
+import styled, { ThemeContext }  from 'styled-components'
 import { STAKING_REWARDS_INFO, useStakingInfo } from '../../state/stake/hooks'
 import { TYPE, ExternalLink } from '../../theme'
 import PoolCard from '../../components/earn/PoolCard'
@@ -10,6 +10,7 @@ import { Countdown } from './Countdown'
 import Loader from '../../components/Loader'
 import { useActiveWeb3React } from '../../hooks'
 import { OutlineCard } from '../../components/Card'
+import { EmptyProposals } from '../Pool'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 480px;
@@ -37,7 +38,8 @@ flex-direction: column;
 `
 
 export default function Earn() {
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const theme = useContext(ThemeContext)
 
   // staking info for connected account
   const stakingInfos = useStakingInfo()
@@ -86,16 +88,22 @@ export default function Earn() {
         </DataRow>
 
         <PoolSection>
-          {stakingRewardsExist && stakingInfos?.length === 0 ? (
-            <Loader style={{ margin: 'auto' }} />
-          ) : !stakingRewardsExist ? (
-            <OutlineCard>No active pools</OutlineCard>
-          ) : stakingInfos?.length !== 0 && (
-            stakingInfos?.map(stakingInfo => {
-              // need to sort by added liquidity here
-              return <PoolCard key={stakingInfo.stakingRewardAddress} stakingInfo={stakingInfo} />
-            })
-          )}
+          { (!account) 
+            ? ( <EmptyProposals>
+                  <TYPE.body fontWeight={500} mr="4px" textAlign="center" fontSize={16} color={theme.text3} > 
+                    Connect to a Wallet to Mine FESW tokens
+                  </TYPE.body> 
+                </EmptyProposals>)
+            : stakingRewardsExist && stakingInfos?.length === 0 
+              ? (<Loader style={{ margin: 'auto' }} />) 
+              : (!stakingRewardsExist) 
+                ? ( <OutlineCard>No active pools</OutlineCard>) 
+                : stakingInfos?.length !== 0 && (
+                    stakingInfos?.map(stakingInfo => {
+                    // need to sort by added liquidity here
+                    return <PoolCard key={stakingInfo.stakingRewardAddress} stakingInfo={stakingInfo} />
+                  })
+                )}
         </PoolSection>
       </AutoColumn>
     </PageWrapper>
