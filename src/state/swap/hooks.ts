@@ -174,6 +174,10 @@ export function useDerivedSwapInfo(): {
     inputError = inputError ?? 'Select a token'
   }
 
+//  if( ( pairState === PairState.NOT_EXISTS) || (!pair) ) {
+//    inputError = inputError ?? 'Swap Pair Not Created'
+//  }
+
   const formattedTo = isAddress(to)
   if (!to || !formattedTo) {
     inputError = inputError ?? 'Enter a recipient'
