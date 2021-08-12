@@ -2018,15 +2018,15 @@
   resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.2.1.tgz#1e59bfd10de5cf3b7d2bb36fd7751c1d2338380b"
   integrity sha512-YTvdq8szti+epnoT2Dv+viQ41KE2AfmeQTRkRBp9wbJblCf+fSbI4ZUXOuRJuiwCsWhnybQWDPyzPlpQnPvKIw==
 
-"@feswap/governance@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@feswap/governance/-/governance-1.1.2.tgz#c0a5d3885073079a1a872448a661dc062290e78c"
-  integrity sha512-PIEK8uGrtx//E8m3pjXnwsv7b8k/Pf18/i9I7JM4QG2xamInNXcmpiQrFvcKBDPp+hVJHTS1/ACH2xHOpFglpA==
+"@feswap/governance@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@feswap/governance/-/governance-1.2.0.tgz#3262976659122774bacae758f3a535de53494c67"
+  integrity sha512-wq0C4ZJ8ZIM702R9hhdbIVNFdmkHu2B/Opay3bmDJRSJ8Bt884lYqblK9uNoweunSH2GV27cL75Uy6iwju17ag==
 
-"@feswap/sdk@^1.5.1":
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.5.1.tgz#8693c7b7de405895500a360299e9643d7423201b"
-  integrity sha512-uoJAnmqEgFSnzo6fmc8CxQgsgd0NlYHGKcTsUwsTYlRXjisW9Cj0LPZBGIyO3gpANOKmRuYB86kioq4/2RH2tA==
+"@feswap/sdk@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.6.1.tgz#f9eb5a7c3a7a56263af08ff378641193c389eb14"
+  integrity sha512-7rvLMn3a5e2hqxq052UxVveKYd0CgQ00JsUWVaWiN589sSpEnq8eLzFnV1wVEu3d+5AqOOCHoSMndFEYLyd5wA==
   dependencies:
     "@feswap/core" "^1.2.1"
     big.js "^5.2.2"

@@ -110,6 +110,9 @@ export function useDerivedSponsorInfo(): {
   const FESW_CHANGE_RATE_VERSUS_ETH = useSingleCallResult(sponsorContract, 'FESW_CHANGE_RATE_VERSUS_ETH', undefined, 
                                       NEVER_RELOAD)?.result?.[0] ?? undefined
 
+  const SponsorStartTime : BigNumber|undefined = useSingleCallResult(sponsorContract, 'SponsorStartTime', undefined, 
+                                                NEVER_RELOAD)?.result?.[0] ?? undefined
+                                      
   const TotalETHReceived = useSingleCallResult(sponsorContract, 'TotalETHReceived', [])?.result?.[0] ?? undefined
 
   const feswGiveRate: Price | undefined = useMemo(() => {
@@ -152,12 +155,17 @@ export function useDerivedSponsorInfo(): {
     inputError = 'Connect Wallet'
   }
 
-  if (!parsedAmount) {
-    inputError = inputError ?? 'Enter an amount'
+  if(!feswGiveRate) {
+    inputError = inputError ?? 'Sponsor Not Deployed'
   }
 
-  if(!feswGiveRate) {
+  const now = new Date().getTime()
+  if( SponsorStartTime && ((now/1000) <= SponsorStartTime.toNumber())) {
     inputError = inputError ?? 'Sponsor Not Started'
+  }
+
+  if (!parsedAmount) {
+    inputError = inputError ?? 'Enter an amount'
   }
 
   const formattedTo = isAddress(to)

@@ -1,18 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { STAKING_GENESIS, REWARDS_DURATION_DAYS } from '../../state/stake/hooks'
 import { TYPE } from '../../theme'
+import { RowBetween } from '../../components/Row'
 
 const MINUTE = 60
 const HOUR = MINUTE * 60
 const DAY = HOUR * 24
 const REWARDS_DURATION = DAY * REWARDS_DURATION_DAYS
 
-export function Countdown({ exactEnd }: { exactEnd?: Date }) {
+export function Countdown({ exactEnd, duration }: { exactEnd?: Date, duration?: number }) {
   // get end/beginning times
-  const end = useMemo(() => (exactEnd ? Math.floor(exactEnd.getTime() / 1000) : STAKING_GENESIS + REWARDS_DURATION), [
-    exactEnd
-  ])
-  const begin = useMemo(() => end - REWARDS_DURATION, [end])
+  const end = useMemo(() => (exactEnd ? Math.floor(exactEnd.getTime() / 1000) : STAKING_GENESIS + (duration??REWARDS_DURATION)), [
+    exactEnd, duration])
+  const begin = useMemo(() => end - (duration??REWARDS_DURATION), [end, duration])
 
   // get current time
   const [time, setTime] = useState(() => Math.floor(Date.now() / 1000))
@@ -32,12 +32,12 @@ export function Countdown({ exactEnd }: { exactEnd?: Date }) {
   let timeRemaining: number
   let message: string
   if (timeUntilGenesis >= 0) {
-    message = 'Rewards begin in'
+    message = 'Rewards begin time'
     timeRemaining = timeUntilGenesis
   } else {
     const ongoing = timeUntilEnd >= 0
     if (ongoing) {
-      message = 'Rewards end in'
+      message = 'Rewards end time'
       timeRemaining = timeUntilEnd
     } else {
       message = 'Rewards have ended!'
@@ -54,15 +54,15 @@ export function Countdown({ exactEnd }: { exactEnd?: Date }) {
   const seconds = timeRemaining
 
   return (
-    <TYPE.black fontWeight={400}>
-      {message}{' '}
-      {Number.isFinite(timeRemaining) && (
-        <code>
-          {`${days}:${hours.toString().padStart(2, '0')}:${minutes
-            .toString()
-            .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
-        </code>
-      )}
-    </TYPE.black>
+    <RowBetween>
+      <TYPE.black> {message} </TYPE.black>
+      <TYPE.black style={{fontFamily: 'Consolas', color:'#ff007a'}}>
+        {Number.isFinite(timeRemaining) && (
+             `${days}days ${hours.toString().padStart(2, '0')}:${minutes
+              .toString()
+              .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        )}
+      </TYPE.black>
+    </RowBetween>
   )
 }

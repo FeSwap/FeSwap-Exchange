@@ -9,7 +9,7 @@ import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { setNftRecipient, typeNftInput, typeTriggerRate, selectNftCurrency, USER_BUTTON_ID } from './actions'
 import { FESW } from '../../constants'
-import { useSingleCallResult, useSingleContractMultipleData } from '../multicall/hooks'
+import { useSingleCallResult, useSingleContractMultipleData, NEVER_RELOAD } from '../multicall/hooks'
 import { Field, WALLET_BALANCE, USER_UI_INFO } from './actions'
 import { tryParseAmount } from '../swap/hooks'
 import { useMemo } from 'react'
@@ -285,6 +285,9 @@ export function useDerivedNftInfo(): {
                             (tokenB instanceof Token) ? (tokenB as Token).address : ZERO_ADDRESS]
 
   const feswaPairINfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
+  
+  const SaleStartTime : BigNumber|undefined = useSingleCallResult(nftBidContract, 'SaleStartTime', undefined, 
+                                                NEVER_RELOAD)?.result?.[0] ?? undefined
 
   const feswaPairBidInfo : FeswaPairInfo = {
     tokenIDPairNft: feswaPairINfo?.tokenID,
@@ -331,7 +334,12 @@ export function useDerivedNftInfo(): {
   if (!feswaPairINfo?.pairInfo) {
     inputError = USER_BUTTON_ID.ERR_NO_SERVICE
   }
-  
+
+   const now = new Date().getTime()
+  if( SaleStartTime && ((now/1000) <= SaleStartTime.toNumber())) {
+    inputError = USER_BUTTON_ID.ERR_NO_START
+  }
+    
   if (!pairCurrencies[Field.TOKEN_A] || !pairCurrencies[Field.TOKEN_B]) {
     inputError = USER_BUTTON_ID.ERR_NO_TOKENS
   }

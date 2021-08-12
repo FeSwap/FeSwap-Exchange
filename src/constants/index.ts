@@ -1,4 +1,4 @@
-import { ChainId, JSBI, Percent, Token, WETH } from '@feswap/sdk'
+import { ChainId, JSBI, Percent, Token, WETH, FESW_ADDRESS, GOVERNANCE_ADDRESS, TIMELOCK_ADDRESS } from '@feswap/sdk'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
@@ -33,17 +33,25 @@ export const AVERAGE_BLOCK_TIME_IN_SECS = 13
 export const PROPOSAL_LENGTH_IN_BLOCKS = 40_320
 export const PROPOSAL_LENGTH_IN_SECS = AVERAGE_BLOCK_TIME_IN_SECS * PROPOSAL_LENGTH_IN_BLOCKS
 
-export const GOVERNANCE_ADDRESS = '0x433adCE1695eBb2554232d32493C7498E1605DaD'
-export const TIMELOCK_ADDRESS   = '0x0F0C989960299460C461c9fC907e1D6195769B2d'
+//export const GOVERNANCE_ADDRESS = '0x433adCE1695eBb2554232d32493C7498E1605DaD'
+//export const TIMELOCK_ADDRESS   = '0x0F0C989960299460C461c9fC907e1D6195769B2d'
 //export const SPONSOR_ADDRESS  = '0x9b185eCEbff41B991FdA0A268fEc31454779d276'             // Test for dev on Goerli
-export const SPONSOR_ADDRESS    = '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234'              // On test Chain
+//export const SPONSOR_ADDRESS    = '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234'           // On test Chain
+
+export const SPONSOR_ADDRESS: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]:  '0x74B6F6884FE98259aF4127ca9A5D580Da934E52b',
+  [ChainId.ROPSTEN]:  '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234',
+  [ChainId.RINKEBY]:  '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234',
+  [ChainId.GÖRLI]:    '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234',
+  [ChainId.KOVAN]:    '0xB7196A981De991cdCAEe06Eb7c39c84B5277d234'
+}
 
 //export const NFT_BID_ADDRESS  = '0xbc288BF91880bb849F004A1Dc4d783a435040d08'
 //export const NFT_BID_ADDRESS  = '0xef7cf61dad6a2cf7b402482ef574b5dd20ef2b5b'
 //export const NFT_BID_ADDRESS  = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'
 //export const NFT_BID_ADDRESS  = '0xa1fbe179e8791ab4fc0060b2b881577e68dcd6dd'            // Goerli
 //export const NFT_BID_ADDRESS  = '0x9bb53A4d89768fb9277eE83016F08Eff21DDd576'            // Rinkeby
-export const NFT_BID_ADDRESS    = '0x06C2De45973Df34DaB22AD0b767d2bE3eca5D178'            // on test Chain
+//export const NFT_BID_ADDRESS    = '0x06C2De45973Df34DaB22AD0b767d2bE3eca5D178'            // on test Chain
 
 //export const FESW_FACTORY_ADDRESS   = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'       // Rinkeby
 export const FESW_FACTORY_ADDRESS     = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
@@ -55,22 +63,21 @@ export const FESW_ROUTER_ADDRESS    = '0x657db4e8c4258570cc7dd61031777901439e807
 
 //const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                     // Test for dev
 //const FESW_TEST_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                // Test for dev
-
-const FESW_ADDRESS      = '0xcfcC81C508a8025879a27257cC0f699F9f2016AB'
-const FESW_TEST_ADDRESS = '0xcfcC81C508a8025879a27257cC0f699F9f2016AB'
+//const FESW_ADDRESS      = '0xcfcC81C508a8025879a27257cC0f699F9f2016AB'
+//const FESW_TEST_ADDRESS = '0xcfcC81C508a8025879a27257cC0f699F9f2016AB'
 
 export const FESW: { [chainId in ChainId]: Token } = {
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, FESW_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.KOVAN]: new Token(ChainId.KOVAN, FESW_TEST_ADDRESS, 18, 'FESW', 'FeSwap DAO')
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, FESW_ADDRESS[ChainId.MAINNET], 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, FESW_ADDRESS[ChainId.RINKEBY], 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, FESW_ADDRESS[ChainId.ROPSTEN], 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, FESW_ADDRESS[ChainId.GÖRLI], 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.KOVAN]: new Token(ChainId.KOVAN, FESW_ADDRESS[ChainId.KOVAN], 18, 'FESW', 'FeSwap DAO')
 }
 
 export const COMMON_CONTRACT_NAMES: { [address: string]: string } = {
 //  [FESW_ADDRESS]: 'FESW',
-  [GOVERNANCE_ADDRESS]: 'Governance',
-  [TIMELOCK_ADDRESS]: 'Timelock'
+  [GOVERNANCE_ADDRESS[ChainId.MAINNET]]: 'Governance',
+  [TIMELOCK_ADDRESS[ChainId.MAINNET]]: 'Timelock'
 }
 
 // TODO: specify merkle distributor for mainnet

@@ -17,6 +17,7 @@ import { BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { ZERO } from '../../utils'
 import { SeparatorBlack } from '../SearchModal/styleds'
 import { useCurrencyFromToken } from '../../hooks/Tokens'
+import { Countdown } from './Countdown'
 
 const StatContainer = styled.div`
   display: flex;
@@ -138,6 +139,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
                 : '-'}
             </TYPE.black>
           </RowBetween>
+          <Countdown exactEnd={stakingInfo.periodFinish} />
         </StatContainer>
 
         {isStaking && (

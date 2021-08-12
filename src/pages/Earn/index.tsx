@@ -6,10 +6,8 @@ import { TYPE, ExternalLink } from '../../theme'
 import PoolCard from '../../components/earn/PoolCard'
 import { RowBetween } from '../../components/Row'
 import { CardSection, DataCard, CardNoise } from '../../components/earn/styled'
-import { Countdown } from './Countdown'
 import Loader from '../../components/Loader'
 import { useActiveWeb3React } from '../../hooks'
-import { OutlineCard } from '../../components/Card'
 import { EmptyProposals } from '../Pool'
 
 const PageWrapper = styled(AutoColumn)`
@@ -84,7 +82,6 @@ export default function Earn() {
       <AutoColumn gap="lg" style={{ width: '100%', maxWidth: '720px' }}>
         <DataRow style={{ alignItems: 'baseline' }}>
           <TYPE.mediumHeader style={{ marginTop: '0.5rem' }}>Participating pools</TYPE.mediumHeader>
-          <Countdown exactEnd={stakingInfos?.[0]?.periodFinish} />
         </DataRow>
 
         <PoolSection>
@@ -97,7 +94,7 @@ export default function Earn() {
             : stakingRewardsExist && stakingInfos?.length === 0 
               ? (<Loader style={{ margin: 'auto' }} />) 
               : (!stakingRewardsExist) 
-                ? ( <OutlineCard>No active pools</OutlineCard>) 
+                ? ( <EmptyProposals>No active pools</EmptyProposals>) 
                 : stakingInfos?.length !== 0 && (
                     stakingInfos?.map(stakingInfo => {
                     // need to sort by added liquidity here
@@ -109,18 +106,3 @@ export default function Earn() {
     </PageWrapper>
   )
 }
-
-//<PoolSection>
-//{stakingRewardsExist && stakingInfos?.length === 0 ? (
-//  <Loader style={{ margin: 'auto' }} />
-//) : !stakingRewardsExist ? (
-//  <OutlineCard>No active pools</OutlineCard>
-//) : stakingInfos?.length !== 0 && stakingInfosWithBalance.length === 0 ? (
-//  <OutlineCard>No active pools</OutlineCard>
-//) : (
-//  stakingInfosWithBalance?.map(stakingInfo => {
-//    // need to sort by added liquidity here
-//    return <PoolCard key={stakingInfo.stakingRewardAddress} stakingInfo={stakingInfo} />
-//  })
-//)}
-//</PoolSection>

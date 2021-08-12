@@ -20,6 +20,7 @@ import { Field, NFT_BID_PHASE, BidButtonPrompt, USER_BUTTON_ID } from '../../sta
 import { Link } from 'react-router-dom'
 import Slider from '../../components/Slider'
 import QuestionHelper from '../../components/QuestionHelper'
+import { currencyId } from '../../utils/currencyId'
 
 import {
   NftManageTrade,
@@ -486,7 +487,8 @@ export default function CreatePairByNft() {
             ) : (
               <AutoColumn gap="8px">
                 { (buttonID === USER_BUTTON_ID.OK_JUMP_BID) 
-                  ? <ButtonPrimary as={Link} to={"/nft"}>
+                  ? <ButtonPrimary as={Link} to={ `/nft/${currencyId(pairCurrencies[Field.TOKEN_A])}/${currencyId(
+                                                      pairCurrencies[Field.TOKEN_B])}`}>
                     <Text fontWeight={500} fontSize={20}>
                       Join in NFT Bidding ↗
                     </Text>

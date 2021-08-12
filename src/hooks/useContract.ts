@@ -1,17 +1,17 @@
 import { Contract } from '@ethersproject/contracts'
 import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/FeswGovernor.json'
-import { abi as SPONSOR_ABI } from '../constants/abis/FeswSponsor.json'
+import { abi as SPONSOR_ABI } from '@feswap/governance/build/FeswSponsor.json'
 import { abi as FESW_ABI } from '@feswap/governance/build/Fesw.json'
-import { abi as NFT_BID_ABI } from '../constants/abis/FeswaNFT.json'
-import { abi as NFT_FACTORY_ABI } from '../constants/abis/FeSwapFactory.json'
-import { abi as NFT_ROUTER_ABI } from '../constants/abis/FeSwapRouter.json'
+import { abi as NFT_BID_ABI } from '@feswap/governance/build/FeswaNFT.json'
+import { abi as NFT_FACTORY_ABI } from '@feswap/core/build/FeSwapFactory.json'
+import { abi as NFT_ROUTER_ABI } from '@feswap/core/build/FeSwapRouter.json'
 import { abi as STAKING_REWARDS_ABI } from '@feswap/governance/build/StakingTwinRewards.json'
 import { abi as MERKLE_DISTRIBUTOR_ABI } from '@feswap/governance/build/MerkleDistributor.json'
-import { ChainId, WETH } from '@feswap/sdk'
+import { ChainId, WETH, NFT_BID_ADDRESS, GOVERNANCE_ADDRESS } from '@feswap/sdk'
 import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
 import { useMemo } from 'react'
-import { GOVERNANCE_ADDRESS, SPONSOR_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, 
-          FESW, NFT_BID_ADDRESS, FESW_FACTORY_ADDRESS, FESW_ROUTER_ADDRESS } from '../constants'
+import { SPONSOR_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, 
+          FESW, FESW_FACTORY_ADDRESS, FESW_ROUTER_ADDRESS } from '../constants'
 import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS
@@ -98,7 +98,8 @@ export function useMerkleDistributorContract(): Contract | null {
 }
 
 export function useGovernanceContract(): Contract | null {
-  return useContract(GOVERNANCE_ADDRESS, GOVERNANCE_ABI, true)
+  const { chainId } = useActiveWeb3React()
+  return useContract(GOVERNANCE_ADDRESS[chainId??ChainId.MAINNET], GOVERNANCE_ABI, true)
 }
 
 export function useFeswContract(): Contract | null {
@@ -115,11 +116,13 @@ export function useFeswRouterContract(): Contract | null {
 }
 
 export function useSponsorContract(): Contract | null {
-  return useContract(SPONSOR_ADDRESS, SPONSOR_ABI, true)
+  const { chainId } = useActiveWeb3React()
+  return useContract(SPONSOR_ADDRESS[chainId??ChainId.MAINNET], SPONSOR_ABI, true)
 }
 
 export function useNftBidContract(): Contract | null {
-  return useContract(NFT_BID_ADDRESS, NFT_BID_ABI, true)
+  const { chainId } = useActiveWeb3React()
+  return useContract(NFT_BID_ADDRESS[chainId??ChainId.MAINNET], NFT_BID_ABI, true)
 }
 
 export function useStakingContract(stakingAddress?: string, withSignerIfPossible?: boolean): Contract | null {

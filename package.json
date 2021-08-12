@@ -7,8 +7,8 @@
   "devDependencies": {
     "@ethersproject/experimental": "^5.0.1",
     "@feswap/core": "^1.2.1",
-    "@feswap/governance": "^1.1.2",
-    "@feswap/sdk": "^1.5.1",
+    "@feswap/governance": "^1.2.0",
+    "@feswap/sdk": "^1.6.1",
     "@popperjs/core": "^2.4.4",
     "@reach/dialog": "^0.10.3",
     "@reach/portal": "^0.10.3",

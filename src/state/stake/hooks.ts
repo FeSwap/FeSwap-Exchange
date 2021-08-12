@@ -1,6 +1,7 @@
 import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@feswap/sdk'
 import { useMemo } from 'react'
-import { FESW, USDT, WBTC } from '../../constants'
+//import { FESW, USDT, WBTC } from '../../constants'
+import { FESW } from '../../constants'
 import { STAKING_REWARDS_INTERFACE } from '../../constants/abis/staking-rewards'
 import { useActiveWeb3React } from '../../hooks'
 import { NEVER_RELOAD, useMultipleContractSingleData } from '../multicall/hooks'
@@ -20,18 +21,18 @@ export const STAKING_REWARDS_INFO: {
   }[]
 } = {
   [ChainId.MAINNET]: [
-    {
-      tokens: [WETH[ChainId.MAINNET], USDT[ChainId.MAINNET]],
-      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
-    },
-    {
-      tokens: [WETH[ChainId.MAINNET], WBTC[ChainId.RINKEBY]],
-      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
-    },
-    {
-      tokens: [WETH[ChainId.MAINNET], FESW[ChainId.MAINNET]],
-      stakingRewardAddress: '0x25C46Cb81C3B0f6eDa66F72223A859CCB09520FA'
-    }
+//    {
+//      tokens: [WETH[ChainId.MAINNET], USDT[ChainId.MAINNET]],
+//      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
+//    },
+//    {
+//      tokens: [WETH[ChainId.MAINNET], WBTC[ChainId.RINKEBY]],
+//      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
+//    },
+//    {
+//      tokens: [WETH[ChainId.MAINNET], FESW[ChainId.MAINNET]],
+//      stakingRewardAddress: '0x25C46Cb81C3B0f6eDa66F72223A859CCB09520FA'
+//    }
   ],
   [ChainId.ROPSTEN]: [
     //    {
@@ -109,6 +110,7 @@ export interface StakingInfo {
   rewardRate: TokenAmount
   // when the period ends
   periodFinish: Date | undefined
+  rewardsDuration: number | undefined,
   // if pool is active
   active: boolean
   // calculates a hypothetical amount of token distributed to the active account per second.
@@ -155,6 +157,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
   // tokens per second, constants
   const rewardRates = useMultipleContractSingleData(rewardsAddresses, STAKING_REWARDS_INTERFACE, 'rewardRate', undefined, NEVER_RELOAD)
   const periodFinishes = useMultipleContractSingleData(rewardsAddresses, STAKING_REWARDS_INTERFACE, 'periodFinish', undefined, NEVER_RELOAD)
+  const rewardsDuration = useMultipleContractSingleData(rewardsAddresses, STAKING_REWARDS_INTERFACE, 'rewardsDuration', undefined, NEVER_RELOAD)
 
   return useMemo(() => {
     if (!chainId || !fesw) return []
@@ -168,6 +171,8 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
       const totalSupplyState = totalSupplies[index]
       const rewardRateState = rewardRates[index]
       const periodFinishState = periodFinishes[index]
+      const rewardsDurationState = rewardsDuration[index]
+
 
       if (
         // these may be undefined if not logged in
@@ -179,16 +184,19 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
         rewardRateState &&
         !rewardRateState.loading &&
         periodFinishState &&
-        !periodFinishState.loading
+        !periodFinishState.loading &&
+        rewardsDurationState &&
+        !rewardsDurationState.loading       
       ) {
         if (
           balanceState?.error ||
           earnedAmountState?.error ||
           totalSupplyState.error ||
           rewardRateState.error ||
-          periodFinishState.error
+          periodFinishState.error ||
+          rewardsDurationState.error
         ) {
-//          console.error('Failed to load staking rewards info')
+          console.error('Failed to load staking rewards info')
           return memo
         }
 
@@ -229,6 +237,8 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
         const periodFinishSeconds = periodFinishState.result?.[0]?.toNumber()
         const periodFinishMs = periodFinishSeconds * 1000
 
+        const rewardsDurationSeconds = rewardsDurationState.result?.[0]?.toNumber()
+
         // compare period end timestamp vs current block timestamp (in seconds)
         const active =
           periodFinishSeconds && currentBlockTimestamp ? periodFinishSeconds > currentBlockTimestamp.toNumber() : true
@@ -237,6 +247,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
           stakingRewardAddress: rewardsAddress,
           tokens: info[index].tokens,
           periodFinish: periodFinishMs > 0 ? new Date(periodFinishMs) : undefined,
+          rewardsDuration: rewardsDurationSeconds??undefined,
           earnedAmount: new TokenAmount(fesw, JSBI.BigInt(earnedAmountState?.result?.[0] ?? 0)),
           rewardRate: individualRewardRate,
           totalRewardRate: totalRewardRate,
@@ -255,6 +266,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
     earnedAmounts,
     info,
     periodFinishes,
+    rewardsDuration,
     rewardRates,
     rewardsAddresses,
     totalSupplies,
