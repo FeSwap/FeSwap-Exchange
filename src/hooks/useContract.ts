@@ -7,10 +7,10 @@ import { abi as NFT_FACTORY_ABI } from '@feswap/core/build/FeSwapFactory.json'
 import { abi as NFT_ROUTER_ABI } from '@feswap/core/build/FeSwapRouter.json'
 import { abi as STAKING_REWARDS_ABI } from '@feswap/governance/build/StakingTwinRewards.json'
 import { abi as MERKLE_DISTRIBUTOR_ABI } from '@feswap/governance/build/MerkleDistributor.json'
-import { ChainId, WETH, NFT_BID_ADDRESS, GOVERNANCE_ADDRESS } from '@feswap/sdk'
+import { ChainId, WETH, NFT_BID_ADDRESS, GOVERNANCE_ADDRESS, SPONSOR_ADDRESS } from '@feswap/sdk'
 import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
 import { useMemo } from 'react'
-import { SPONSOR_ADDRESS, MERKLE_DISTRIBUTOR_ADDRESS, 
+import {  MERKLE_DISTRIBUTOR_ADDRESS, 
           FESW, FESW_FACTORY_ADDRESS, FESW_ROUTER_ADDRESS } from '../constants'
 import {
   ARGENT_WALLET_DETECTOR_ABI,
