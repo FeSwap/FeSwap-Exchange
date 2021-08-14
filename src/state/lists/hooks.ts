@@ -45,7 +45,7 @@ export function listToTokenMap(list: TokenList): TokenAddressMap {
   const result = listCache?.get(list)
   if (result) return result
 
-  console.log("list  AAAAAAAAAABBBBBBBBBBBBBB", list)
+//  console.log("list  AAAAAAAAAABBBBBBBBBBBBBB", list)
 
   const map = list.tokens.reduce<TokenAddressMap>(
     (tokenMap, tokenInfo) => {

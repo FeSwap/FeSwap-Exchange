@@ -35,12 +35,6 @@ export function useApproveCallback(
     // we might not have enough data to know whether or not we need to approve
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
-//    console.log("currentAllowance KKKKKKKKKK", currentAllowance, currentAllowance.toExact(), currentAllowance.numerator,
-//                   JSBI.equal(currentAllowance.numerator, MAXJSBI))
-
-//                    : JSBI.equal(currentAllowance.numerator, MAXJSBI)
-//                    ? ApprovalState.ALL_APPROVED
-
     // amountToApprove will be defined if currentAllowance is
     return currentAllowance.lessThan(amountToApprove)
       ? pendingApproval

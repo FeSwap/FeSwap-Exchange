@@ -15,7 +15,7 @@ export function useAllTokens(): { [address: string]: Token } {
   const userAddedTokens = useUserAddedTokens()
   const allTokens = useSelectedTokenList()
 
-  console.log("allTokens KKKKKKKKKKKKKKKKKKKKK", allTokens)
+//  console.log("allTokens KKKKKKKKKKKKKKKKKKKKK", allTokens)
 
   return useMemo(() => {
     if (!chainId) return {}
