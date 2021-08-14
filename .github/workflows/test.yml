@@ -1,4 +1,4 @@
-name: Website Deploy
+name: Website Test
 
 on:
   #  schedule:
