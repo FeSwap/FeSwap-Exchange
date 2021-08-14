@@ -50,6 +50,8 @@ export default function Sponsor() {
     [Field.OUTPUT]: useCurrency(chainId ? FESW[chainId].address : undefined) ?? undefined
   }
 
+  console.log("currencies", currencies[Field.INPUT], currencies[Field.OUTPUT])
+
   const [showSponsorWarning, clearShowSponsorWarning] = useState<boolean>(true)
   
   const [willSponsor, setWillSponsor] = useState<boolean>(false)

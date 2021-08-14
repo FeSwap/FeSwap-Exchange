@@ -1,13 +1,11 @@
 name: Website Deploy
 
 on:
+  #  schedule:
+  #    - cron:  '0 12 * * 1-4' # every day 12:00 UTC Monday-Thursday
+
+  # manual trigger
   workflow_dispatch:
-#  pull_request:
-#    branches:
-#      -main
-#  push:
-#    branches:
-#      - main
 
 jobs:
   checks:
@@ -64,7 +62,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          repository-name: FeSwap/Dapp
+          repository-name: FeSwap/TestSite
           token: ${{ secrets.GH_DEPLOY_TOKEN }}
           folder: 'site' # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
 
