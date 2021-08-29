@@ -8,28 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build & deploy:
     runs-on: ubuntu-latest 
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build the release
-        run: yarn build
-
-#      - name: Upload Artifacts 🔺 # The project is then uploaded as an artifact named 'site'.
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: site
-#          path: build
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    needs: [build] # The second job must depend on the first one to complete before running, and uses ubuntu-latest instead of windows.
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1
@@ -39,6 +19,40 @@ jobs:
           node-version: '12'
           always-auth: true
           registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build the release
+        run: yarn build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          repository-name: FeSwap/Dapp
+          token: ${{ secrets.GH_DEPLOY_TOKEN }}
+          folder: build     # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
+
+#      - name: Upload Artifacts 🔺 # The project is then uploaded as an artifact named 'site'.
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: site
+#          path: build
+
+#  deploy:
+#    if: github.event_name != 'pull_request'
+#    needs: [build] # The second job must depend on the first one to complete before running, and uses ubuntu-latest instead of windows.
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout 🛎️
+#        uses: actions/checkout@v2.3.1
+#
+#      - uses: actions/setup-node@v1
+#        with:
+#          node-version: '12'
+#          always-auth: true
+#          registry-url: https://registry.npmjs.org
 
 #      - name: Download Artifacts 🔻 # The built project is downloaded into the 'site' folder.
 #        uses: actions/download-artifact@v1
@@ -53,13 +67,13 @@ jobs:
 #          token: ${{ secrets.GH_DEPLOY_TOKEN }}
 #          folder: 'site' # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.4
-        with:
-          branch: gh-pages
-          repository-name: FeSwap/Dapp
-          token: ${{ secrets.GH_DEPLOY_TOKEN }}
-          folder: build     # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
+#      - name: Deploy 🚀
+#        uses: JamesIves/github-pages-deploy-action@4.1.4
+#        with:
+#          branch: gh-pages
+#          repository-name: FeSwap/Dapp
+#          token: ${{ secrets.GH_DEPLOY_TOKEN }}
+#          folder: build     # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
 
 
 #  gh-release:
