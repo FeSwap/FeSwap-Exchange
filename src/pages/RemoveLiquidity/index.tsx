@@ -254,8 +254,8 @@ export default function RemoveLiquidity({
   // allowance handling
   const [signatureDataAB, setSignatureDataAB] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [signatureDataBA, setSignatureDataBA] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
-  const [approvalAB, approveCallbackAB] = useApproveCallback(parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY], FESW_ROUTER_ADDRESS)
-  const [approvalBA, approveCallbackBA] = useApproveCallback(parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY], FESW_ROUTER_ADDRESS)
+  const [approvalAB, approveCallbackAB] = useApproveCallback(parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY], chainId ? FESW_ROUTER_ADDRESS[chainId] : undefined)
+  const [approvalBA, approveCallbackBA] = useApproveCallback(parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY], chainId ? FESW_ROUTER_ADDRESS[chainId] : undefined)
 
   // once deadline updated, check againt signatature deadline
   useEffect(() => {
@@ -273,7 +273,7 @@ export default function RemoveLiquidity({
 
   async function onAttemptToApprove(field: Field) {
     const approveContract = (field === Field.PAIR_AB) ? pairContractAB : pairContractBA
-    if (!approveContract || !pair || !library || !deadline) throw new Error('missing dependencies')
+    if (!approveContract || !pair || !library || !deadline || !chainId) throw new Error('missing dependencies')
     const liquidityAmount = (field === Field.PAIR_AB) 
                             ? parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY]
                             : parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY]
@@ -311,7 +311,7 @@ export default function RemoveLiquidity({
 
     const message = {
       owner: account,
-      spender: FESW_ROUTER_ADDRESS,
+      spender: FESW_ROUTER_ADDRESS[chainId],
       value: liquidityAmount.raw.toString(),
       nonce: nonce.toHexString(),
       deadline: permitDeadline

@@ -1,4 +1,4 @@
-import { JSBI, Pair, Percent, TokenAmount, Token } from '@feswap/sdk'
+import { JSBI, Pair, Percent, TokenAmount, Token, Rounding } from '@feswap/sdk'
 import { darken } from 'polished'
 import React, { useState, useMemo } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
@@ -9,10 +9,10 @@ import { useTotalSupply } from '../../data/TotalSupply'
 
 import { useActiveWeb3React } from '../../hooks'
 import { useTokenBalance } from '../../state/wallet/hooks'
-import { ExternalLink, TYPE, HideExtraSmall, ExtraSmallOnly } from '../../theme'
+import { TYPE, HideExtraSmall, ExtraSmallOnly } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
-import { ButtonPrimary, ButtonSecondaryPosition, ButtonEmpty, ButtonUNIGradient } from '../Button'
+import { ButtonPrimary, ButtonEmpty, ButtonUNIGradient } from '../Button'
 import { transparentize } from 'polished'
 import { CardNoise } from '../earn/styled'
 
@@ -211,7 +211,7 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
                   <strong>{totalPoolTokens1 ? totalPoolTokens1.toSignificant(6) : '-'}</strong>
                 </Text>
                 <Text fontWeight={500} fontSize={14}>
-                  {userPoolBalance1 ? userPoolBalance1.toSignificant(4) : '-'}
+                  {userPoolBalance1 ? userPoolBalance1.toSignificant(6) : '-'}
                 </Text>
                 <Text fontSize={14} fontWeight={500}>
                   { poolTokenPercentage1 
@@ -422,13 +422,13 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   </TextWrapper>
                   {token00Deposited ? (
                         <TextWrapper>
-                          {token00Deposited?.toSignificant(6)}
+                          {token00Deposited?.toSignificant(6, undefined, Rounding.ROUND_HALF_UP)}
                         </TextWrapper>
                     ) : ('-')}
 
                   {token01Deposited ? (
                         <TextWrapper>
-                          {token01Deposited?.toSignificant(6)}
+                          {token01Deposited?.toSignificant(6, undefined, Rounding.ROUND_HALF_UP)}
                         </TextWrapper>
                     ) : ('-')}
 
@@ -446,7 +446,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                     <strong>{totalPoolTokens1 ? totalPoolTokens1.toSignificant(6) : '-'}</strong>
                   </TextWrapper>
                   <TextWrapper>
-                    {userPoolBalance1 ? userPoolBalance1.toSignificant(4) : '-'}
+                    {userPoolBalance1 ? userPoolBalance1.toSignificant(6) : '-'}
                   </TextWrapper>
                   {(!!stakedBalance0Inline || !!stakedBalance1Inline) && (
                     <TextWrapper>
@@ -460,14 +460,14 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   </TextWrapper>
                   {token11Deposited ? (
                     <TextWrapper>
-                      {token11Deposited?.toSignificant(6)}
+                      {token11Deposited?.toSignificant(6, undefined, Rounding.ROUND_HALF_UP)}
                     </TextWrapper>
                   ) : (
                     '-'
                   )}
                   {token10Deposited ? (
                     <TextWrapper>
-                      {token10Deposited?.toSignificant(6)}
+                      {token10Deposited?.toSignificant(6, undefined, Rounding.ROUND_HALF_UP)}
                     </TextWrapper>
                   ) : (
                     '-'
@@ -475,16 +475,6 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                 </ColumnCenter>
               </Row>
             </FullPositionWrapper>
-
-
-            <ButtonSecondaryPosition padding="8px" borderRadius="8px">
-              <ExternalLink
-                style={{ width: '100%', textAlign: 'center' }}
-                href={`https://info.feswap.io/account/${account}`}
-              >
-                View accrued fees and analytics<span style={{ fontSize: '11px' }}> ↗</span>
-              </ExternalLink>
-            </ButtonSecondaryPosition>
 
             { ( (userPoolBalance0 && JSBI.greaterThan(userPoolBalance0.raw, BIG_INT_ZERO)) ||
                 (userPoolBalance1 && JSBI.greaterThan(userPoolBalance1.raw, BIG_INT_ZERO)) )
@@ -529,3 +519,13 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
     </StyledPositionCard>
   )
 }
+
+
+//<ButtonSecondaryPosition padding="8px" borderRadius="8px">
+//<ExternalLink
+//  style={{ width: '100%', textAlign: 'center' }}
+//  href={`https://info.feswap.io/account/${account}`}
+//>
+//  View accrued fees and analytics<span style={{ fontSize: '11px' }}> ↗</span>
+//</ExternalLink>
+//</ButtonSecondaryPosition>

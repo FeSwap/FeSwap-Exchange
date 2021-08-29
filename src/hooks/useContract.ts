@@ -108,11 +108,13 @@ export function useFeswContract(): Contract | null {
 }
 
 export function useFeswFactoryContract(): Contract | null {
-  return useContract(FESW_FACTORY_ADDRESS, NFT_FACTORY_ABI, true)
+  const { chainId } = useActiveWeb3React()
+  return useContract(chainId ? FESW_FACTORY_ADDRESS[chainId] : undefined, NFT_FACTORY_ABI, true)
 }
 
 export function useFeswRouterContract(): Contract | null {
-  return useContract(FESW_ROUTER_ADDRESS, NFT_ROUTER_ABI, true)
+  const { chainId } = useActiveWeb3React()
+  return useContract(chainId ? FESW_ROUTER_ADDRESS[chainId] : undefined, NFT_ROUTER_ABI, true)
 }
 
 export function useSponsorContract(): Contract | null {

@@ -16,8 +16,8 @@ export default function TradePrice({ price, showInverted, setShowInverted }: Tra
   const theme = useContext(ThemeContext)
 
   const formattedPrice = showInverted 
-                          ? price?.toSignificant(6, {rounding: Rounding.ROUND_DOWN}) 
-                          : price?.invert()?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})
+                          ? price?.toSignificant(6, undefined, Rounding.ROUND_DOWN) 
+                          : price?.invert()?.toSignificant(6, undefined, Rounding.ROUND_DOWN)
 
   const show = Boolean(price?.baseCurrency && price?.quoteCurrency)
   const label = showInverted

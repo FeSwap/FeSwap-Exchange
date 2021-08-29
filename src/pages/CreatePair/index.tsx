@@ -172,7 +172,7 @@ export default function CreatePairByNft() {
   const nftBidPriceString  = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return '_'
       const nftBidPrice = new Fraction(feswaPairBidInfo.pairBidInfo.currentPrice.toString(), WEI_DENOM)
-      return nftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}) 
+      return nftBidPrice.toSignificant(6, undefined, Rounding.ROUND_UP) 
     },[feswaPairBidInfo])
 
   const nftLastBidTime = useMemo(()=>{

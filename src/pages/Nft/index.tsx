@@ -236,8 +236,8 @@ export default function Nft({
       const newNftBidPrice =  nftBidPrice.lessThan(ONE_FRACTION) 
                               ? nftBidPrice.add(ONE_TENTH_FRACTION) 
                               : nftBidPrice.multiply(TEN_PERCENT_MORE)
-      return [ nftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}), 
-               newNftBidPrice.toSignificant(6, {rounding: Rounding.ROUND_UP}) ]
+      return [ nftBidPrice.toSignificant(6, undefined, Rounding.ROUND_UP), 
+               newNftBidPrice.toSignificant(6, undefined, Rounding.ROUND_UP) ]
     },[feswaPairBidInfo])
 
   const nftLastBidTime = useMemo(()=>{

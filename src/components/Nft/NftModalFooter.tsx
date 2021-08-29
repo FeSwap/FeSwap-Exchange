@@ -63,13 +63,13 @@ export default function NftModalFooter({
               }}
             >
               { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
-                `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null }
+                `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} FESW` : null }
               { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
-                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW` : null }
+                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} FESW` : null }
               { (buttonID === USER_BUTTON_ID.OK_BUY_NFT) && 
                   ( !nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT] 
                       ? 'Not For Sale'
-                      : `${nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} ETH` ) 
+                      : `${nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ETH` ) 
               } 
             </Text>
           </RowBetween>

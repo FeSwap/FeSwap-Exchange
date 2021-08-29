@@ -1,14 +1,14 @@
 {
   "name": "fexchange",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "FeSwap Interface",
   "homepage": ".",
   "private": true,
   "devDependencies": {
     "@ethersproject/experimental": "^5.0.1",
-    "@feswap/core": "^1.2.1",
-    "@feswap/governance": "^1.2.0",
-    "@feswap/sdk": "^1.6.1",
+    "@feswap/core": "^1.3.1",
+    "@feswap/governance": "^1.2.2",
+    "@feswap/sdk": "^1.6.5",
     "@popperjs/core": "^2.4.4",
     "@reach/dialog": "^0.10.3",
     "@reach/portal": "^0.10.3",

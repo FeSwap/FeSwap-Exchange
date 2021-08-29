@@ -54,12 +54,38 @@ export const PROPOSAL_LENGTH_IN_SECS = AVERAGE_BLOCK_TIME_IN_SECS * PROPOSAL_LEN
 //export const NFT_BID_ADDRESS    = '0x06C2De45973Df34DaB22AD0b767d2bE3eca5D178'            // on test Chain
 
 //export const FESW_FACTORY_ADDRESS   = '0xC72B4Da86643CcFF189AA7255DF320EdB0E187B0'       // Rinkeby
-export const FESW_FACTORY_ADDRESS     = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
+export const FESW_FACTORY_ADDRESS_MAINNET     = '0xEDc22C273ea25EeDA49F049e528150dBA367Da9A'         // on test Chain
+export const FESW_FACTORY_ADDRESS_ROPSTEN     = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
+export const FESW_FACTORY_ADDRESS_RINKEBY     = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
+export const FESW_FACTORY_ADDRESS_KOVAN       = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
+//export const FESW_FACTORY_ADDRESS_GÖRLI     = '0x615835Cc22064a17df5A3E8AE22F58e67bCcB778'         // on test Chain 1st
+export const FESW_FACTORY_ADDRESS_GÖRLI       = '0x1BdB1555bDc425183ad56FcB31c06205726FEFB0'         // on test Chain 2nd
+
+export const FESW_FACTORY_ADDRESS: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]:  FESW_FACTORY_ADDRESS_MAINNET,
+  [ChainId.ROPSTEN]:  FESW_FACTORY_ADDRESS_ROPSTEN,
+  [ChainId.RINKEBY]:  FESW_FACTORY_ADDRESS_RINKEBY,
+  [ChainId.GÖRLI]:    FESW_FACTORY_ADDRESS_GÖRLI,
+  [ChainId.KOVAN]:    FESW_FACTORY_ADDRESS_KOVAN
+}
 
 //export const FESW_ROUTER_ADDRESS  = '0x09179ceebad6b676F6E6B0474907335be3E30D89'       // Rinkeby (2021/06/14)
 //export const FESW_ROUTER_ADDRESS  = '0x6E923637948657BB1b5610C81b9C6a44bBa63297'       // Rinkeby (2021/06/26)
-//export const FESW_ROUTER_ADDRESS  = '0x34D3fB8402c2c666bEcC16363520dC28F810e4FF'       // Rinkeby (2021/06/27)
-export const FESW_ROUTER_ADDRESS    = '0x657db4e8c4258570cc7dd61031777901439e8079'       // on test Chain
+//export const FESW_ROUTER_ADDRESS  = '0x34D3fB8402c2c666bEcC16363520dC28F810e4FF'                // Rinkeby (2021/06/27)
+export const FESW_ROUTER_ADDRESS_MAINNET    = '0xc41FaBb87b6D35CC539bF9dA6c974ed2434A6DbC'       // on test Chain
+export const FESW_ROUTER_ADDRESS_ROPSTEN    = '0x657db4e8c4258570cc7dd61031777901439e8079'       // on test Chain
+export const FESW_ROUTER_ADDRESS_RINKEBY    = '0x657db4e8c4258570cc7dd61031777901439e8079'       // on test Chain
+export const FESW_ROUTER_ADDRESS_KOVAN      = '0x657db4e8c4258570cc7dd61031777901439e8079'       // on test Chain
+//export const FESW_ROUTER_ADDRESS_GÖRLI      = '0x4db0ba23261Fd5905d0Ba15b3eb35F334BeEbEA5'       // on test Chain 1st
+export const FESW_ROUTER_ADDRESS_GÖRLI      = '0xD5e8666620eaf809D32c5F2D739C49953FBd6e12'       // on test Chain 2nd
+
+export const FESW_ROUTER_ADDRESS: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]:  FESW_ROUTER_ADDRESS_MAINNET,
+  [ChainId.ROPSTEN]:  FESW_ROUTER_ADDRESS_ROPSTEN,
+  [ChainId.RINKEBY]:  FESW_ROUTER_ADDRESS_RINKEBY,
+  [ChainId.GÖRLI]:    FESW_ROUTER_ADDRESS_GÖRLI,
+  [ChainId.KOVAN]:    FESW_ROUTER_ADDRESS_KOVAN
+}
 
 //const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                     // Test for dev
 //const FESW_TEST_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                // Test for dev

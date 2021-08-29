@@ -51,8 +51,8 @@ export default function SponsorModalFooter({
             }}
           >
             {showInverted
-              ? `${sponsor?.feswGiveRate?.invert().toSignificant(6,{rounding: Rounding.ROUND_DOWN})} ETH/FESW`
-              : `${sponsor?.feswGiveRate?.toSignificant(6, {rounding: Rounding.ROUND_DOWN})} FESW/ETH` }
+              ? `${sponsor?.feswGiveRate?.invert().toSignificant(6, undefined, Rounding.ROUND_DOWN)} ETH/FESW`
+              : `${sponsor?.feswGiveRate?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} FESW/ETH` }
             <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
               <RefreshCcw size={14} />
             </StyledBalanceMaxMini>
