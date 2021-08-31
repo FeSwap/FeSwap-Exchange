@@ -12,7 +12,15 @@ type ChainTokenList = {
 }
 
 export const DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin')
-export const USDC = new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD//C')
+export const USDC = new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin USDC')
+
+/*
+export const USDC:  { [chainId: number]: Token }  = {
+  [ChainId.MAINNET]:  new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin USDC'),
+  [ChainId.GÖRLI]:    new Token(ChainId.GÖRLI, '0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C', 6, 'USDC', 'USD Coin USDC')
+}
+*/
+
 export const USDT:  { [chainId: number]: Token }  = {
       [ChainId.MAINNET]:  new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
       [ChainId.ROPSTEN]:  new Token(ChainId.ROPSTEN, '0x110a13FC3efE6A245B50102D2d79B3E76125Ae83', 6, 'USDT', 'Tether USD'),

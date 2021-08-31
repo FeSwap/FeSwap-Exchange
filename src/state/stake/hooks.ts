@@ -1,6 +1,6 @@
 import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@feswap/sdk'
 import { useMemo } from 'react'
-import { FESW, USDT, WBTC } from '../../constants'
+import { FESW, USDT, WBTC, USDC } from '../../constants'
 //import { FESW } from '../../constants'
 import { STAKING_REWARDS_INTERFACE } from '../../constants/abis/staking-rewards'
 import { useActiveWeb3React } from '../../hooks'
@@ -32,6 +32,10 @@ export const STAKING_REWARDS_INFO: {
     {
       tokens: [WETH[ChainId.MAINNET], FESW[ChainId.MAINNET]],
       stakingRewardAddress: '0x33B6af4A9ce826621F6c89Fe8563337f8A1CA51e'
+    },
+    {
+      tokens: [WETH[ChainId.MAINNET], USDC],
+      stakingRewardAddress: '0xA4A0B0A90f1574d02c55577f7aA5a698Ca4B47c8'
     }
   ],
   [ChainId.ROPSTEN]: [
