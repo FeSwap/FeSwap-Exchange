@@ -9,9 +9,9 @@ import { tryParseAmount } from '../swap/hooks'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import { ZERO_ADDRESS } from '../../constants'
 
-export const STAKING_GENESIS = 1627318800     // 1600387200
+export const STAKING_GENESIS = 1630411200     //1627318800     // 1600387200
 
-export const REWARDS_DURATION_DAYS = 122      // 60
+export const REWARDS_DURATION_DAYS = 120      // 60
 
 // TODO add staking rewards addresses here
 export const STAKING_REWARDS_INFO: {
