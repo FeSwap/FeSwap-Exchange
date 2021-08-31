@@ -17,7 +17,7 @@ const Base = styled(RebassButton)<{
   font-weight: 500;
   text-align: center;
   border-radius: 8px;
-  border-radius: ${({ borderRadius }) => borderRadius && borderRadius};
+  border-radius: ${({ borderRadius }) => borderRadius ? 'borderRadius': undefined};
   outline: none;
   border: 1px solid transparent;
   color: white;

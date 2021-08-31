@@ -1,7 +1,7 @@
 import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@feswap/sdk'
 import { useMemo } from 'react'
-//import { FESW, USDT, WBTC } from '../../constants'
-import { FESW } from '../../constants'
+import { FESW, USDT, WBTC } from '../../constants'
+//import { FESW } from '../../constants'
 import { STAKING_REWARDS_INTERFACE } from '../../constants/abis/staking-rewards'
 import { useActiveWeb3React } from '../../hooks'
 import { NEVER_RELOAD, useMultipleContractSingleData } from '../multicall/hooks'
@@ -21,18 +21,18 @@ export const STAKING_REWARDS_INFO: {
   }[]
 } = {
   [ChainId.MAINNET]: [
-//    {
-//      tokens: [WETH[ChainId.MAINNET], USDT[ChainId.MAINNET]],
-//      stakingRewardAddress: '0xa36ce7A67f6c4135f9f61faCA959505AE67F0724'
-//    },
-//    {
-//      tokens: [WETH[ChainId.MAINNET], WBTC[ChainId.RINKEBY]],
-//      stakingRewardAddress: '0x4076f4B91b80a7029D3beAa41C3cb529468FA226'
-//    },
-//    {
-//      tokens: [WETH[ChainId.MAINNET], FESW[ChainId.MAINNET]],
-//      stakingRewardAddress: '0x25C46Cb81C3B0f6eDa66F72223A859CCB09520FA'
-//    }
+    {
+      tokens: [WETH[ChainId.MAINNET], USDT[ChainId.MAINNET]],
+      stakingRewardAddress: '0x23D04f77063f60042aAB7aAEDF14ADDbd7bE6Ee9'
+    },
+    {
+      tokens: [WETH[ChainId.MAINNET], WBTC[ChainId.MAINNET]],
+      stakingRewardAddress: '0xaC262B589b785e48E2A331Cb9cAf86fFAf069f91'
+    },
+    {
+      tokens: [WETH[ChainId.MAINNET], FESW[ChainId.MAINNET]],
+      stakingRewardAddress: '0x33B6af4A9ce826621F6c89Fe8563337f8A1CA51e'
+    }
   ],
   [ChainId.ROPSTEN]: [
     //    {
