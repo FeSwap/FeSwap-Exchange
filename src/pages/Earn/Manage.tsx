@@ -284,7 +284,7 @@ export default function Manage({
                     <CountUp
                       key={countUpAmount}
                       isCounting
-                      decimalPlaces={4}
+                      decimalPlaces={2}
                       start={parseFloat(countUpAmountPrevious)}
                       end={parseFloat(countUpAmount)}
                       thousandsSeparator={','}
