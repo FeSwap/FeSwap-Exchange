@@ -45,6 +45,8 @@ import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
 import { CardNoise } from '../../components/earn/styled'
 import QuestionHelper from '../../components/QuestionHelper'
+import { ONE_OVER_10K_FRACTION } from '../../utils'
+
 
 //export default function Swap({ history }: RouteComponentProps) {
 export default function Swap() {
@@ -387,7 +389,7 @@ export default function Swap() {
                                 to alleviate the difference." />
                       </RowFixed>
                       <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        {priceGap.toSignificant(4)}%
+                        {priceGap.lessThan(ONE_OVER_10K_FRACTION) ? '< 0.01': priceGap.toSignificant(4)}%
                       </Text>
                     </RowBetween>
                   )}

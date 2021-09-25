@@ -29,6 +29,8 @@ export const THREE_OVER_HUNDREAD = new Fraction(THREE, HUNDREAD)
 export const WEI_DENOM_FRACTION = new Fraction(WEI_DENOM, ONE)
 export const HUNDREAD_FRACTION = new Fraction(HUNDREAD, ONE)
 export const TEN_THOUSAND_FRACTION = HUNDREAD_FRACTION.multiply(HUNDREAD_FRACTION)
+export const ONE_OVER_10K_FRACTION = ONE_OVER_HUNDREAD.multiply(ONE_OVER_HUNDREAD)
+
 
 export const MAXJSBI = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
