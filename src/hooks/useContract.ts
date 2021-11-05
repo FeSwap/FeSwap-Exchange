@@ -137,7 +137,7 @@ export function feswType(chainId: ChainId): string {
       chainId === ChainId.RINKEBY ||
       chainId === ChainId.GÖRLI ||
       chainId === ChainId.KOVAN ) return 'FESW'
-  return 'FESW'
+  return 'YESW'
 }
 
 export function useSocksController(): Contract | null {
