@@ -127,7 +127,7 @@ export default function Sponsor() {
         await sponsorContract.Sponsor(account, { value: BigNumber.from(sponsorAmount.raw.toString()), gasLimit: calculateGasMargin(estimatedGasLimit) })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
-            summary: `Sponsored ${sponsorAmount?.toSignificant(6)} ETH`,
+            summary: `Sponsored ${sponsorAmount?.toSignificant(6)} ${Currency.getNativeCurrencySymbol(chainId)}`,
           })
           setSponsorState({ attemptingTxn: false, sponsorToConfirm, showConfirm, spnosorErrorMessage: undefined, txHash: response.hash })
         })
@@ -263,12 +263,12 @@ export default function Sponsor() {
                       <Text fontWeight={500} fontSize={14} color={theme.red2}>
                         High-Value Sponsor:
                       </Text>
-                      { SponsorInputError === 'Insufficient ETH balance'
+                      { SponsorInputError === `Insufficient ${Currency.getNativeCurrencySymbol(chainId)} balance`
                         ? (<Text fontWeight={500} fontSize={14} color={theme.red2}>
-                            Insufficient ETH
+                            Insufficient ${Currency.getNativeCurrencySymbol(chainId)}
                           </Text>)
                         : (<Text fontWeight={500} fontSize={14} color={theme.red2}>
-                            {parsedAmounts[Field.INPUT]?.toSignificant(6)} ETH
+                            {parsedAmounts[Field.INPUT]?.toSignificant(6)} ${Currency.getNativeCurrencySymbol(chainId)}
                           </Text>)
                       }
                     </RowBetween>

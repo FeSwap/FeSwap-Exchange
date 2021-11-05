@@ -7,7 +7,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { ExternalLink } from '../../theme'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
-import { getEtherscanLink } from '../../utils'
+import { getExplorerLink } from '../../utils/explorer'
 
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
@@ -105,7 +105,7 @@ export default function AddressInputPanel({
           <AutoColumn gap="md">
             <RowBetween>
               {address && chainId && (
-                <ExternalLink href={getEtherscanLink(chainId, name ?? address, 'address')} style={{ fontSize: '15px' }}>
+                <ExternalLink href={getExplorerLink(chainId, name ?? address, 'address')} style={{ fontSize: '15px' }}>
                   (View on Etherscan)
                 </ExternalLink>
               )}

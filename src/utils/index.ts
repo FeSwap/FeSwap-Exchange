@@ -4,8 +4,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { abi as IFeSwapRouterABI } from '@feswap/core/build/IFeSwapRouter.json'
-import { FESW_ROUTER_ADDRESS } from '../constants'
-import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, Fraction } from '@feswap/sdk'
+import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, Fraction, ROUTER_ADDRESS } from '@feswap/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
 
 export const WEI_DENOM = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))
@@ -16,11 +15,14 @@ export const THREE = JSBI.BigInt(3)
 export const FIVE = JSBI.BigInt(5)
 export const TEN = JSBI.BigInt(10)
 export const HUNDREAD = JSBI.BigInt(100)
+export const HUNDREAD_TWO = JSBI.BigInt(102)
 export const ELEVEN = JSBI.BigInt(11)
 export const ZERO_FRACTION = new Fraction(ZERO, ONE)
 export const ONE_FRACTION = new Fraction(ONE, ONE)
+export const TWO_FRACTION = new Fraction(TWO, ONE)
 export const THREE_FRACTION = new Fraction(THREE, ONE)
 export const FIVE_FRACTION = new Fraction(FIVE, ONE)
+export const TEN_FRACTION = new Fraction(TEN, ONE)
 export const ONE_TENTH_FRACTION = new Fraction(ONE, TEN)
 export const TWO_TENTH_FRACTION = new Fraction(TWO, TEN)
 export const TEN_PERCENT_MORE = new Fraction(ELEVEN, TEN)
@@ -28,14 +30,14 @@ export const ONE_OVER_HUNDREAD = new Fraction(ONE, HUNDREAD)
 export const THREE_OVER_HUNDREAD = new Fraction(THREE, HUNDREAD)
 export const WEI_DENOM_FRACTION = new Fraction(WEI_DENOM, ONE)
 export const HUNDREAD_FRACTION = new Fraction(HUNDREAD, ONE)
+export const THOUSAND_FRACTION = HUNDREAD_FRACTION.multiply(TEN_FRACTION)
 export const TEN_THOUSAND_FRACTION = HUNDREAD_FRACTION.multiply(HUNDREAD_FRACTION)
-export const ONE_OVER_10K_FRACTION = ONE_OVER_HUNDREAD.multiply(ONE_OVER_HUNDREAD)
-
+export const HUNDREAD_TWO_FRACTION = new Fraction(HUNDREAD_TWO, HUNDREAD)
 
 export const MAXJSBI = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
-export function expandTo18Decimals(n: number): BigNumber {
-  return BigNumber.from(n).mul(BigNumber.from(10).pow(18))
+export function expandTo18Decimals(n: number, e: number = 18): BigNumber {
+  return BigNumber.from(n).mul(BigNumber.from(10).pow(e))
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
@@ -46,16 +48,31 @@ export function isAddress(value: any): string | false {
     return false
   }
 }
-
+/*
 const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   1: '',
   3: 'ropsten.',
   4: 'rinkeby.',
   5: 'goerli.',
-  42: 'kovan.'
+  42: 'kovan.',
+  56: 'BSC.',
+  97: 'BSC_Test.'  
 }
+*/
 
-export function getEtherscanLink(
+/*
+export function getExplorerLink(
+  chainId: ChainId,
+  data: string,
+  type: 'transaction' | 'token' | 'address' | 'block'
+): string {
+  const chain = chains[chainId]
+  return chain.builder(chain.chainName, data, type)
+}
+*/
+
+/*
+export function getExplorerLink(
   chainId: ChainId,
   data: string,
   type: 'transaction' | 'token' | 'address' | 'block'
@@ -78,6 +95,7 @@ export function getEtherscanLink(
     }
   }
 }
+*/
 
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end
 export function shortenAddress(address: string, chars = 4): string {
@@ -129,7 +147,7 @@ export function getContract(address: string, ABI: any, library: Web3Provider, ac
 
 // account is optional
 export function getRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(FESW_ROUTER_ADDRESS[chainId], IFeSwapRouterABI, library, account)
+  return getContract(ROUTER_ADDRESS[chainId], IFeSwapRouterABI, library, account)
 }
 
 export function escapeRegExp(string: string): string {

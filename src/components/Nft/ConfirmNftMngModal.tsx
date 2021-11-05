@@ -7,6 +7,7 @@ import NftMngModalHeader from './NftMngModalHeader'
 import NftMngModalFooter from './NftMngModalFooter'
 import {NftManageTrade} from '../../state/nft/hooks'
 import { Field, USER_BUTTON_ID, BidConfirmTitle, BidPendingTitle, BidSubmittedTitle } from '../../state/nft/actions'
+import { useActiveWeb3React } from '../../hooks'
 
 export default function ConfirmNftManageModal({
   nftManageTrx,
@@ -31,7 +32,7 @@ export default function ConfirmNftManageModal({
   onDismiss: () => void
   buttonID: USER_BUTTON_ID
 }) {
-
+  const { chainId } = useActiveWeb3React()
   const modalHeader = useCallback(() => {
     return nftManageTrx ? (
       <NftMngModalHeader
@@ -56,7 +57,7 @@ export default function ConfirmNftManageModal({
   // text to show while loading
   const pendingText = useMemo(()=>{
       if (!nftManageTrx) return ''
-      const pairSymbol = `${nftManageTrx.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftManageTrx.pairCurrencies[Field.TOKEN_B]?.symbol}`
+      const pairSymbol = `${nftManageTrx.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftManageTrx.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}`
 
       switch (buttonID) {
         case USER_BUTTON_ID.OK_CREATE_PAIR:
@@ -66,7 +67,7 @@ export default function ConfirmNftManageModal({
       }
       return ''     
     }
-    ,[nftManageTrx, buttonID])
+    ,[nftManageTrx, buttonID, chainId])
 
   const confirmationContent = useCallback(
     () =>

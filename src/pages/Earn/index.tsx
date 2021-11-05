@@ -9,6 +9,7 @@ import { CardSection, DataCard, CardNoise } from '../../components/earn/styled'
 import Loader from '../../components/Loader'
 import { useActiveWeb3React } from '../../hooks'
 import { EmptyProposals } from '../Pool'
+import { FESW } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 480px;
@@ -37,6 +38,9 @@ flex-direction: column;
 
 export default function Earn() {
   const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
+  const DAO_NAME = (GORV_TOKEN_NAME==='FESW') ? 'FeSwap' : 'FeSwap'
+
   const theme = useContext(ThemeContext)
 
   // staking info for connected account
@@ -58,11 +62,11 @@ export default function Earn() {
           <CardSection>
             <AutoColumn gap="md">
               <RowBetween>
-                <TYPE.black fontWeight={600}>FeSwap liquidity mining</TYPE.black>
+                <TYPE.black fontWeight={600}>{DAO_NAME} liquidity mining</TYPE.black>
               </RowBetween>
               <RowBetween>
                 <TYPE.black fontSize={14}>
-                  To reward providing liquidity, FESW, the FeSwap protocol governance token, are distributed based on 
+                  To reward providing liquidity, {GORV_TOKEN_NAME}, the {DAO_NAME} protocol governance token, are distributed based on 
                   depositing liquidity tokens.
                 </TYPE.black>
               </RowBetween>
@@ -71,7 +75,7 @@ export default function Earn() {
                 href="https://www.feswap.io/docs"
                 target="_blank"
               >
-                <TYPE.black fontSize={14}>Read more about FESW ↗</TYPE.black>
+                <TYPE.black fontSize={14}>Read more about {GORV_TOKEN_NAME} ↗</TYPE.black>
               </ExternalLink>
             </AutoColumn>
           </CardSection>
@@ -88,7 +92,7 @@ export default function Earn() {
           { (!account) 
             ? ( <EmptyProposals>
                   <TYPE.body fontWeight={500} mr="4px" textAlign="center" fontSize={16} color={theme.text3} > 
-                    Connect to a Wallet to Mine FESW tokens
+                    Connect to a Wallet to Mine {GORV_TOKEN_NAME} tokens
                   </TYPE.body> 
                 </EmptyProposals>)
             : stakingRewardsExist && stakingInfos?.length === 0 

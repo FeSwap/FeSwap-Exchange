@@ -3,7 +3,7 @@ import { AutoColumn } from '../../components/Column'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
-import { JSBI, TokenAmount, ETHER } from '@feswap/sdk'
+import { JSBI, TokenAmount, ETHER, NATIVE } from '@feswap/sdk'
 import { RouteComponentProps } from 'react-router-dom'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { useCurrency } from '../../hooks/Tokens'
@@ -27,11 +27,12 @@ import { currencyId } from '../../utils/currencyId'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import usePrevious from '../../hooks/usePrevious'
-import { useUSDTPrice } from '../../utils/useUSDCPrice'
+// import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { transparentize } from 'polished'
 import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { LightCard } from '../../components/Card'
 import { ZERO } from '../../utils'
+import { FESW } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 480px;
@@ -87,6 +88,9 @@ export default function Manage({
   }
 }: RouteComponentProps<{ currencyIdA: string; currencyIdB: string }>) {
   const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
+  const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : 'ETH'
+  const DAO_NAME = (GORV_TOKEN_NAME==='FESW') ? 'FeSwap' : 'FeSwap'
 
   // get currencies and pair
   const [currency0, currency1] = [useCurrency(currencyIdA), useCurrency(currencyIdB)]
@@ -149,8 +153,8 @@ export default function Manage({
   const countUpAmountPrevious = usePrevious(countUpAmount) ?? '0'
 
   // get the USD value of staked WETH
-  const USDTPrice = useUSDTPrice(WETH)
-  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
+//  const USDTPrice = useUSDTPrice(WETH)
+//  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -162,12 +166,14 @@ export default function Manage({
     }
   }, [account, toggleWalletModal])
 
+//  {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })??' -'}`}
+
    return (
     <PageWrapper gap="lg" justify="center">
       <RowBetween style={{ gap: '24px' }}>
         <div/>
         <TYPE.mediumHeader style={{ margin: 0 }} fontSize={20}>
-          {currencyA?.symbol}🔗{currencyB?.symbol} Liquidity Mining
+          {currencyA?.getSymbol(chainId)}🔗{currencyB?.getSymbol(chainId)} Liquidity Mining
         </TYPE.mediumHeader>
         <DoubleCurrencyLogo currency0={currencyA ?? undefined} currency1={currencyB ?? undefined} size={24} />
       </RowBetween>
@@ -178,10 +184,10 @@ export default function Manage({
             <AutoColumn gap="sm">
               <TYPE.body style={{ margin: 0 }}>Total Value of Deposits</TYPE.body>
               <TYPE.body fontSize={24} fontWeight={500} style={{ textAlign: 'center' }}>
-                {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
+                {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'}`}
               </TYPE.body>
               <TYPE.body fontSize={20} fontWeight={500} style={{ textAlign: 'center' }}>
-                {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })??' -'}`}
+               {NATIVE_SYMBOL}
               </TYPE.body>
             </AutoColumn>
             <CardNoise />
@@ -197,7 +203,7 @@ export default function Manage({
                       ?.toFixed(0, { groupSeparator: ',' }) ?? '-'
                   : '0'}
               </TYPE.body>
-              <TYPE.body fontSize={20} fontWeight={500} style={{ textAlign: 'center' }} >{' FESW / Day'} </TYPE.body>
+              <TYPE.body fontSize={20} fontWeight={500} style={{ textAlign: 'center' }} > {GORV_TOKEN_NAME} / Day </TYPE.body>
             </AutoColumn>
             <CardNoise />
           </PoolData>
@@ -208,12 +214,12 @@ export default function Manage({
           <CardNoise />
           <CardSection gap="md">
               <RowBetween>
-                <TYPE.black fontWeight={600} fontSize={20} >Want to Mine FESW</TYPE.black>
+                <TYPE.black fontWeight={600} fontSize={20} > Want to Mine {GORV_TOKEN_NAME} </TYPE.black>
               </RowBetween>
               <RowBetween style={{ marginBottom: '1rem' }}>
                 <TYPE.black fontSize={14}>
-                  {`To mine FESW token, you need to stake FeSwap liquidity token FESP, which can be minted by adding liquidity 
-                    to the ${currencyA?.symbol}🔗${currencyB?.symbol} pool. Once you have minted some FESP tokens, 
+                  {`To mine ${GORV_TOKEN_NAME} token, you need to stake ${DAO_NAME} liquidity token FESP, which can be minted by adding liquidity 
+                    to the ${currencyA?.getSymbol(chainId)}🔗${currencyB?.getSymbol(chainId)} pool. Once you have minted some FESP tokens, 
                     you can stake them on this page.`}
                 </TYPE.black>
               </RowBetween>
@@ -225,7 +231,7 @@ export default function Manage({
                   as={Link}
                   to={`/add/${currencyA && currencyId(currencyA)}/${currencyB && currencyId(currencyB)}`}
                 >
-                  {`Add ${currencyA?.symbol}🔗${currencyB?.symbol} liquidity`}
+                  {`Add ${currencyA?.getSymbol(chainId)}🔗${currencyB?.getSymbol(chainId)} liquidity`}
                 </ButtonPrimary>
               </RowBetween>
           </CardSection>
@@ -265,7 +271,7 @@ export default function Manage({
             </RowFixed>
             <RowFixed>
               <TYPE.mediumHeader style={{ margin: "0 6px" }} fontSize={20}>
-                {currencyA?.symbol}🔗{currencyB?.symbol} 
+                {currencyA?.getSymbol(chainId)}🔗{currencyB?.getSymbol(chainId)} 
               </TYPE.mediumHeader>
               <DoubleCurrencyLogo currency0={currencyA??undefined} currency1={currencyB??undefined} size={24} />
             </RowFixed>
@@ -277,14 +283,14 @@ export default function Manage({
               stakingInfo?.stakedAmount?.[1].greaterThan(JSBI.BigInt(0)) ) && (
               <CardSection gap="4px">
                 <RowBetween>
-                  <TYPE.black fontWeight={400} fontSize={18}>Your claimable FESW</TYPE.black>
+                  <TYPE.black fontWeight={400} fontSize={18}>Your claimable {GORV_TOKEN_NAME}</TYPE.black>
                 </RowBetween>
                 <RowBetween style={{ alignItems: 'baseline' }}>
                   <TYPE.largeHeader fontSize={36} fontWeight={600}>
                     <CountUp
                       key={countUpAmount}
                       isCounting
-                      decimalPlaces={2}
+                      decimalPlaces={4}
                       start={parseFloat(countUpAmountPrevious)}
                       end={parseFloat(countUpAmount)}
                       thousandsSeparator={','}
@@ -300,7 +306,7 @@ export default function Manage({
                         ?.multiply(BIG_INT_SECONDS_IN_DAY)
                           ?.toSignificant(4, { groupSeparator: ',' }) ?? '-'
                       : '0'}
-                    {' FESW / Day'}
+                    {` ${GORV_TOKEN_NAME} / Day`}
                   </TYPE.black>
                 </RowBetween>
                 {stakingInfo?.earnedAmount && JSBI.notEqual(BIG_INT_ZERO, stakingInfo?.earnedAmount?.raw) && (
@@ -326,13 +332,13 @@ export default function Manage({
               <RowBetween style={{ alignItems: 'baseline' }}>
                 <Balance balance = {stakingInfo?.stakedAmount?.[0]} />
                 <TYPE.black>
-                  FESP: <strong>{currencyA?.symbol}<span role="img" aria-label="party">🔗</span>{currencyB?.symbol}</strong>
+                  FESP: <strong>{currencyA?.getSymbol(chainId)}<span role="img" aria-label="party">🔗</span>{currencyB?.getSymbol(chainId)}</strong>
                 </TYPE.black>
               </RowBetween>
               <RowBetween style={{ alignItems: 'baseline' }}>
                 <Balance balance = {stakingInfo?.stakedAmount?.[1]} />
                 <TYPE.black>
-                  FESP: <strong>{currencyB?.symbol}<span role="img" aria-label="party">🔗</span>{currencyA?.symbol}</strong>
+                  FESP: <strong>{currencyB?.getSymbol(chainId)}<span role="img" aria-label="party">🔗</span>{currencyA?.getSymbol(chainId)}</strong>
                 </TYPE.black>
               </RowBetween>
               { ( stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) ||
@@ -342,7 +348,7 @@ export default function Manage({
                     <span role="img" aria-label="wizard-icon" style={{ marginRight: '8px' }}>
                       ⭐️ 
                     </span>
-                    When you withdraw, the contract will automagically claim FESW on your behalf!
+                    When you withdraw, the contract will automagically claim {GORV_TOKEN_NAME} on your behalf!
                   </TYPE.main>
                   <RowBetween style={{ marginTop: "12px" }}>
                     <div/>
@@ -369,7 +375,7 @@ export default function Manage({
                   <RowBetween style={{ alignItems: 'baseline' }}>
                     <Balance balance = {userLiquidityUnstaked0} />
                     <TYPE.black>
-                      FESP: <strong>{currencyA?.symbol}<span role="img" aria-label="party">🔗</span>{currencyB?.symbol}</strong>
+                      FESP: <strong>{currencyA?.getSymbol(chainId)}<span role="img" aria-label="party">🔗</span>{currencyB?.getSymbol(chainId)}</strong>
                     </TYPE.black>
                   </RowBetween>
                 )}
@@ -377,7 +383,7 @@ export default function Manage({
                   <RowBetween style={{ alignItems: 'baseline' }}>
                     <Balance balance = {userLiquidityUnstaked1} />
                     <TYPE.black>
-                      FESP: <strong>{currencyB?.symbol}<span role="img" aria-label="party">🔗</span>{currencyA?.symbol}</strong>
+                      FESP: <strong>{currencyB?.getSymbol(chainId)}<span role="img" aria-label="party">🔗</span>{currencyA?.getSymbol(chainId)}</strong>
                     </TYPE.black>
                   </RowBetween>
                 )}
@@ -386,7 +392,7 @@ export default function Manage({
                     <ButtonPrimary padding="12px" borderRadius="8px" width="100%" onClick={handleDepositClick}>
                       { ( stakingInfo?.stakedAmount?.[0].greaterThan(JSBI.BigInt(0)) ||
                           stakingInfo?.stakedAmount?.[1].greaterThan(JSBI.BigInt(0))  )
-                        ? 'Deposit' : 'Deposit FeSwap Liquidity Tokens'}
+                        ? 'Deposit' : `Deposit ${DAO_NAME} Liquidity Tokens`}
                     </ButtonPrimary>
                   </RowBetween>
                   )}

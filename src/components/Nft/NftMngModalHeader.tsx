@@ -9,6 +9,7 @@ import { RowBetween, RowFixed } from '../Row'
 import {NftManageTrade} from '../../state/nft/hooks'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { Link2 } from 'react-feather'
+import { useActiveWeb3React } from '../../hooks'
 
 export default function NftMngModalHeader({
   nftManageTrx,
@@ -21,7 +22,9 @@ export default function NftMngModalHeader({
 }) {
 
   const theme = useContext(ThemeContext)
-  const pairSymbol = `${nftManageTrx.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftManageTrx.pairCurrencies[Field.TOKEN_B]?.symbol}`
+  const { chainId } = useActiveWeb3React()
+  const pairSymbol = `${nftManageTrx.pairCurrencies[Field.TOKEN_A]?.getSymbol(
+                        chainId)}🔗${nftManageTrx.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}`
 
   return (
     <AutoColumn gap={'md'} style={{ marginTop: '20px' }}  >
@@ -35,11 +38,11 @@ export default function NftMngModalHeader({
           <DoubleCurrencyLogo currency0={nftManageTrx.pairCurrencies[Field.TOKEN_A]??undefined} 
                               currency1={nftManageTrx.pairCurrencies[Field.TOKEN_B]??undefined} size={24} />
           <Text fontWeight={500} fontSize={24} style={{ margin: '0 0 0 6px' }} >
-            {nftManageTrx.pairCurrencies[Field.TOKEN_A]?.symbol}
+            {nftManageTrx.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}
           </Text>
           <Link2 fontSize={'20px'} color={theme.primary1} style={{ margin: '0 2px 0 2px' }} />
           <Text fontWeight={500} fontSize={24} >
-            {nftManageTrx.pairCurrencies[Field.TOKEN_B]?.symbol}
+            {nftManageTrx.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}
           </Text>
         </RowFixed>
       </RowBetween>

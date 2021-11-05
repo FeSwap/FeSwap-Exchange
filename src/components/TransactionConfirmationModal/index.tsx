@@ -12,7 +12,7 @@ import { AutoColumn, ColumnCenter } from '../Column'
 import Circle from '../../assets/images/blue-loader.svg'
 // import { Separator } from '../SearchModal/styleds'
 
-import { getEtherscanLink } from '../../utils'
+import { getExplorerLink} from '../../utils/explorer'
 import { useActiveWeb3React } from '../../hooks'
 
 const Wrapper = styled.div`
@@ -93,7 +93,7 @@ function TransactionSubmittedContent({
             Transaction Submitted
           </Text>
           {chainId && hash && (
-            <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')}>
+            <ExternalLink href={getExplorerLink(chainId, hash, 'transaction')}>
               <Text fontWeight={500} fontSize={14} color={theme.primary1}>
                 View on Etherscan
               </Text>

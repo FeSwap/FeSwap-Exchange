@@ -15,6 +15,7 @@ import FormattedCurrencyAmount from '../FormattedCurrencyAmount'
 import { useActiveWeb3React } from '../../hooks'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { ZERO_FRACTION } from '../../utils'
+import { FESW } from '../../constants'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -28,7 +29,8 @@ interface StakingModalProps {
 }
 
 export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: StakingModalProps) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
 
   // monitor call to help UI loading state
   const addTransaction = useTransactionAdder()
@@ -93,8 +95,8 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
                   <TYPE.body fontWeight={600} fontSize={32} title={stakingInfo.stakedAmount[0].toExact()}>
                     {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[0]} />} FESP 
                   </TYPE.body>
-                  <TYPE.body> of sub-pool <strong>{pairCurrency0?.symbol}
-                              <span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency1?.symbol}</strong>
+                  <TYPE.body> of sub-pool <strong>{pairCurrency0?.getSymbol(chainId)}
+                              <span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency1?.getSymbol(chainId)}</strong>
                   </TYPE.body>    
                 </AutoColumn>
               )}
@@ -103,8 +105,8 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
                   <TYPE.body fontWeight={600} fontSize={32} title={stakingInfo.stakedAmount[1].toExact()}>
                     {<FormattedCurrencyAmount currencyAmount={stakingInfo.stakedAmount[1]} />} FESP 
                   </TYPE.body>
-                  <TYPE.body> of sub-pool <strong>{pairCurrency1?.symbol}
-                              <span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency0?.symbol}</strong>
+                  <TYPE.body> of sub-pool <strong>{pairCurrency1?.getSymbol(chainId)}
+                              <span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency0?.getSymbol(chainId)}</strong>
                   </TYPE.body>
                 </AutoColumn>
               )}
@@ -114,12 +116,12 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
             <AutoColumn justify="center" gap="md">
               <TYPE.body> and Claimable: </TYPE.body>
               <TYPE.body fontWeight={600} fontSize={36} title={stakingInfo?.earnedAmount.toExact()}>
-                {<FormattedCurrencyAmount currencyAmount={stakingInfo?.earnedAmount}/>} FESW
+                {<FormattedCurrencyAmount currencyAmount={stakingInfo?.earnedAmount}/>} {GORV_TOKEN_NAME}
               </TYPE.body>
             </AutoColumn>
           )}
           <TYPE.subHeader style={{ textAlign: 'center', padding: '0px 25px' }}>
-            When you withdraw, your FESW is claimed and your liquidity is removed from the mining pool 
+            When you withdraw, your {GORV_TOKEN_NAME} is claimed and your liquidity is removed from the mining pool 
             and wholely returned to your original account.
           </TYPE.subHeader>
           <ButtonError disabled={!!error} error={!!error && !!stakingInfo?.stakedAmount} onClick={onWithdraw}>
@@ -133,15 +135,15 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
             <TYPE.body fontSize={20}>Withdrawing:</TYPE.body>
             { stakingInfo?.stakedAmount[0].greaterThan(ZERO_FRACTION) && (
               <TYPE.body fontSize={20}> {stakingInfo?.stakedAmount?.[0].toSignificant(4)} FESP
-                          ({pairCurrency0?.symbol}<span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency1?.symbol})
+                          ({pairCurrency0?.getSymbol(chainId)}<span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency1?.getSymbol(chainId)})
               </TYPE.body>
             )}
             { stakingInfo?.stakedAmount[1].greaterThan(ZERO_FRACTION) && (
               <TYPE.body fontSize={20}> {stakingInfo?.stakedAmount?.[1].toSignificant(4)} FESP
-                          ({pairCurrency1?.symbol}<span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency0?.symbol})
+                          ({pairCurrency1?.getSymbol(chainId)}<span role="img" aria-label="wizard-icon">🔗</span>{pairCurrency0?.getSymbol(chainId)})
               </TYPE.body>
             )}
-            <TYPE.body fontSize={20}>Claiming: {stakingInfo?.earnedAmount?.toSignificant(4)} FESW </TYPE.body>
+            <TYPE.body fontSize={20}>Claiming: {stakingInfo?.earnedAmount?.toSignificant(4)} {GORV_TOKEN_NAME} </TYPE.body>
           </AutoColumn>
         </LoadingView>
       )}
@@ -150,7 +152,7 @@ export default function UnstakingModal({ isOpen, onDismiss, stakingInfo }: Staki
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
             <TYPE.body fontSize={20}>Withdrew FESP!</TYPE.body>
-            <TYPE.body fontSize={20}>Claimed FESW!</TYPE.body>
+            <TYPE.body fontSize={20}>Claimed {GORV_TOKEN_NAME}!</TYPE.body>
           </AutoColumn>
         </SubmittedView>
       )}

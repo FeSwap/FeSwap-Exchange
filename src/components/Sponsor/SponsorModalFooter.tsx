@@ -10,6 +10,8 @@ import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { StyledBalanceMaxMini, SwapCallbackError } from '../swap/styleds'
 import {SponsorTrade} from '../../state/sponsor/hooks'
+import { useActiveWeb3React } from '../../hooks'
+import { FESW } from '../../constants'
 
 export default function SponsorModalFooter({
   sponsor,
@@ -24,6 +26,8 @@ export default function SponsorModalFooter({
   disabledConfirm: boolean
   highSponsor: boolean
 }) {
+  const { chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useContext(ThemeContext)
 
@@ -51,8 +55,8 @@ export default function SponsorModalFooter({
             }}
           >
             {showInverted
-              ? `${sponsor?.feswGiveRate?.invert().toSignificant(6, undefined, Rounding.ROUND_DOWN)} ETH/FESW`
-              : `${sponsor?.feswGiveRate?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} FESW/ETH` }
+              ? `${sponsor?.feswGiveRate?.invert().toSignificant(6, undefined, Rounding.ROUND_DOWN)} ETH/${GORV_TOKEN_NAME}`
+              : `${sponsor?.feswGiveRate?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${GORV_TOKEN_NAME}/ETH` }
             <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
               <RefreshCcw size={14} />
             </StyledBalanceMaxMini>

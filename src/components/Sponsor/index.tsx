@@ -8,6 +8,8 @@ import { AutoRow, RowBetween } from '../Row'
 import { AutoColumn } from '../Column'
 import { Award, CheckSquare, XSquare } from 'react-feather'
 import { ButtonError } from '../Button'
+import { useActiveWeb3React } from '../../hooks'
+import { FESW } from '../../constants'
 
 const WarningContainer = styled.div`
   max-width: 480px;
@@ -38,6 +40,10 @@ export default function SponsorWarningModal({
   isOpen: boolean
   onConfirm: (yesOrNo: boolean) => void
 }) {
+  const { chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
+  const DAO_NAME = (GORV_TOKEN_NAME==='FESW') ? 'FeSwap' : 'FeSwap'
+
   const handleDismiss = useCallback(() => null, [])
   return (
     <Modal isOpen={isOpen} onDismiss={handleDismiss} maxHeight={90}>
@@ -50,18 +56,18 @@ export default function SponsorWarningModal({
             </TYPE.main>
           </AutoRow>
           <TYPE.body color={'red2'}>
-            Your sponsorship will be used for the development of FeSwap decentralized exchange, 
+            Your sponsorship will be used for the development of {DAO_NAME} decentralized exchange, 
             the world first DEX serving cryptocurrecy exchange without exchange fee.   
           </TYPE.body>
           <TYPE.body color={'red2'}>
-            As return, you will get some <strong>FESW</strong> tokens, which entitle you to engage in FeSwap governance. <br />
+            As return, you will get some <strong>{GORV_TOKEN_NAME}</strong> tokens, which entitle you to engage in {DAO_NAME} governance. <br />
           </TYPE.body>
           <TYPE.body color={'red2'}>
-            <strong>FESW</strong>, as the FeSwap governance token, is assumed to be <strong>NO</strong> monetary value. Please follow your local country 
-            legislation while sponsoring FeSwap and utilizing <strong>FESW</strong> tokens.  
+            <strong>{GORV_TOKEN_NAME}</strong>, as the {DAO_NAME} governance token, is assumed to be <strong>NO</strong> monetary value. Please follow your local country 
+            legislation while sponsoring {DAO_NAME} and utilizing <strong>{GORV_TOKEN_NAME}</strong> tokens.  
           </TYPE.body>
           <TYPE.body color={'red2'}>
-            <strong>Thank you to support FeSwap community!</strong>
+            <strong>Thank you to support {DAO_NAME} community!</strong>
           </TYPE.body>
           <RowBetween>
             <ButtonError

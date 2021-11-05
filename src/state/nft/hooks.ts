@@ -18,7 +18,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useCurrency } from '../../hooks/Tokens'
 import { ZERO_ADDRESS } from '../../constants'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
-import { PairBidInfo, FeswaPairInfo } from './reducer'
+import { PairBidInfo, FeswaPairInfo, FeswaNftConfig } from './reducer'
 import { WEI_DENOM } from '../../utils'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useNFTPairAdded } from '../user/hooks'
@@ -27,6 +27,7 @@ export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
   readonly parsedAmounts: { [field in USER_UI_INFO]?: CurrencyAmount }
   readonly firtBidder: boolean
+  readonly feswaNftConfig: FeswaNftConfig | undefined
 }
 
 export interface NftManageTrade {
@@ -245,6 +246,8 @@ export function useDerivedNftInfo(): {
   pairCurrencies: { [field in Field]?: Currency }
   WalletBalances : { [field in WALLET_BALANCE]?: CurrencyAmount }
   parsedAmounts:   { [field in USER_UI_INFO]?: CurrencyAmount }
+  feswGiveRate:   Fraction | undefined 
+  feswaNftConfig:  FeswaNftConfig | undefined
   nftPairToSave: boolean
   inputError: USER_BUTTON_ID
 } {
@@ -285,9 +288,21 @@ export function useDerivedNftInfo(): {
                             (tokenB instanceof Token) ? (tokenB as Token).address : ZERO_ADDRESS]
 
   const feswaPairINfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
+
+  const AirdropRateForWinner : BigNumber | undefined = useSingleCallResult(nftBidContract, 'AIRDROP_RATE_FOR_WINNER', undefined, 
+                                                      NEVER_RELOAD)?.result?.[0] ?? undefined
   
-  const SaleStartTime : BigNumber|undefined = useSingleCallResult(nftBidContract, 'SaleStartTime', undefined, 
+  const MinPriceIncrease : BigNumber | undefined = useSingleCallResult(nftBidContract, 'MINIMUM_PRICE_INCREACE', undefined, 
+                                                      NEVER_RELOAD)?.result?.[0] ?? undefined
+
+  const SaleStartTime : BigNumber | undefined = useSingleCallResult(nftBidContract, 'SaleStartTime', undefined, 
                                                 NEVER_RELOAD)?.result?.[0] ?? undefined
+
+  const pairBidType : string | undefined = useSingleCallResult(nftBidContract, 'SYMBOL', undefined, 
+                                                NEVER_RELOAD)?.result?.[0] ?? undefined
+
+  const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER, true) ?? undefined
+  const feswGiveRate = AirdropRateForWinner ? new Fraction( AirdropRateForWinner.toString(), '1') : undefined   // 1ETH -> 20000 FESW Giveaway
 
   const feswaPairBidInfo : FeswaPairInfo = {
     tokenIDPairNft: feswaPairINfo?.tokenID,
@@ -295,12 +310,18 @@ export function useDerivedNftInfo(): {
     pairBidInfo:    feswaPairINfo?.pairInfo,
   }
 
-  const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER) ?? undefined
-  const feswGiveRate = new Fraction( '20000', '1')   // 1ETH -> 20000 FESW Giveaway
-  const feswToken = chainId ? FESW[chainId] : undefined
+  const feswaNftConfig : FeswaNftConfig | undefined = useMemo(()=>{
+      if(!pairBidType || !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate) return undefined
+      return {  pairBidType, feswGiveRate, 
+                AirdropRateForWinner: new Fraction( AirdropRateForWinner.toString(), WEI_DENOM), 
+                MinPriceIncrease: new Fraction( MinPriceIncrease.toString(), WEI_DENOM)
+              }
+    }, [pairBidType, MinPriceIncrease, AirdropRateForWinner, feswGiveRate]
+  )
 
+  const feswToken = chainId ? FESW[chainId] : undefined
   const parsedAmountInduced : CurrencyAmount | undefined = useMemo(() => {
-      if(!parsedAmount || !feswToken) return undefined
+      if(!parsedAmount || !feswToken || !feswGiveRate) return undefined
       return new TokenAmount(feswToken as Token, parsedAmount.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).quotient)
     },
     [feswToken, parsedAmount, feswGiveRate] 
@@ -313,12 +334,22 @@ export function useDerivedNftInfo(): {
     },[feswaPairINfo])
   
   const bidGiveAway : CurrencyAmount | undefined = useMemo(() => {
-      if(!nftBidPrice || !feswToken) return undefined
+      if(!nftBidPrice || !feswToken || !feswGiveRate) return undefined
       return new TokenAmount(feswToken as Token, nftBidPrice.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).quotient)
     },[feswToken, nftBidPrice, feswGiveRate])
-  
+
+  const baseGiveAway : CurrencyAmount | undefined = useMemo(() => {
+      if(!parsedAmount || !feswToken || !feswGiveRate) return undefined
+      if(!nftBidPrice){
+        return new TokenAmount(feswToken as Token, parsedAmount.multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).divide('5').quotient)
+      }
+      if(parsedAmount.lessThan(nftBidPrice)) return undefined 
+      return new TokenAmount(feswToken as Token, parsedAmount.subtract(nftBidPrice).multiply(WEI_DENOM_FRACTION).multiply(feswGiveRate).divide('5').quotient)
+    },[feswToken, parsedAmount, nftBidPrice, feswGiveRate])
+
   const parsedAmounts = {
             [USER_UI_INFO.USER_PRICE_INPUT]: parsedAmount,
+            [USER_UI_INFO.BASE_GIVEAWAY]: baseGiveAway,             
             [USER_UI_INFO.FESW_GIVEAWAY]: parsedAmountInduced, 
             [USER_UI_INFO.LAST_NFT_PRICE]: nftBidPrice,
             [USER_UI_INFO.BID_FESW_GIVEAWAY]: bidGiveAway
@@ -369,6 +400,8 @@ export function useDerivedNftInfo(): {
     pairCurrencies,
     WalletBalances,
     parsedAmounts,
+    feswGiveRate,
+    feswaNftConfig,
     nftPairToSave,
     inputError,
   }

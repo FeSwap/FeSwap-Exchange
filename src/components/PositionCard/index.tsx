@@ -26,6 +26,7 @@ import Row, { RowBetween, RowFixed, AutoRow } from '../Row'
 import { Dots } from '../swap/styleds'
 import { BIG_INT_ZERO } from '../../constants'
 import { useCurrencyFromToken } from '../../hooks/Tokens'
+import { FESW } from '../../constants'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 28px;
@@ -81,7 +82,7 @@ interface PositionCardProps {
 }
 
 export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, border }: PositionCardProps) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const iftokenAFirst = tokenA?.equals(pair.token0)
   const [token0, token1] = iftokenAFirst ? [pair.token0, pair.token1] : [pair.token1, pair.token0]
@@ -159,10 +160,10 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
                   Pool Share
                 </Text>
                 <Text fontSize={14} fontWeight={500}>
-                  {currency0.symbol}:
+                  {currency0.getSymbol(chainId)}:
                 </Text>
                 <Text fontSize={14} fontWeight={500}>
-                  {currency1.symbol}:
+                  {currency1.getSymbol(chainId)}:
                 </Text>
               </ColumnLeft>
             </Row>
@@ -171,7 +172,7 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={false} size={14} />
                   <Text fontWeight={500} fontSize={14}>
-                    <strong>{currency0.symbol}/{currency1.symbol}</strong>
+                    <strong>{currency0.getSymbol(chainId)}/{currency1.getSymbol(chainId)}</strong>
                   </Text>
                 </RowFixed>
                 <Text fontWeight={500} fontSize={14}>
@@ -204,7 +205,7 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
                 <RowFixed>
                   <DoubleCurrencyLogo currency0={currency1} currency1={currency0} margin={false} size={14} />
                   <Text fontWeight={500} fontSize={14}>
-                    <strong>{currency1.symbol}/{currency0.symbol}</strong>
+                    <strong>{currency1.getSymbol(chainId)}/{currency0.getSymbol(chainId)}</strong>
                   </Text>
                 </RowFixed>
                 <Text fontWeight={500} fontSize={14}>
@@ -252,7 +253,8 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
 }
 
 export default function FullPositionCard({ pair, border, stakedBalance0, stakedBalance1 }: PositionCardProps) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
 
 //  const currency0 = unwrappedToken(pair.token0)
 //  const currency1 = unwrappedToken(pair.token1)
@@ -324,11 +326,11 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
           <AutoRow gap="8px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
             <Text fontWeight={500} fontSize={20}>
-              {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.symbol}🔗${currency1.symbol}`}
+              {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.getSymbol(chainId)}🔗${currency1.getSymbol(chainId)}`}
             </Text>
             { (!!stakedBalance0Inline || !!stakedBalance1Inline) && (
               <ButtonUNIGradient as={Link} to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`}>
-                <HideExtraSmall>Mining FESW</HideExtraSmall>
+                <HideExtraSmall>Mining {GORV_TOKEN_NAME}</HideExtraSmall>
                 <ExtraSmallOnly>
                   <span role="img" aria-label="bolt">
                     ⚡
@@ -389,10 +391,10 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                     My Share
                   </TextWrapper>
                   <TextWrapper>
-                    My {currency0?.symbol}
+                    My {currency0?.getSymbol(chainId)}
                   </TextWrapper>
                   <TextWrapper>
-                    My {currency1?.symbol}
+                    My {currency1?.getSymbol(chainId)}
                   </TextWrapper>
                 </ColumnLeft>
               </Row>
@@ -401,7 +403,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <RowFixed>
                     <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={false} size={16} />
                     <TextWrapper>
-                      <strong>{currency0?.symbol}/{currency1?.symbol}</strong>
+                      <strong>{currency0?.getSymbol(chainId)}/{currency1?.getSymbol(chainId)}</strong>
                     </TextWrapper>
                   </RowFixed>
                   <TextWrapper>
@@ -439,7 +441,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
                   <RowFixed>
                     <DoubleCurrencyLogo currency0={currency1} currency1={currency0} margin={false} size={16} />
                     <TextWrapper>
-                      <strong>{currency1?.symbol}/{currency0?.symbol}</strong>
+                      <strong>{currency1?.getSymbol(chainId)}/{currency0?.getSymbol(chainId)}</strong>
                     </TextWrapper>
                   </RowFixed>
                   <TextWrapper>

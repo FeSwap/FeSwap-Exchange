@@ -126,8 +126,6 @@ export default function Pool() {
     )
   })
 
-  console.log( "allFeswPairsWithLiquidity, stakingPairs", allFeswPairsWithLiquidity, stakingPairs)
-
   return (
     <>
       <PageWrapper>

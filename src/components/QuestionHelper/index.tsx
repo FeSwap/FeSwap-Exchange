@@ -47,7 +47,7 @@ const QuestionMark = styled.span`
   font-size: 1rem;
 `
 
-export default function QuestionHelper({ text, warning = false }: { text: string, warning?: boolean}) {
+export default function QuestionHelper({ text, info, warning = false }: { text: string, info?: JSX.Element, warning?: boolean}) {
   const [show, setShow] = useState<boolean>(false)
   const theme = useContext(ThemeContext)
 
@@ -56,7 +56,7 @@ export default function QuestionHelper({ text, warning = false }: { text: string
 
   return (
     <span style={{ marginLeft: 4 }}>
-      <Tooltip text={text} show={show}>
+      <Tooltip text={text} info={info} show={show}>
         <QuestionWrapper onClick={open} onMouseEnter={open} onMouseLeave={close}>
           { <Question color={warning ? theme.primary1: undefined } size={20} />
           }

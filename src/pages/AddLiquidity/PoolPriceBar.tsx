@@ -8,6 +8,7 @@ import { ONE_BIPS, ZERO_PERCENT } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
 import { SeparatorDark } from '../../components/SearchModal/styleds'
+import { useActiveWeb3React } from '../../hooks'
 
 export function PoolPriceBar({
   currencies,
@@ -20,6 +21,7 @@ export function PoolPriceBar({
   poolTokenPercentage?: { [field in Field]?: Percent } 
   price?: { [field in Field]?: Price }
 }) {
+  const { chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
   const pricePromptAB = useMemo(() => {
           if(!price || !price[Field.CURRENCY_A]) return '-'
@@ -41,7 +43,7 @@ export function PoolPriceBar({
         <AutoColumn justify="center">
           <TYPE.black>{pricePromptAB}</TYPE.black>
           <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
-            Price of {currencies[Field.CURRENCY_A]?.symbol} 🔗 {currencies[Field.CURRENCY_B]?.symbol}
+            Price of {currencies[Field.CURRENCY_A]?.getSymbol(chainId)} 🔗 {currencies[Field.CURRENCY_B]?.getSymbol(chainId)}
           </Text>
         </AutoColumn>
         <AutoColumn justify="center">
@@ -65,7 +67,7 @@ export function PoolPriceBar({
         <AutoColumn justify="center">
           <TYPE.black>{pricePromptBA}</TYPE.black>
           <Text fontWeight={500} fontSize={14} color={theme.text2} pt={1}>
-            Price of {currencies[Field.CURRENCY_B]?.symbol} 🔗 {currencies[Field.CURRENCY_A]?.symbol}
+            Price of {currencies[Field.CURRENCY_B]?.getSymbol(chainId)} 🔗 {currencies[Field.CURRENCY_A]?.getSymbol(chainId)}
           </Text>
         </AutoColumn>
         <AutoColumn justify="center">

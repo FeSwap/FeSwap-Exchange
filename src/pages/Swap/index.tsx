@@ -45,8 +45,6 @@ import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
 import { CardNoise } from '../../components/earn/styled'
 import QuestionHelper from '../../components/QuestionHelper'
-import { ONE_OVER_10K_FRACTION } from '../../utils'
-
 
 //export default function Swap({ history }: RouteComponentProps) {
 export default function Swap() {
@@ -66,7 +64,7 @@ export default function Swap() {
     setDismissTokenWarning(true)
   }, [])
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
 
   // toggle wallet when disconnected
@@ -198,8 +196,8 @@ export default function Swap() {
               ? 'Swap w/o Send + recipient'
               : 'Swap w/ Send',
           label: [
-            trade?.inputAmount?.currency?.symbol,
-            trade?.outputAmount?.currency?.symbol
+            trade?.inputAmount?.currency?.getSymbol(chainId),
+            trade?.outputAmount?.currency?.getSymbol(chainId)
           ].join('/')
         })
 
@@ -218,6 +216,7 @@ export default function Swap() {
         })
       })
   }, [
+    chainId,
     swapCallback,
     tradeToConfirm,
     showConfirm,
@@ -384,12 +383,12 @@ export default function Swap() {
                         <Text fontWeight={500} fontSize={14} color={theme.text2}>
                           Pool Price Deviation
                         </Text>
-                        <QuestionHelper text="This is the token price difference among the two sub-pools. 
-                                Once the difference surpass the arbitrage rate (1.0% by default), internal token swap will be enforced 
-                                to alleviate the difference." />
+                        <QuestionHelper text="This is the token price gap between the two sub-pools. 
+                                Once the gap surpass the arbitrage rate (1.0% by default), internal token swap will be committed 
+                                to mitigate the gap." />
                       </RowFixed>
                       <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        {priceGap.lessThan(ONE_OVER_10K_FRACTION) ? '< 0.01': priceGap.toSignificant(4)}%
+                        {priceGap.toSignificant(4)}%
                       </Text>
                     </RowBetween>
                   )}
@@ -431,7 +430,7 @@ export default function Swap() {
                   ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
                     'Approved'
                   ) : (
-                    'Approve ' + currencies[Field.INPUT]?.symbol
+                    'Approve ' + currencies[Field.INPUT]?.getSymbol(chainId)
                   )}
                 </ButtonConfirmed>
                 <ButtonError

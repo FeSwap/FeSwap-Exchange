@@ -18,7 +18,9 @@ import Confetti from '../Confetti'
 import { CardNoise, CardBGImage, CardBGImageSmaller } from '../earn/styled'
 import { useIsTransactionPending } from '../../state/transactions/hooks'
 import { TokenAmount } from '@feswap/sdk'
-import { getEtherscanLink, shortenAddress } from '../../utils'
+import { shortenAddress } from '../../utils'
+import { getExplorerLink} from '../../utils/explorer'
+import { FESW } from '../../constants'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -44,6 +46,7 @@ const ConfirmedIcon = styled(ColumnCenter)`
 
 export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
   const { chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
 
   // state for smart contract input
   const [typed, setTyped] = useState('')
@@ -102,18 +105,18 @@ export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boole
             <CardNoise />
             <CardSection gap="md">
               <RowBetween>
-                <TYPE.white fontWeight={500}>Claim FESW Token</TYPE.white>
+                <TYPE.white fontWeight={500}>Claim {GORV_TOKEN_NAME} Token</TYPE.white>
                 <CloseIcon onClick={wrappedOnDismiss} style={{ zIndex: 99 }} stroke="white" />
               </RowBetween>
               <TYPE.white fontWeight={700} fontSize={36}>
-                {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} FESW
+                {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} {GORV_TOKEN_NAME}
               </TYPE.white>
             </CardSection>
             <Break />
           </ModalUpper>
           <AutoColumn gap="md" style={{ padding: '1rem', paddingTop: '0' }} justify="center">
             <TYPE.subHeader fontWeight={500}>
-              Enter an address to trigger a FESW claim. If the address has any claimable FESW it will be sent to them on
+              Enter an address to trigger a {GORV_TOKEN_NAME} claim. If the address has any claimable {GORV_TOKEN_NAME} it will be sent to them on
               submission.
             </TYPE.subHeader>
             <AddressInputPanel value={typed} onChange={handleRecipientType} />
@@ -128,7 +131,7 @@ export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boole
               mt="1rem"
               onClick={onClaim}
             >
-              Claim FESW
+              Claim {GORV_TOKEN_NAME}
             </ButtonPrimary>
           </AutoColumn>
         </ContentWrapper>
@@ -155,7 +158,7 @@ export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boole
               </TYPE.largeHeader>
               {!claimConfirmed && (
                 <Text fontSize={36} color={'#ff007a'} fontWeight={800}>
-                  {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} FESW
+                  {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} {GORV_TOKEN_NAME}
                 </Text>
               )}
               {parsedAddress && (
@@ -181,7 +184,7 @@ export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boole
               <TYPE.subHeader color="black">Confirm this transaction in your wallet</TYPE.subHeader>
             )}
             {attempting && hash && !claimConfirmed && chainId && hash && (
-              <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')} style={{ zIndex: 99 }}>
+              <ExternalLink href={getExplorerLink(chainId, hash, 'transaction')} style={{ zIndex: 99 }}>
                 View transaction on Etherscan
               </ExternalLink>
             )}

@@ -11,6 +11,8 @@ import CurrencyLogo from '../CurrencyLogo'
 import { RowBetween, RowFixed } from '../Row'
 import { TruncatedText, SwapShowAcceptChanges } from '../swap/styleds'
 import {SponsorTrade} from '../../state/sponsor/hooks'
+import { useActiveWeb3React } from '../../hooks'
+import { FESW } from '../../constants'
 
 export default function SponsorModalHeader({
   sponsor,
@@ -23,7 +25,8 @@ export default function SponsorModalHeader({
   showAcceptChanges: boolean
   onAcceptChanges: () => void
 }) {
-
+  const { chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const theme = useContext(ThemeContext)
 
   return (
@@ -61,7 +64,7 @@ export default function SponsorModalHeader({
           </TruncatedText>
         </RowFixed>
         <RowFixed gap={'0px'}>
-          <Text fontSize={24} fontWeight={500} style={{ marginLeft: '10px' }}> FESW </Text>
+          <Text fontSize={24} fontWeight={500} style={{ marginLeft: '10px' }}> {GORV_TOKEN_NAME} </Text>
         </RowFixed>
       </RowBetween>
       {showAcceptChanges ? (
@@ -82,7 +85,7 @@ export default function SponsorModalHeader({
       ) : null}
       <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
         <TYPE.italic textAlign="left" style={{ width: '100%' }}>
-          The giveaway FESW amount is estimated, which may be a little bit less than the value shown above 
+          The giveaway {GORV_TOKEN_NAME} amount is estimated, which may be a little bit less than the value shown above 
           if your tranaction is confirmed by the Ethereum blockchain some delayed.
         </TYPE.italic>
       </AutoColumn>

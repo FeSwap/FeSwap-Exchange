@@ -15,7 +15,8 @@ import { useTokenBalance } from '../../state/wallet/hooks'
 import { useActiveWeb3React } from '../../hooks'
 import { FESW, ZERO_ADDRESS } from '../../constants'
 import { JSBI, TokenAmount, ChainId } from '@feswap/sdk'
-import { shortenAddress, getEtherscanLink } from '../../utils'
+import { shortenAddress } from '../../utils'
+import { getExplorerLink} from '../../utils/explorer'
 import Loader from '../../components/Loader'
 import FormattedCurrencyAmount from '../../components/FormattedCurrencyAmount'
 import { useModalOpen, useToggleDelegateModal } from '../../state/application/hooks'
@@ -99,6 +100,7 @@ const EmptyProposals = styled.div`
 
 export default function Vote() {
   const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const theme = useContext(ThemeContext)
 
   // toggle for showing delegation modal
@@ -134,7 +136,7 @@ export default function Vote() {
               </RowBetween>
               <RowBetween>
                 <TYPE.black fontSize={14}>
-                  FESW tokens represent voting shares in Feswap governance. You can vote on each proposal yourself or
+                {GORV_TOKEN_NAME} tokens represent voting shares in Feswap governance. You can vote on each proposal yourself or
                   delegate your votes to a third party.
                 </TYPE.black>
               </RowBetween>
@@ -186,7 +188,7 @@ export default function Vote() {
                         </TYPE.body>
                         <AddressButton>
                           <StyledExternalLink
-                            href={getEtherscanLink(chainId??ChainId.MAINNET, userDelegatee, 'address')}
+                            href={getExplorerLink(chainId??ChainId.MAINNET, userDelegatee, 'address')}
                             style={{ margin: '0 4px' }}
                           >
                             {userDelegatee === account ? 'Self' : shortenAddress(userDelegatee)}
@@ -199,7 +201,7 @@ export default function Vote() {
                   : ( (!account)
                       ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > Please Connect Your Wallet </TYPE.body> )
                       : (!feswBalance || JSBI.equal(JSBI.BigInt(0), feswBalance?.raw))
-                        ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > No FESW Token </TYPE.body> )
+                        ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > No {GORV_TOKEN_NAME} Token </TYPE.body> )
                         : ( allProposals.length === 0)
                           ? ( <TYPE.body fontWeight={500} mr="4px" fontSize={16} color={theme.text3} > No Proposal </TYPE.body> )
                           : (!allProposals || !availableVotes) && <Loader /> )
@@ -239,7 +241,7 @@ export default function Vote() {
       </StyledPositionCard>
       <TopSection>
         <TYPE.subHeader color="text3" style={{ textAlign: 'center' }}>
-          A minimum threshhold of 1% of the total FESW supply is required to submit proposals
+          A minimum threshhold of 1% of the total {GORV_TOKEN_NAME} supply is required to submit proposals
         </TYPE.subHeader>
       </TopSection>
     </PageWrapper>

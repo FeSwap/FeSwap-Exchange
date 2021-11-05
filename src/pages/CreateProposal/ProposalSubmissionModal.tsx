@@ -4,7 +4,7 @@ import { ThemeContext } from 'styled-components/macro'
 import { Text } from 'rebass'
 import { ExternalLink, TYPE } from 'theme'
 import { ButtonPrimary } from 'components/Button'
-import { getEtherscanLink } from '../../utils'
+import { getExplorerLink} from '../../utils/explorer'
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { LoadingView, SubmittedView } from 'components/ModalViews'
@@ -40,7 +40,7 @@ export const ProposalSubmissionModal = ({
               Proposal Submitted
             </Text>
             {hash && (
-              <ExternalLink href={getEtherscanLink(chainId??ChainId.MAINNET, hash, 'transaction')}>
+              <ExternalLink href={getExplorerLink(chainId??ChainId.MAINNET, hash, 'transaction')}>
                 <Text fontWeight={500} fontSize={14} color={theme.primary1}>
                   View on Etherscan
                 </Text>

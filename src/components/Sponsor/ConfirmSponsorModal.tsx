@@ -7,6 +7,8 @@ import SponsorModalHeader from './SponsorModalHeader'
 import SponsorModalFooter from './SponsorModalFooter'
 import {SponsorTrade} from '../../state/sponsor/hooks'
 import { Field } from '../../state/swap/actions'
+import { useActiveWeb3React } from '../../hooks'
+import { FESW } from '../../constants'
 
 export default function ConfirmSponsorModal({
   sponsor,
@@ -33,6 +35,9 @@ export default function ConfirmSponsorModal({
   onDismiss: () => void
   highSponsor: boolean
 }) {
+  const { chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
+
   const showAcceptChanges = useMemo(
     () => Boolean(sponsor?.feswGiveRate && originalSponsor?.feswGiveRate && 
                   !sponsor.feswGiveRate.equalTo(originalSponsor.feswGiveRate)),
@@ -64,7 +69,7 @@ export default function ConfirmSponsorModal({
 
   // text to show while loading
   const pendingText = `Sponsoring ${sponsor?.parsedAmounts[Field.INPUT]?.toSignificant(6)} ETH,
-                      and will receive ${sponsor?.parsedAmounts[Field.OUTPUT]?.toSignificant(6)} FESW as the giveaway`
+                      and will receive ${sponsor?.parsedAmounts[Field.OUTPUT]?.toSignificant(6)} ${GORV_TOKEN_NAME} as the giveaway`
 
   const confirmationContent = useCallback(
     () =>

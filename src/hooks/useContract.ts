@@ -1,3 +1,4 @@
+import { FACTORY_ADDRESS, ROUTER_ADDRESS } from '@feswap/sdk'
 import { Contract } from '@ethersproject/contracts'
 import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/FeswGovernor.json'
 import { abi as SPONSOR_ABI } from '@feswap/governance/build/FeswSponsor.json'
@@ -10,8 +11,7 @@ import { abi as MERKLE_DISTRIBUTOR_ABI } from '@feswap/governance/build/MerkleDi
 import { ChainId, WETH, NFT_BID_ADDRESS, GOVERNANCE_ADDRESS, SPONSOR_ADDRESS } from '@feswap/sdk'
 import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
 import { useMemo } from 'react'
-import {  MERKLE_DISTRIBUTOR_ADDRESS, 
-          FESW, FESW_FACTORY_ADDRESS, FESW_ROUTER_ADDRESS } from '../constants'
+import {  MERKLE_DISTRIBUTOR_ADDRESS, FESW } from '../constants'
 import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS
@@ -109,12 +109,12 @@ export function useFeswContract(): Contract | null {
 
 export function useFeswFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId ? FESW_FACTORY_ADDRESS[chainId] : undefined, NFT_FACTORY_ABI, true)
+  return useContract(chainId ? FACTORY_ADDRESS[chainId] : undefined, NFT_FACTORY_ABI, true)
 }
 
 export function useFeswRouterContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId ? FESW_ROUTER_ADDRESS[chainId] : undefined, NFT_ROUTER_ABI, true)
+  return useContract(chainId ? ROUTER_ADDRESS[chainId] : undefined, NFT_ROUTER_ABI, true)
 }
 
 export function useSponsorContract(): Contract | null {
@@ -129,6 +129,15 @@ export function useNftBidContract(): Contract | null {
 
 export function useStakingContract(stakingAddress?: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(stakingAddress, STAKING_REWARDS_ABI, withSignerIfPossible)
+}
+
+export function feswType(chainId: ChainId): string {
+  if( chainId === ChainId.MAINNET ||
+      chainId === ChainId.ROPSTEN ||
+      chainId === ChainId.RINKEBY ||
+      chainId === ChainId.GÖRLI ||
+      chainId === ChainId.KOVAN ) return 'FESW'
+  return 'FESW'
 }
 
 export function useSocksController(): Contract | null {

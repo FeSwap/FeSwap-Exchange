@@ -1,8 +1,9 @@
-import { ChainId, TokenAmount } from '@feswap/sdk'
+import { TokenAmount, NATIVE } from '@feswap/sdk'
 import React, { useState } from 'react'
 import { Text } from 'rebass'
 import { NavLink } from 'react-router-dom'
 import { darken } from 'polished'
+import Web3Network, { NETWORK_LABELS } from '../Web3Network'
 //import { useTranslation } from 'react-i18next'
 
 import styled from 'styled-components'
@@ -11,7 +12,7 @@ import Logo from '../../assets/svg/logo.svg'
 import LogoDark from '../../assets/svg/logo_white.svg'
 import { useActiveWeb3React } from '../../hooks'
 import { useDarkModeManager } from '../../state/user/hooks'
-import { useETHBalances, useAggregateUniBalance } from '../../state/wallet/hooks'
+import { useETHBalances, useAggregateFeswBalance } from '../../state/wallet/hooks'
 import { CardNoise } from '../earn/styled'
 import { CountUp } from 'use-count-up'
 import { TYPE, ExternalLink } from '../../theme'
@@ -20,8 +21,8 @@ import { BlueCard } from '../Card'
 import Settings from '../Settings'
 import Menu from '../Menu'
 
-//import Row, { RowFixed } from '../Row'
-import Row from '../Row'
+import Row, { RowFixed } from '../Row'
+//import Row from '../Row'
 
 import Web3Status from '../Web3Status'
 //import ClaimModal from '../claim/ClaimModal'
@@ -32,6 +33,7 @@ import { Dots } from '../swap/styleds'
 import Modal from '../Modal'
 import UniBalanceContent from './UniBalanceContent'
 import usePrevious from '../../hooks/usePrevious'
+import { FESW } from '../../constants'
 //import { Menu as MenuIcon } from 'react-feather'
 
 const HeaderFrame = styled.div`
@@ -179,6 +181,7 @@ const HideMenuLarge = styled.span`
 const NetworkCard = styled(BlueCard)`
   border-radius: 8px;
   padding: 8px;
+  white-space: nowrap;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 0;
     margin-right: 0.5rem;
@@ -283,15 +286,11 @@ const StyledExternalLink = styled(ExternalLink).attrs({
 
 `
 
-export const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
-  [ChainId.RINKEBY]: 'Rinkeby',
-  [ChainId.ROPSTEN]: 'Ropsten',
-  [ChainId.GÖRLI]: 'Görli',
-  [ChainId.KOVAN]: 'Kovan'
-}
+
 
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
 //  const { t } = useTranslation()
 
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
@@ -303,7 +302,7 @@ export default function Header() {
 
   const { claimTxn } = useUserHasSubmittedClaim(account ?? undefined)
 
-  const aggregateBalance: TokenAmount | undefined = useAggregateUniBalance()
+  const aggregateBalance: TokenAmount | undefined = useAggregateFeswBalance()
 
   const [showUniBalanceModal, setShowUniBalanceModal] = useState(false)
   const showClaimPopup = useShowClaimPopup()
@@ -360,14 +359,21 @@ export default function Header() {
         <HeaderElement>
           <HideSmall>
             {chainId && NETWORK_LABELS[chainId] && (
-              <NetworkCard title={NETWORK_LABELS[chainId]}>{NETWORK_LABELS[chainId]}</NetworkCard>
+              <NetworkCard title={NETWORK_LABELS[chainId]}>
+                <RowFixed>
+                  <Web3Network />
+                  <Text style={{marginLeft:'4px'}}>
+                    {NETWORK_LABELS[chainId]}
+                  </Text>
+                </RowFixed>
+              </NetworkCard>
             )}
           </HideSmall>
           {availableClaim && !showClaimPopup && (
             <UNIWrapper onClick={toggleClaimModal}>
               <UNIAmount active={!!account && !availableClaim} style={{ pointerEvents: 'auto' }}>
                 <TYPE.white padding="0 2px">
-                  {claimTxn && !claimTxn?.receipt ? <Dots>Claiming FESW</Dots> : 'Claim FESW'}
+                  {claimTxn && !claimTxn?.receipt ? <Dots>Claiming {GORV_TOKEN_NAME}</Dots> : `Claim ${GORV_TOKEN_NAME}`}
                 </TYPE.white>
               </UNIAmount>
               <CardNoise />
@@ -394,7 +400,7 @@ export default function Header() {
                     </TYPE.white>
                   </HideSmall>
                 )}
-                FESW
+                {GORV_TOKEN_NAME}
               </UNIAmount>
               <CardNoise />
             </UNIWrapper>
@@ -402,7 +408,7 @@ export default function Header() {
           <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
             {account && userEthBalance ? (
               <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
-                {userEthBalance?.toSignificant(4)} ETH
+                {userEthBalance?.toSignificant(4)} {chainId ? NATIVE[chainId].symbol :''}
               </BalanceText>
             ) : null}
             <Web3Status />

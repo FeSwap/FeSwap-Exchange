@@ -1,5 +1,7 @@
-import { Rounding } from '@feswap/sdk'
+import { Rounding, NATIVE } from '@feswap/sdk'
 import React, { useContext } from 'react'
+import { useActiveWeb3React } from '../../hooks'
+import { FESW } from '../../constants'
 // import { RefreshCcw } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
@@ -11,6 +13,7 @@ import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { SwapCallbackError } from '../swap/styleds'
 import {NftBidTrade} from '../../state/nft/hooks'
 import { USER_BUTTON_ID, BidConfirmButton, USER_UI_INFO } from '../../state/nft/actions'
+import { THOUSAND_FRACTION, ZERO_FRACTION } from '../../utils'
 
 export default function NftModalFooter({
   nftBid,
@@ -28,21 +31,38 @@ export default function NftModalFooter({
   buttonID: USER_BUTTON_ID
 }) {
   const theme = useContext(ThemeContext)
+  const { chainId } = useActiveWeb3React()
 
-  const firtBidderPrePrompt = "If you win the bid, the giveway is air-droped at the rate of 20,000 FESW/ETH. If failed, you will get"
-  const firtBidderPrompt = firtBidderPrePrompt.concat( (nftBid.firtBidder) ? ' 1000 FESW as this NFT initial creator' : ' 500 FESW')
-  const claimPrompt = "The FESW giveway is air-droped at the rate of 20,000 FESW/ETH. Thanks for bidding!"
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
+  const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : ''
+  const RATE_WINNER = nftBid.feswaNftConfig?.feswGiveRate.toFixed(0, { groupSeparator: ',' }) ?? ''
+  const RATE_BASE   = nftBid.feswaNftConfig?.feswGiveRate.divide('5').toFixed(0, { groupSeparator: ',' }) ?? ''
+  const BaseGiveaway  = nftBid.feswaNftConfig?.pairBidType === "FESN" 
+                          ? (nftBid.parsedAmounts[USER_UI_INFO.BASE_GIVEAWAY]??ZERO_FRACTION) : '500'
+
+  const FinalGiveaway = nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.greaterThan(ZERO_FRACTION) ? 
+                      `(+Final Win ${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${GORV_TOKEN_NAME})`
+                      :''
+
+  const BidderPrompt = nftBid.feswaNftConfig?.pairBidType === "FESN" 
+                        ? `You will get the base giveaway at the rate of ${RATE_BASE} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL} for the bidding price increase. `
+                        : `You will get 500 ${GORV_TOKEN_NAME} for each bidding. `
+  const firtBidderPrePrompt = BidderPrompt.concat( `If you win the bid, the final giveway is airdroped at the rate of ${RATE_WINNER} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL}. 
+                              If failed, your payment will be returned back.`)
+  const firtBidderPrompt = firtBidderPrePrompt.concat( (nftBid.firtBidder) ? ` You can always get 1000 ${GORV_TOKEN_NAME} as this NFT initial creator` : '')
+  const claimPrompt = `The FESW giveway is airdroped at the rate of ${RATE_WINNER} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL}. Thanks for bidding!`
   const buyPrompt = "If new sale price is set, the NFT will be kept for sale at new price, otherwise the NFT sale will be closed."
+  const FirtBidGiveaway = (nftBid.firtBidder) ? THOUSAND_FRACTION : ZERO_FRACTION
 
   return (
     <>
       { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID) 
-          || (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) || (buttonID === USER_BUTTON_ID.OK_BUY_NFT) ) &&
+          || (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) || (buttonID === USER_BUTTON_ID.OK_BUY_NFT) ) && chainId &&
         <AutoColumn gap="0px">
           <RowBetween align="center">
             <RowFixed>
               <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-                {(buttonID === USER_BUTTON_ID.OK_BUY_NFT) ? 'NFT New Price' : 'FESW Giveaway:'}
+                {(buttonID === USER_BUTTON_ID.OK_BUY_NFT) ? 'NFT New Price' : `${GORV_TOKEN_NAME} Giveaway:`}
               </TYPE.black>
               <QuestionHelper text={ (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) 
                                       ? claimPrompt 
@@ -63,13 +83,13 @@ export default function NftModalFooter({
               }}
             >
               { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
-                `${nftBid.parsedAmounts[USER_UI_INFO.FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} FESW` : null }
+                `${FirtBidGiveaway.add(BaseGiveaway).toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${GORV_TOKEN_NAME} ${FinalGiveaway}` : null }
               { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
-                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} FESW` : null }
+                `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${GORV_TOKEN_NAME}` : null }
               { (buttonID === USER_BUTTON_ID.OK_BUY_NFT) && 
                   ( !nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT] 
                       ? 'Not For Sale'
-                      : `${nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ETH` ) 
+                      : `${nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${NATIVE_SYMBOL}` ) 
               } 
             </Text>
           </RowBetween>

@@ -93,7 +93,13 @@ export const STAKING_REWARDS_INFO: {
       tokens: [WETH[ChainId.GÖRLI], FESW[ChainId.GÖRLI]],
       stakingRewardAddress: '0xC6e82Ec5B319bbBC8ad63F94873c8E9fD9B1EfDf'
     }
-  ]
+  ],
+  [ChainId.BSC_TESTNET]: [
+        {
+          tokens: [WETH[ChainId.BSC_TESTNET], USDT[ChainId.BSC_TESTNET]],
+          stakingRewardAddress: '0x80a861409a2Afd6B9E19DC165b697D7038922605'
+        }
+  ],
 }
 
 export interface StakingInfo {
@@ -278,7 +284,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
   ])
 }
 
-export function useTotalUniEarned(): TokenAmount | undefined {
+export function useTotalFeswEarned(): TokenAmount | undefined {
   const { chainId } = useActiveWeb3React()
   const fesw = chainId ? FESW[chainId] : undefined
   const stakingInfos = useStakingInfo()

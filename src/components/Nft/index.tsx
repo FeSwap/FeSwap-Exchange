@@ -1,4 +1,4 @@
-import { Currency, Token } from '@feswap/sdk'
+import { Currency, Token, NATIVE, ChainId } from '@feswap/sdk'
 import React, { CSSProperties, MutableRefObject, useCallback, useContext } from 'react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
@@ -20,6 +20,8 @@ import { DateTime } from 'luxon'
 import { NFT_BID_PHASE, Field } from '../../state/nft/actions'
 import { wrappedCurrency, unwrappedToken } from '../../utils/wrappedCurrency'
 import { transparentize } from 'polished'
+import { NftBidTrade } from '../../state/nft/hooks'
+import { FESW } from '../../constants'
 
 enum NFT_BID_GOING {
   ONGING,
@@ -99,6 +101,33 @@ export const StyledNFTButton = styled.button`
     color: ${({ theme }) => theme.primaryText1};
   }
 `
+export function getBidDuration(chainId?: ChainId): number {
+  if(  (chainId === ChainId.MAINNET) || (chainId === ChainId.ROPSTEN) || (chainId === ChainId.RINKEBY)
+      || (chainId === ChainId.GÖRLI) || (chainId === ChainId.KOVAN )) return 3600 * 24 * 14
+  return 3600 * 24 * 3
+}
+
+export function NFTBidHelpInfo({nftBid}:{nftBid: NftBidTrade}) {
+  const { chainId } = useActiveWeb3React()
+
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
+  const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : ''
+  const RATE_WINNER = nftBid.feswaNftConfig?.feswGiveRate.toFixed(0, { groupSeparator: ',' }) ?? ''
+  const RATE_BASE   = nftBid.feswaNftConfig?.feswGiveRate.divide('5').toFixed(0, { groupSeparator: ',' }) ?? ''
+
+  return (
+        <>
+          <Text> 1. First NFT bidder of each token pair gets 1000 {GORV_TOKEN_NAME}.</Text>
+          <Text> 2. Each bidder gets airdrop based on the price increasement at the rate of {RATE_BASE} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
+          <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increasement of the next bidder. </Text>
+          <Text> 4. Each bidding winner gets final airdrop based on the final price at the rate 
+                    of {RATE_WINNER} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
+          <Text> 5. Bidding winner must create the NFT corresponding token pair within 4 days, otherwise the NFT will be on bidding again, and 
+                    only half of the price is refunded. </Text>
+          <Text> 6. The NFT winner will earn 60% of the exchange profit corresponding to the NFT token pair. </Text>
+        </>
+  )
+}
 
 function nftTokenKey([tokenA, tokenB]: [Token, Token]): string {
   return `${tokenA.address}:${tokenB.address}`
@@ -109,13 +138,11 @@ function nftTokenInfoKey([tokenA, tokenB]: [string, string]): string {
 }
 
 // check if the bidding time is ended 
-function ifBidEnded( pairBidInfo: PairBidInfo ): NFT_BID_GOING {
+function ifBidEnded( pairBidInfo: PairBidInfo, chainId?: ChainId ): NFT_BID_GOING {
   const timeNftCreation: number = pairBidInfo.timeCreated.toNumber()
   const timeNftLastBid: number = pairBidInfo.lastBidTime.toNumber()
   const now = DateTime.now().toSeconds()
-//const timeNormalEnd = timeNftCreation + 3600 * 10                     // Normal: 3600 * 24 * 14
-  const timeNormalEnd = timeNftCreation + 3600 * 24 *14                 // Normal: 3600 * 24 * 14
-
+  const timeNormalEnd = timeNftCreation + getBidDuration(chainId)                 // Normal: 3600 * 24 * 14
 
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidToStart)  return NFT_BID_GOING.ONGING
   if(pairBidInfo.poolState === NFT_BID_PHASE.BidPhase){
@@ -129,16 +156,19 @@ function ifBidEnded( pairBidInfo: PairBidInfo ): NFT_BID_GOING {
   return NFT_BID_GOING.ENDED
 }
 
-function NftStatus({ pairBidInfo, account, ownerPairNft }: { pairBidInfo: PairBidInfo; account: string; ownerPairNft: string }) {
+function NftStatus({ pairBidInfo, ownerPairNft }: { pairBidInfo: PairBidInfo; ownerPairNft: string }) {
   const theme = useContext(ThemeContext)
+  const { chainId } = useActiveWeb3React()
+  const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : ''
+  const MIN_PRICE = (chainId && FESW[chainId].symbol === 'FESW')? '0.2' : '0'
   const nftPrice = bigNumberToFractionInETH(pairBidInfo.currentPrice)
-  const ifPairBidEnded = ifBidEnded(pairBidInfo)
+  const ifPairBidEnded = ifBidEnded(pairBidInfo, chainId )
 
   return  (ownerPairNft === ZERO_ADDRESS) 
           ? (
               <>
                 <StyledNFTPrice >
-                  {`>= 0.2 ETH`}
+                  {`>= ${MIN_PRICE} ${NATIVE_SYMBOL}`}
                 </StyledNFTPrice>
               </>
             )
@@ -170,7 +200,7 @@ function NftStatus({ pairBidInfo, account, ownerPairNft }: { pairBidInfo: PairBi
               } 
               <StyledNFTPrice>
                 {(pairBidInfo.poolState === NFT_BID_PHASE.PoolHolding) ? 'Holding' 
-                  : `${nftPrice.toSignificant(6)} ETH` }
+                  : `${nftPrice.toSignificant(6)} ${NATIVE_SYMBOL}` }
               </StyledNFTPrice>
              </>
            )
@@ -218,7 +248,7 @@ function NftTokenRow({
         { (currencyA && currencyB) 
           ? (
             <Text fontWeight={600} fontSize={14} style={{margin:'0px 3px 0px 6px'}}>
-              {currencyA?.symbol}/{currencyB?.symbol}
+              {currencyA?.getSymbol(chainId)}/{currencyB?.getSymbol(chainId)}
             </Text>)
           : null }
         { active && <Eye size={14} color={theme.primary1} /> }
@@ -244,7 +274,7 @@ function NftTokenRow({
       { (feswaPairInfo)
         ? ( 
             <RowFixed style={{ justifySelf: 'flex-end' }}>
-              <NftStatus pairBidInfo={pairBidInfo} account={account??ZERO_ADDRESS} ownerPairNft={ownerPairNft}/> 
+              <NftStatus pairBidInfo={pairBidInfo} ownerPairNft={ownerPairNft}/> 
             </RowFixed>
           )
         : (account ? <Loader /> : null)
@@ -267,6 +297,7 @@ function NftTokenManageRow({
 }) {
   const theme = useContext(ThemeContext)
   const feswFactoryContract = useFeswFactoryContract()
+  const { chainId } = useActiveWeb3React()
 
   const [tokenAAddress, tokenBAddress] = [nftTokenPair.tokenA, nftTokenPair.tokenB]
   const tokenA = useToken(tokenAAddress)??undefined
@@ -290,7 +321,7 @@ function NftTokenManageRow({
         { (currencyA && currencyB) 
           ? (
             <Text fontWeight={600} fontSize={14} style={{margin:'0px 3px 0px 6px'}}>
-              {currencyA?.symbol}/{currencyB?.symbol}
+              {currencyA?.getSymbol(chainId)}/{currencyB?.getSymbol(chainId)}
             </Text>)
           : null }
         { active && <Eye size={14} color={theme.primary1} /> }

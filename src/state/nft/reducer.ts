@@ -1,5 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { BigNumber } from '@ethersproject/bignumber'
+import { Fraction } from '@feswap/sdk'
 import { replaceNftState, setNftRecipient, typeNftInput, typeTriggerRate, selectNftCurrency } from './actions'
 import { Field } from './actions'
 
@@ -16,6 +17,13 @@ export interface FeswaPairInfo {
   readonly tokenIDPairNft:  BigNumber
   readonly ownerPairNft:    string
   readonly pairBidInfo:     PairBidInfo 
+}
+
+export interface FeswaNftConfig {
+  readonly pairBidType:           string
+  readonly feswGiveRate:          Fraction
+  readonly AirdropRateForWinner:  Fraction 
+  readonly MinPriceIncrease:      Fraction
 }
 
 export interface NftState {

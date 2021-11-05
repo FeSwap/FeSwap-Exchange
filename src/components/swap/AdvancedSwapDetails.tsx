@@ -12,6 +12,7 @@ import QuestionHelper from '../QuestionHelper'
 import { RowBetween, RowFixed } from '../Row'
 import FormattedPriceImpact from './FormattedPriceImpact'
 import SwapRoute from './SwapRoute'
+import { useActiveWeb3React } from '../../hooks'
 
 /*
 const InfoLink = styled(ExternalLink)`
@@ -26,6 +27,7 @@ const InfoLink = styled(ExternalLink)`
 */
 
 function TradeSummary({ trade, allowedSlippage }: { trade: Trade; allowedSlippage: number }) {
+  const { chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
   const priceImpact  = trade?.priceImpact
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT
@@ -44,9 +46,9 @@ function TradeSummary({ trade, allowedSlippage }: { trade: Trade; allowedSlippag
           <RowFixed>
             <TYPE.black color={theme.text1} fontSize={14}>
               {isExactIn
-                ? `${slippageAdjustedAmounts[Field.OUTPUT]?.toSignificant(4)} ${trade.outputAmount.currency.symbol}` ??
+                ? `${slippageAdjustedAmounts[Field.OUTPUT]?.toSignificant(4)} ${trade.outputAmount.currency.getSymbol(chainId)}` ??
                   '-'
-                : `${slippageAdjustedAmounts[Field.INPUT]?.toSignificant(4)} ${trade.inputAmount.currency.symbol}` ??
+                : `${slippageAdjustedAmounts[Field.INPUT]?.toSignificant(4)} ${trade.inputAmount.currency.getSymbol(chainId)}` ??
                   '-'}
             </TYPE.black>
           </RowFixed>

@@ -12,6 +12,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useActiveWeb3React } from '../../hooks'
 import { Balance } from './styled'
+import { FESW } from '../../constants'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -25,7 +26,8 @@ interface StakingModalProps {
 }
 
 export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: StakingModalProps) {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
 
   // monitor call to help UI loading state
   const addTransaction = useTransactionAdder()
@@ -47,7 +49,7 @@ export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: Sta
         .getReward({ gasLimit: 350000 })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
-            summary: `Claim accumulated FESW rewards`
+            summary: `Claim accumulated ${GORV_TOKEN_NAME} rewards`
           })
           setHash(response.hash)
         })
@@ -77,7 +79,7 @@ export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: Sta
           {stakingInfo?.earnedAmount && (
             <AutoColumn justify="center" gap="md">
               <Balance balance = {stakingInfo?.earnedAmount} />
-              <TYPE.body>Claimable FESW</TYPE.body>
+              <TYPE.body>Claimable {GORV_TOKEN_NAME}</TYPE.body>
             </AutoColumn>
           )}
           <TYPE.subHeader style={{ textAlign: 'center', padding:'0 40px' }}>
@@ -91,7 +93,7 @@ export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: Sta
       {attempting && !hash && (
         <LoadingView onDismiss={wrappedOnDismiss} title={'Claim'}>
           <AutoColumn gap="12px" justify={'center'}>
-            <TYPE.body fontSize={20}>Claiming {stakingInfo?.earnedAmount?.toSignificant(6)} FESW</TYPE.body>
+            <TYPE.body fontSize={20}>Claiming {stakingInfo?.earnedAmount?.toSignificant(6)} {GORV_TOKEN_NAME}</TYPE.body>
           </AutoColumn>
         </LoadingView>
       )}
@@ -99,7 +101,7 @@ export default function ClaimRewardModal({ isOpen, onDismiss, stakingInfo }: Sta
         <SubmittedView onDismiss={wrappedOnDismiss} title={'Claim'} hash={hash}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
-            <TYPE.body fontSize={20}>Claimed FESW!</TYPE.body>
+            <TYPE.body fontSize={20}>Claimed {GORV_TOKEN_NAME}!</TYPE.body>
           </AutoColumn>
         </SubmittedView>
       )}

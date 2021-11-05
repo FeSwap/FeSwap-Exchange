@@ -8,8 +8,8 @@ import { useTotalSupply } from '../../data/TotalSupply'
 import { useActiveWeb3React } from '../../hooks'
 import { useMerkleDistributorContract } from '../../hooks/useContract'
 import useCurrentBlockTimestamp from '../../hooks/useCurrentBlockTimestamp'
-import { useTotalUniEarned } from '../../state/stake/hooks'
-import { useAggregateUniBalance, useTokenBalance } from '../../state/wallet/hooks'
+import { useTotalFeswEarned } from '../../state/stake/hooks'
+import { useAggregateFeswBalance, useTokenBalance } from '../../state/wallet/hooks'
 import { ExternalLink, StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
 import { computeUniCirculation } from '../../utils/computeUniCirculation'
 import useUSDCPrice from '../../utils/useUSDCPrice'
@@ -42,11 +42,13 @@ const StyledClose = styled(X)`
  */
 export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowUniBalanceModal: any }) {
   const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const fesw = chainId ? FESW[chainId] : undefined
 
-  const total = useAggregateUniBalance()
+
+  const total = useAggregateFeswBalance()
   const feswBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, fesw)
-  const feswToClaim: TokenAmount | undefined = useTotalUniEarned()
+  const feswToClaim: TokenAmount | undefined = useTotalFeswEarned()
 
   const totalSupply: TokenAmount | undefined = useTotalSupply(fesw)
   const feswPrice = useUSDCPrice(fesw)
@@ -66,7 +68,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
       <CardNoise />
         <CardSection gap="md">
           <RowBetween>
-            <TYPE.black color="black">Your FESW Breakdown</TYPE.black>
+            <TYPE.black color="black">Your {GORV_TOKEN_NAME} Breakdown</TYPE.black>
             <StyledClose stroke="black" onClick={() => setShowUniBalanceModal(false)} />
           </RowBetween>
         </CardSection>
@@ -104,11 +106,11 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
         <CardSection gap="sm">
           <AutoColumn gap="md">
             <RowBetween>
-              <TYPE.black color="black">FESW price:</TYPE.black>
+              <TYPE.black color="black">{GORV_TOKEN_NAME} price:</TYPE.black>
               <TYPE.black color="black">${feswPrice?.toFixed(2) ?? '-'}</TYPE.black>
             </RowBetween>
             <RowBetween>
-              <TYPE.black color="black">FESW in circulation:</TYPE.black>
+              <TYPE.black color="black">{GORV_TOKEN_NAME} in circulation:</TYPE.black>
               <TYPE.black color="black">{circulation?.toFixed(0, { groupSeparator: ',' })}</TYPE.black>
             </RowBetween>
             <RowBetween>
@@ -116,7 +118,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <TYPE.black color="black">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.black>
             </RowBetween>
             {fesw && fesw.chainId === ChainId.MAINNET ? (
-              <ExternalLink href={`https://info.feswap.io/token/${fesw.address}`}>View FESW Analytics</ExternalLink>
+              <ExternalLink href={`https://info.feswap.io/token/${fesw.address}`}>View {GORV_TOKEN_NAME} Analytics</ExternalLink>
             ) : null}
           </AutoColumn>
         </CardSection>

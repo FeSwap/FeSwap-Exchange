@@ -16,7 +16,8 @@ import VoteModal from '../../components/vote/VoteModal'
 import { TokenAmount, JSBI } from '@feswap/sdk'
 import { useActiveWeb3React } from '../../hooks'
 import { COMMON_CONTRACT_NAMES, FESW, ZERO_ADDRESS } from '../../constants'
-import { isAddress, getEtherscanLink } from '../../utils'
+import { isAddress } from '../../utils'
+import { getExplorerLink} from '../../utils/explorer'
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useToggleDelegateModal, useToggleVoteModal, useBlockNumber } from '../../state/application/hooks'
 import DelegateModal from '../../components/vote/DelegateModal'
@@ -164,7 +165,7 @@ export default function VotePage({
   const linkIfAddress = (content: string) => {
     if (isAddress(content) && chainId) {
       const commonName = COMMON_CONTRACT_NAMES[content] ?? content
-      return <ExternalLink href={getEtherscanLink(chainId, content, 'address')}>{commonName}</ExternalLink>
+      return <ExternalLink href={getExplorerLink(chainId, content, 'address')}>{commonName}</ExternalLink>
     }
     return <span>{content}</span>
   }
@@ -296,7 +297,7 @@ export default function VotePage({
         <AutoColumn gap="md">
           <TYPE.mediumHeader fontWeight={600}>Proposer</TYPE.mediumHeader>
           <ProposerAddressLink
-            href={proposalData?.proposer && chainId ? getEtherscanLink(chainId, proposalData?.proposer, 'address') : ''}
+            href={proposalData?.proposer && chainId ? getExplorerLink(chainId, proposalData?.proposer, 'address') : ''}
           >
             <ReactMarkdown source={proposalData?.proposer} />
           </ProposerAddressLink>

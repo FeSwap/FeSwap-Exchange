@@ -95,6 +95,7 @@ export function useClaimCallback(
 } {
   // get claim data for this account
   const { library, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const claimData = useUserClaimData(account)
 
   // used for popup summary
@@ -112,7 +113,7 @@ export function useClaimCallback(
         .claim(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
         .then((response: TransactionResponse) => {
           addTransaction(response, {
-            summary: `Claimed ${unClaimedAmount?.toSignificant(4)} FESW`,
+            summary: `Claimed ${unClaimedAmount?.toSignificant(4)} ${GORV_TOKEN_NAME}`,
             claim: { recipient: account }
           })
           return response.hash

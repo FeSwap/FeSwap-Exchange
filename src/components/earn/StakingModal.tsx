@@ -23,6 +23,7 @@ import { useCurrencyFromToken } from '../../hooks/Tokens'
 import { StyledPageCard } from './styled'
 //import { CardNoise } from './styled'
 import Toggle from '../Toggle'
+import { FESW } from '../../constants'
 
 const HypotheticalRewardRate = styled.div<{ dim: boolean }>`
   display: flex;
@@ -53,6 +54,7 @@ enum Field {
 
 export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiquidityUnstaked0, userLiquidityUnstaked1 }: StakingModalProps) {
   const { account, chainId, library } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
 //  const theme = useContext(ThemeContext)
 
   // used for UI loading states
@@ -216,7 +218,8 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
       { name: 'verifyingContract', type: 'address' }
     ]
     const domain = {
-      name: 'FeSwap',
+      name: (chainId === ChainId.MAINNET || chainId === ChainId.RINKEBY || chainId === ChainId.ROPSTEN || 
+        chainId === ChainId.GÖRLI || chainId === ChainId.KOVAN ) ? 'FeSwap' : 'FeSwap',
       version: '1',
       chainId: chainId,
       verifyingContract: pairContract.address
@@ -317,7 +320,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
 
             <TYPE.black>
               {hypotheticalRewardRate.multiply((60 * 60 * 24 * 7).toString()).toSignificant(4, { groupSeparator: ',' })}{' '}
-              FESW / week
+              {GORV_TOKEN_NAME} / week
             </TYPE.black>
           </HypotheticalRewardRate>
 
@@ -342,7 +345,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                         confirmed={(approval0 === ApprovalState.APPROVED)}
                         disabled={(approval0 === ApprovalState.PENDING)}
                       >
-                        Approve {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol} {(approval0 === ApprovalState.PENDING)? ' Pending' : ''}
+                        Approve {pairCurrency0?.getSymbol(chainId)}🔗{pairCurrency1?.getSymbol(chainId)} {(approval0 === ApprovalState.PENDING)? ' Pending' : ''}
                       </ButtonConfirmed> )
                   }
                   { parsedAmount1 && (
@@ -352,7 +355,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                         confirmed={(approval1 === ApprovalState.APPROVED)}
                         disabled={(approval1 === ApprovalState.PENDING)}
                       >
-                        Approve {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol} {(approval1 === ApprovalState.PENDING)? ' Pending' : ''}
+                        Approve {pairCurrency1?.getSymbol(chainId)}🔗{pairCurrency0?.getSymbol(chainId)} {(approval1 === ApprovalState.PENDING)? ' Pending' : ''}
                       </ButtonConfirmed> )
                   } 
                 </>
@@ -366,7 +369,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                       onClick={() => onAttemptToApprove(Field.PAIR0)}
                       confirmed={signatureData0 !== null}
                     >
-                      { !!signatureData0 ? 'Approved ' : 'Approve '} {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}
+                      { !!signatureData0 ? 'Approved ' : 'Approve '} {pairCurrency0?.getSymbol(chainId)}🔗{pairCurrency1?.getSymbol(chainId)}
                     </ButtonConfirmed> )
                 }
                 { !!parsedAmount1 && (
@@ -375,7 +378,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                     onClick={() => onAttemptToApprove(Field.PAIR1)}
                     confirmed={signatureData1 !== null}
                   >
-                    { !!signatureData1 ? 'Approved' : 'Approve'} {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol}
+                    { !!signatureData1 ? 'Approved' : 'Approve'} {pairCurrency1?.getSymbol(chainId)}🔗{pairCurrency0?.getSymbol(chainId)}
                   </ButtonConfirmed> )
                 } 
                 </>
@@ -401,11 +404,11 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Depositing Liquidity</TYPE.largeHeader>
             { parsedAmount0 && (
-              <TYPE.body fontSize={20}>{parsedAmount0?.toSignificant(4)} FESP of {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}</TYPE.body> )}
+              <TYPE.body fontSize={20}>{parsedAmount0?.toSignificant(4)} FESP of {pairCurrency0?.getSymbol(chainId)}🔗{pairCurrency1?.getSymbol(chainId)}</TYPE.body> )}
             { parsedAmount0 && parsedAmount1 && (
               <TYPE.body fontSize={20}> and </TYPE.body> )}
             { parsedAmount1 && (
-              <TYPE.body fontSize={20}>{parsedAmount1?.toSignificant(4)} FESP of {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol}</TYPE.body> )}
+              <TYPE.body fontSize={20}>{parsedAmount1?.toSignificant(4)} FESP of {pairCurrency1?.getSymbol(chainId)}🔗{pairCurrency0?.getSymbol(chainId)}</TYPE.body> )}
           </AutoColumn>
         </LoadingView>
       )}
@@ -415,11 +418,11 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
             <TYPE.body fontSize={20}> Deposited </TYPE.body> 
             { parsedAmount0 && (
-              <TYPE.body fontSize={20}> {parsedAmount0?.toSignificant(4)} FESP of {pairCurrency0?.symbol}🔗{pairCurrency1?.symbol}</TYPE.body> )}
+              <TYPE.body fontSize={20}> {parsedAmount0?.toSignificant(4)} FESP of {pairCurrency0?.getSymbol(chainId)}🔗{pairCurrency1?.getSymbol(chainId)}</TYPE.body> )}
             { parsedAmount0 && parsedAmount1 && (
               <TYPE.body fontSize={20}> and </TYPE.body> )}
             { parsedAmount1 && (
-              <TYPE.body fontSize={20}>{parsedAmount1?.toSignificant(4)} FESP of {pairCurrency1?.symbol}🔗{pairCurrency0?.symbol}</TYPE.body> )}
+              <TYPE.body fontSize={20}>{parsedAmount1?.toSignificant(4)} FESP of {pairCurrency1?.getSymbol(chainId)}🔗{pairCurrency0?.getSymbol(chainId)}</TYPE.body> )}
           </AutoColumn>
         </SubmittedView>
       )}

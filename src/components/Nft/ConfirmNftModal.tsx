@@ -1,4 +1,5 @@
-import { Rounding } from '@feswap/sdk'
+import { Rounding, NATIVE } from '@feswap/sdk'
+import { useActiveWeb3React } from '../../hooks'
 import React, { useCallback, useMemo } from 'react'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
@@ -38,6 +39,8 @@ export default function ConfirmNftModal({
   buttonID: USER_BUTTON_ID
 }) {
 
+  const { chainId } = useActiveWeb3React()
+
   const showAcceptChanges = useMemo( 
     () => Boolean( nftBid?.parsedAmounts[2] && originalNftBid?.parsedAmounts[2] &&
                    !(nftBid?.parsedAmounts[2].equalTo(originalNftBid?.parsedAmounts[2]))),
@@ -72,34 +75,34 @@ export default function ConfirmNftModal({
 
   // text to show while loading
   const pendingText = useMemo(()=>{
-      if (!nftBid) return ''
+      if (!nftBid || !chainId) return ''
       switch (buttonID) {
         case USER_BUTTON_ID.OK_INIT_BID:
         case USER_BUTTON_ID.OK_TO_BID:
-          return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH for the NFT representing
-                  ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol} `
+          return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ${NATIVE[chainId].symbol} for the NFT representing
+                  ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)} `
         case USER_BUTTON_ID.OK_TO_CLAIM:
-          return `Claiming NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
-                  and ${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} FESW`
+          return `Claiming NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}
+                  and ${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6,{rounding: Rounding.ROUND_DOWN})} ${NATIVE[chainId].symbol}`
         case USER_BUTTON_ID.OK_FOR_SALE:
-          return `Selling the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
-                  at the price of ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH`
+          return `Selling the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}
+                  at the price of ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ${NATIVE[chainId].symbol}`
         case USER_BUTTON_ID.OK_BUY_NFT:
-          return `Buying the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
+          return `Buying the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}
                   ${ (!nftBid.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]) 
                       ? 'and close the NFT sale'
-                      : `and set the new price to be ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH`
+                      : `and set the new price to be ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ${NATIVE[chainId].symbol}`
                   }`
         case USER_BUTTON_ID.OK_CHANGE_PRICE:
-          return `Changing the price of NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}
-                  to be ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ETH`
+          return `Changing the price of NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}
+                  to be ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ${NATIVE[chainId].symbol}`
         case USER_BUTTON_ID.OK_CLOSE_SALE:
-          return `Stop selling the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.symbol}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.symbol}`
+          return `Stop selling the NFT ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)}`
         default:
             return ''                     
       }        
     }
-    ,[nftBid, buttonID])
+    ,[nftBid, buttonID, chainId])
 
   const confirmationContent = useCallback(
     () =>

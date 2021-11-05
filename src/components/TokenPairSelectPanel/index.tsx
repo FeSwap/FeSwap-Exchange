@@ -10,6 +10,7 @@ import { TYPE } from '../../theme'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import { Link2 } from 'react-feather'
 import { InputPanel, Container } from '../CurrencyInputPanel'
+import { useActiveWeb3React } from '../../hooks'
 
 const CurrencySelect = styled.button<{ selected: boolean }>`
   align-items: center;
@@ -95,6 +96,7 @@ export default function TokenPairSelectPanel({
   showCommonBases
 }: TokenPairSelectPanelProps) {
 
+  const { chainId } = useActiveWeb3React()
   const [modalOpen, setModalOpen] = useState(false)
   const [selectToken, setSelectToken] = useState('A')
 
@@ -137,7 +139,7 @@ export default function TokenPairSelectPanel({
             <Aligner>
               {pair ? (
                 <StyledTokenName className="pair-name-container">
-                  {pair?.token0.symbol}:{pair?.token1.symbol}
+                  {pair?.token0.getSymbol(chainId)}:{pair?.token1.getSymbol(chainId)}
                 </StyledTokenName>
               ) : (
                 <StyledTokenName className="token-symbol-container" active={Boolean(currencyA && currencyA.symbol)}>
@@ -145,7 +147,7 @@ export default function TokenPairSelectPanel({
                     ? currencyA.symbol.slice(0, 4) +
                       '...' +
                       currencyA.symbol.slice(currencyA.symbol.length - 5, currencyA.symbol.length)
-                    : currencyA?.symbol) || 'Select Token'}
+                    : currencyA?.getSymbol(chainId)) || 'Select Token'}
                 </StyledTokenName>
               )}
               {pair ? (
@@ -174,7 +176,7 @@ export default function TokenPairSelectPanel({
               ) : null}
               {pair ? (
                 <StyledTokenName className="pair-name-container">
-                  {pair?.token0.symbol}:{pair?.token1.symbol}
+                  {pair?.token0.getSymbol(chainId)}:{pair?.token1.getSymbol(chainId)}
                 </StyledTokenName>
               ) : (
                 <StyledTokenName className="token-symbol-container" active={Boolean(currencyB && currencyB.symbol)}>
@@ -182,7 +184,7 @@ export default function TokenPairSelectPanel({
                     ? currencyB.symbol.slice(0, 4) +
                       '...' +
                       currencyB.symbol.slice(currencyB.symbol.length - 5, currencyB.symbol.length)
-                    : currencyB?.symbol) || 'Select Token'}
+                    : currencyB?.getSymbol(chainId)) || 'Select Token'}
                 </StyledTokenName>
               )}
             </Aligner>

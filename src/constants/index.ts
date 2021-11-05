@@ -1,5 +1,6 @@
-import { ChainId, JSBI, Percent, Token, WETH, FESW_ADDRESS, GOVERNANCE_ADDRESS, TIMELOCK_ADDRESS } from '@feswap/sdk'
+import { ChainId, JSBI, Percent, Token, WETH, FESW_ADDRESS, GOVERNANCE_ADDRESS, TIMELOCK_ADDRESS, Fraction } from '@feswap/sdk'
 import { AbstractConnector } from '@web3-react/abstract-connector'
+import { FIVE_FRACTION, TEN_FRACTION, THOUSAND_FRACTION, TEN_THOUSAND_FRACTION, TWO_FRACTION, HUNDREAD_FRACTION } from '../utils'
 
 import { fortmatic, injected, portis, walletconnect, walletlink } from '../connectors'
 
@@ -25,9 +26,36 @@ export const USDT:  { [chainId: number]: Token }  = {
       [ChainId.MAINNET]:  new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
       [ChainId.ROPSTEN]:  new Token(ChainId.ROPSTEN, '0x110a13FC3efE6A245B50102D2d79B3E76125Ae83', 6, 'USDT', 'Tether USD'),
       [ChainId.RINKEBY]:  new Token(ChainId.RINKEBY, '0xD9BA894E0097f8cC2BBc9D24D308b98e36dc6D02', 6, 'USDT', 'Tether USD'),
-      [ChainId.GÖRLI]:  new Token(ChainId.GÖRLI, '0xC73253A937F829aF45f86abC0a5C540373645f88', 6, 'USDT', 'Tether USD'),
-      [ChainId.KOVAN]:  new Token(ChainId.KOVAN, '0x07de306FF27a2B630B1141956844eB1552B956B5', 6, 'USDT', 'Tether USD')   
+      [ChainId.GÖRLI]:    new Token(ChainId.GÖRLI, '0xC73253A937F829aF45f86abC0a5C540373645f88', 6, 'USDT', 'Tether USD'),
+      [ChainId.KOVAN]:    new Token(ChainId.KOVAN, '0x07de306FF27a2B630B1141956844eB1552B956B5', 6, 'USDT', 'Tether USD'),
+      [ChainId.BSC]:      new Token(ChainId.BSC, '0x55d398326f99059fF775485246999027B3197955', 6, 'USDT', 'Tether USD'),
+      [ChainId.BSC_TESTNET]:      new Token(ChainId.BSC_TESTNET, '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd', 6, 'USDT', 'Tether USD'),
+      [ChainId.MATIC]:            new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
+      [ChainId.MATIC_TESTNET]:    new Token(ChainId.MATIC_TESTNET, '0x3813e82e6f7098b9583FC0F33a962D02018B6803', 6, 'USDT', 'Tether USD'),
+      [ChainId.HARMONY]:          new Token(ChainId.HARMONY, '0x3C2B8Be99c50593081EAA2A724F0B8285F5aba8f', 6, 'USDT', 'Tether USD'),
+      [ChainId.HARMONY_TESTNET]:  new Token(ChainId.HARMONY_TESTNET, '0xeabc1f3d0d8b6c8788f080d66b353b6124aa9aa5', 6, 'USDT', 'Tether USD'),
+
+      [ChainId.FANTOM]:           new Token(ChainId.FANTOM, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.FANTOM_TESTNET]:   new Token(ChainId.FANTOM_TESTNET, '0xEAbC1f3d0D8b6C8788f080d66B353b6124Aa9AA5', 6, 'USDT', 'Tether USD'),
+      [ChainId.HECO]:             new Token(ChainId.HECO, '0xa71edc38d189767582c38a3145b5873052c3e47a', 6, 'USDT', 'Tether USD'),
+      [ChainId.HECO_TESTNET]:     new Token(ChainId.HECO_TESTNET, '0x04f535663110a392a6504839beed34e019fdb4e0', 6, 'USDT', 'Tether USD'),
+      [ChainId.ARBITRUM]:         new Token(ChainId.ARBITRUM, '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', 6, 'USDT', 'Tether USD'),
+      [ChainId.ARBITRUM_TESTNET]: new Token(ChainId.ARBITRUM_TESTNET, '0xD89EDB2B7bc5E80aBFD064403e1B8921004Cdb4b', 6, 'USDT', 'Tether USD'),
+      [ChainId.HARMONY_TESTNET]:  new Token(ChainId.HARMONY_TESTNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.AVALANCHE]:        new Token(ChainId.AVALANCHE, '0xde3A24028580884448a5397872046a019649b084', 6, 'USDT', 'Tether USD'),
+      [ChainId.AVALANCHE_TESTNET]:new Token(ChainId.AVALANCHE_TESTNET, '0xFe143522938e253e5Feef14DB0732e9d96221D72', 6, 'USDT', 'Tether USD'),
+      [ChainId.OKEX]:             new Token(ChainId.OKEX, '0x382bB369d343125BfB2117af9c149795C6C65C50', 6, 'USDT', 'Tether USD'),
+      [ChainId.OKEX_TESTNET]:     new Token(ChainId.OKEX_TESTNET, '0xe579156f9dEcc4134B5E3A30a24Ac46BB8B01281', 6, 'USDT', 'Tether USD'),
+
+      [ChainId.PALM]:             new Token(ChainId.PALM, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.PALM_TESTNET]:     new Token(ChainId.PALM_TESTNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.MOONBEAM]:         new Token(ChainId.MOONBEAM, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.MOONRIVER]:        new Token(ChainId.MOONRIVER, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.XDAI]:             new Token(ChainId.XDAI, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+      [ChainId.CELO]:             new Token(ChainId.CELO, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD')
     }
+
+
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
 export const MKR = new Token(ChainId.MAINNET, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 18, 'MKR', 'Maker')
 export const AMPL = new Token(ChainId.MAINNET, '0xD46bA6D942050d489DBd938a2C909A5d5039A161', 9, 'AMPL', 'Ampleforth')
@@ -69,13 +97,25 @@ export const FESW_FACTORY_ADDRESS_KOVAN       = '0x75f7b730c51610aba6f3d89deb486
 //export const FESW_FACTORY_ADDRESS_GÖRLI     = '0x615835Cc22064a17df5A3E8AE22F58e67bCcB778'         // on test Chain 1st
 export const FESW_FACTORY_ADDRESS_GÖRLI       = '0x1BdB1555bDc425183ad56FcB31c06205726FEFB0'         // on test Chain 2nd
 
+/*
 export const FESW_FACTORY_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]:  FESW_FACTORY_ADDRESS_MAINNET,
-  [ChainId.ROPSTEN]:  FESW_FACTORY_ADDRESS_ROPSTEN,
-  [ChainId.RINKEBY]:  FESW_FACTORY_ADDRESS_RINKEBY,
-  [ChainId.GÖRLI]:    FESW_FACTORY_ADDRESS_GÖRLI,
-  [ChainId.KOVAN]:    FESW_FACTORY_ADDRESS_KOVAN
+  [ChainId.MAINNET]:            FESW_FACTORY_ADDRESS_MAINNET,
+  [ChainId.ROPSTEN]:            FESW_FACTORY_ADDRESS_ROPSTEN,
+  [ChainId.RINKEBY]:            FESW_FACTORY_ADDRESS_RINKEBY,
+  [ChainId.GÖRLI]:              FESW_FACTORY_ADDRESS_GÖRLI,
+  [ChainId.KOVAN]:              FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.BSC]:                FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.BSC_TESTNET]:        FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.MATIC]:              FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.MATIC_TESTNET]:      FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.HARMONY]:            FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.HARMONY_TESTNET]:    FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.FANTOM]:             FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.FANTOM_TESTNET]:     FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.HECO]:               FESW_FACTORY_ADDRESS_KOVAN,
+  [ChainId.HECO_TESTNET]:       FESW_FACTORY_ADDRESS_KOVAN
 }
+*/
 
 //export const FESW_ROUTER_ADDRESS  = '0x09179ceebad6b676F6E6B0474907335be3E30D89'       // Rinkeby (2021/06/14)
 //export const FESW_ROUTER_ADDRESS  = '0x6E923637948657BB1b5610C81b9C6a44bBa63297'       // Rinkeby (2021/06/26)
@@ -87,13 +127,17 @@ export const FESW_ROUTER_ADDRESS_KOVAN      = '0x657db4e8c4258570cc7dd6103177790
 //export const FESW_ROUTER_ADDRESS_GÖRLI      = '0x4db0ba23261Fd5905d0Ba15b3eb35F334BeEbEA5'       // on test Chain 1st
 export const FESW_ROUTER_ADDRESS_GÖRLI      = '0xD5e8666620eaf809D32c5F2D739C49953FBd6e12'       // on test Chain 2nd
 
+/*
 export const FESW_ROUTER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]:  FESW_ROUTER_ADDRESS_MAINNET,
-  [ChainId.ROPSTEN]:  FESW_ROUTER_ADDRESS_ROPSTEN,
-  [ChainId.RINKEBY]:  FESW_ROUTER_ADDRESS_RINKEBY,
-  [ChainId.GÖRLI]:    FESW_ROUTER_ADDRESS_GÖRLI,
-  [ChainId.KOVAN]:    FESW_ROUTER_ADDRESS_KOVAN
+  [ChainId.MAINNET]:        FESW_ROUTER_ADDRESS_MAINNET,
+  [ChainId.ROPSTEN]:        FESW_ROUTER_ADDRESS_ROPSTEN,
+  [ChainId.RINKEBY]:        FESW_ROUTER_ADDRESS_RINKEBY,
+  [ChainId.GÖRLI]:          FESW_ROUTER_ADDRESS_GÖRLI,
+  [ChainId.KOVAN]:          FESW_ROUTER_ADDRESS_KOVAN,
+  [ChainId.BSC]:            FESW_ROUTER_ADDRESS_KOVAN,
+  [ChainId.BSC_TESTNET]:    FESW_ROUTER_ADDRESS_KOVAN
 }
+*/
 
 //const FESW_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                     // Test for dev
 //const FESW_TEST_ADDRESS = '0xCdd5905389a765C66605CA705414f672a2055b19'                // Test for dev
@@ -101,11 +145,63 @@ export const FESW_ROUTER_ADDRESS: { [chainId in ChainId]: string } = {
 //const FESW_TEST_ADDRESS = '0xcfcC81C508a8025879a27257cC0f699F9f2016AB'
 
 export const FESW: { [chainId in ChainId]: Token } = {
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, FESW_ADDRESS[ChainId.MAINNET], 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, FESW_ADDRESS[ChainId.RINKEBY], 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, FESW_ADDRESS[ChainId.ROPSTEN], 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, FESW_ADDRESS[ChainId.GÖRLI], 18, 'FESW', 'FeSwap DAO'),
-  [ChainId.KOVAN]: new Token(ChainId.KOVAN, FESW_ADDRESS[ChainId.KOVAN], 18, 'FESW', 'FeSwap DAO')
+  [ChainId.MAINNET]:  new Token(ChainId.MAINNET,  FESW_ADDRESS[ChainId.MAINNET],  18, 'FESW', 'FeSwap DAO'),
+  [ChainId.RINKEBY]:  new Token(ChainId.RINKEBY,  FESW_ADDRESS[ChainId.RINKEBY],  18, 'FESW', 'FeSwap DAO'),
+  [ChainId.ROPSTEN]:  new Token(ChainId.ROPSTEN,  FESW_ADDRESS[ChainId.ROPSTEN],  18, 'FESW', 'FeSwap DAO'),
+  [ChainId.GÖRLI]:    new Token(ChainId.GÖRLI,    FESW_ADDRESS[ChainId.GÖRLI],    18, 'FESW', 'FeSwap DAO'),
+  [ChainId.KOVAN]:    new Token(ChainId.KOVAN,    FESW_ADDRESS[ChainId.KOVAN],    18, 'FESW', 'FeSwap DAO'),
+  [ChainId.BSC]:                new Token(ChainId.BSC,              FESW_ADDRESS[ChainId.BSC],              18, 'FESW@B', 'FeSwap DAO'),
+  [ChainId.BSC_TESTNET]:        new Token(ChainId.BSC_TESTNET,      FESW_ADDRESS[ChainId.BSC_TESTNET],      18, 'FESW@B', 'FeSwap DAO'),
+  [ChainId.MATIC]:              new Token(ChainId.MATIC,            FESW_ADDRESS[ChainId.MATIC],            18, 'FESW@M', 'FeSwap DAO'),
+  [ChainId.MATIC_TESTNET]:      new Token(ChainId.MATIC_TESTNET,    FESW_ADDRESS[ChainId.MATIC_TESTNET],    18, 'FESW@M', 'FeSwap DAO'),
+  [ChainId.HARMONY]:            new Token(ChainId.HARMONY,          FESW_ADDRESS[ChainId.HARMONY],          18, 'FESW@O', 'FeSwap DAO'),
+  [ChainId.HARMONY_TESTNET]:    new Token(ChainId.HARMONY_TESTNET,  FESW_ADDRESS[ChainId.HARMONY_TESTNET],  18, 'FESW@O', 'FeSwap DAO'),
+  [ChainId.FANTOM]:             new Token(ChainId.FANTOM,           FESW_ADDRESS[ChainId.FANTOM],           18, 'FESW@F', 'FeSwap DAO'),
+  [ChainId.FANTOM_TESTNET]:     new Token(ChainId.FANTOM_TESTNET,   FESW_ADDRESS[ChainId.FANTOM_TESTNET],   18, 'FESW@F', 'FeSwap DAO'),
+  [ChainId.HECO]:               new Token(ChainId.HECO,             FESW_ADDRESS[ChainId.HECO],             18, 'FESW@H', 'FeSwap DAO'),
+  [ChainId.HECO_TESTNET]:       new Token(ChainId.HECO_TESTNET,     FESW_ADDRESS[ChainId.HECO_TESTNET],     18, 'FESW@H', 'FeSwap DAO'),
+  [ChainId.ARBITRUM]:           new Token(ChainId.ARBITRUM,         FESW_ADDRESS[ChainId.ARBITRUM],         18, 'FESW@A', 'FeSwap DAO'),
+  [ChainId.ARBITRUM_TESTNET]:   new Token(ChainId.ARBITRUM_TESTNET, FESW_ADDRESS[ChainId.ARBITRUM_TESTNET], 18, 'FESW@A', 'FeSwap DAO'),
+  [ChainId.AVALANCHE]:          new Token(ChainId.AVALANCHE,        FESW_ADDRESS[ChainId.AVALANCHE],        18, 'FESW@V', 'FeSwap DAO'),
+  [ChainId.AVALANCHE_TESTNET]:  new Token(ChainId.AVALANCHE_TESTNET,FESW_ADDRESS[ChainId.AVALANCHE_TESTNET],18, 'FESW@V', 'FeSwap DAO'),
+  [ChainId.OKEX]:           new Token(ChainId.OKEX,                 FESW_ADDRESS[ChainId.OKEX],             18, 'FESW@K', 'FeSwap DAO'),
+  [ChainId.OKEX_TESTNET]:   new Token(ChainId.OKEX_TESTNET,         FESW_ADDRESS[ChainId.OKEX_TESTNET],     18, 'FESW@K', 'FeSwap DAO'),
+  [ChainId.PALM]:           new Token(ChainId.PALM,                 FESW_ADDRESS[ChainId.PALM],         18, 'FESW', 'FeSwap DAO'),
+  [ChainId.PALM_TESTNET]:   new Token(ChainId.PALM_TESTNET,         FESW_ADDRESS[ChainId.PALM_TESTNET], 18, 'FESW', 'FeSwap DAO'),
+  [ChainId.MOONBEAM]:       new Token(ChainId.MOONBEAM,             FESW_ADDRESS[ChainId.MOONBEAM],     18, 'FESW', 'FeSwap DAO'),
+  [ChainId.MOONRIVER]:      new Token(ChainId.MOONRIVER,            FESW_ADDRESS[ChainId.MOONRIVER],    18, 'FESW', 'FeSwap DAO'),
+  [ChainId.XDAI]:           new Token(ChainId.XDAI,                 FESW_ADDRESS[ChainId.XDAI],         18, 'FESW', 'FeSwap DAO'),
+  [ChainId.CELO]:           new Token(ChainId.CELO,                 FESW_ADDRESS[ChainId.CELO],         18, 'FESW', 'FeSwap DAO')
+}
+
+export const HIGH_VALUE: { [chainId in ChainId]: Fraction } = {
+  [ChainId.MAINNET]:            FIVE_FRACTION,
+  [ChainId.RINKEBY]:            FIVE_FRACTION,
+  [ChainId.ROPSTEN]:            FIVE_FRACTION,
+  [ChainId.GÖRLI]:              FIVE_FRACTION,
+  [ChainId.KOVAN]:              FIVE_FRACTION,
+  [ChainId.BSC]:                TEN_FRACTION,
+  [ChainId.BSC_TESTNET]:        TEN_FRACTION,
+  [ChainId.MATIC]:              THOUSAND_FRACTION,
+  [ChainId.MATIC_TESTNET]:      THOUSAND_FRACTION,
+  [ChainId.HARMONY]:            TEN_THOUSAND_FRACTION,
+  [ChainId.HARMONY_TESTNET]:    TEN_THOUSAND_FRACTION,
+  [ChainId.FANTOM]:             THOUSAND_FRACTION,
+  [ChainId.FANTOM_TESTNET]:     THOUSAND_FRACTION,
+  [ChainId.HECO]:               THOUSAND_FRACTION,
+  [ChainId.HECO_TESTNET]:       THOUSAND_FRACTION,
+  [ChainId.ARBITRUM]:           TWO_FRACTION,
+  [ChainId.ARBITRUM_TESTNET]:   TWO_FRACTION,
+  [ChainId.AVALANCHE]:          HUNDREAD_FRACTION,
+  [ChainId.AVALANCHE_TESTNET]:  HUNDREAD_FRACTION,
+  [ChainId.OKEX]:               HUNDREAD_FRACTION,
+  [ChainId.OKEX_TESTNET]:       HUNDREAD_FRACTION,
+  [ChainId.PALM]:               THOUSAND_FRACTION,
+  [ChainId.PALM_TESTNET]:       THOUSAND_FRACTION,
+  [ChainId.MOONBEAM]:           THOUSAND_FRACTION,
+  [ChainId.MOONRIVER]:          THOUSAND_FRACTION,
+  [ChainId.XDAI]:               TEN_THOUSAND_FRACTION,
+  [ChainId.CELO]:               THOUSAND_FRACTION
 }
 
 export const COMMON_CONTRACT_NAMES: { [address: string]: string } = {
@@ -124,7 +220,30 @@ export const WETH_ONLY: ChainTokenList = {
   [ChainId.ROPSTEN]: [WETH[ChainId.ROPSTEN]],
   [ChainId.RINKEBY]: [WETH[ChainId.RINKEBY]],
   [ChainId.GÖRLI]: [WETH[ChainId.GÖRLI]],
-  [ChainId.KOVAN]: [WETH[ChainId.KOVAN]]
+  [ChainId.KOVAN]: [WETH[ChainId.KOVAN]],
+  [ChainId.BSC]:  [WETH[ChainId.BSC]],
+  [ChainId.BSC_TESTNET]: [WETH[ChainId.BSC_TESTNET]],
+  [ChainId.MATIC]:  [WETH[ChainId.MATIC]],
+  [ChainId.MATIC_TESTNET]: [WETH[ChainId.MATIC_TESTNET]],
+  [ChainId.HARMONY]:  [WETH[ChainId.HARMONY]],
+  [ChainId.HARMONY_TESTNET]: [WETH[ChainId.HARMONY_TESTNET]],
+  [ChainId.FANTOM]:  [WETH[ChainId.FANTOM]],
+  [ChainId.FANTOM_TESTNET]: [WETH[ChainId.FANTOM_TESTNET]],
+  [ChainId.HECO]:  [WETH[ChainId.HECO]],
+  [ChainId.HECO_TESTNET]: [WETH[ChainId.HECO_TESTNET]],
+  [ChainId.ARBITRUM]:  [WETH[ChainId.ARBITRUM]],
+  [ChainId.ARBITRUM_TESTNET]: [WETH[ChainId.ARBITRUM_TESTNET]],
+  [ChainId.AVALANCHE]:  [WETH[ChainId.AVALANCHE]],
+  [ChainId.AVALANCHE_TESTNET]: [WETH[ChainId.AVALANCHE_TESTNET]],
+  [ChainId.OKEX]:  [WETH[ChainId.OKEX]],
+  [ChainId.OKEX_TESTNET]: [WETH[ChainId.OKEX_TESTNET]],
+  [ChainId.PALM]:  [WETH[ChainId.PALM]],
+  [ChainId.PALM_TESTNET]: [WETH[ChainId.PALM_TESTNET]],
+  [ChainId.MOONBEAM]:  [WETH[ChainId.MOONBEAM]],
+  [ChainId.MOONRIVER]: [WETH[ChainId.MOONRIVER]],
+  [ChainId.XDAI]:  [WETH[ChainId.XDAI]],
+  [ChainId.CELO]: [WETH[ChainId.CELO]]
+
 }
 
 // used to construct intermediary pairs for trading

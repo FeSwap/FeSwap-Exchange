@@ -17,6 +17,7 @@ import { useUserHasAvailableClaim, useUserUnclaimedAmount } from '../../state/cl
 import { TYPE } from '../../theme'
 import { AutoColumn } from '../Column'
 import { CardBGImage, CardNoise } from '../earn/styled'
+import { FESW } from '../../constants'
 
 const StyledClaimPopup = styled(AutoColumn)`
   background: radial-gradient(76.02% 75.41% at 1.84% 0%, #ff007a 0%, #021d43 100%);
@@ -53,7 +54,8 @@ const UniToken = styled.img`
 `
 
 export default function ClaimPopup() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
 
   // dont store these in persisted state yet
   const showClaimPopup: boolean = useShowClaimPopup()
@@ -86,13 +88,13 @@ export default function ClaimPopup() {
           <AutoColumn style={{ padding: '2rem 0', zIndex: 10 }} justify="center">
             <UniToken width="48px" src={tokenLogo} />{' '}
             <TYPE.white style={{ marginTop: '1rem' }} fontSize={36} fontWeight={600}>
-              {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} FESW
+              {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} {GORV_TOKEN_NAME}
             </TYPE.white>
             <TYPE.white style={{ paddingTop: '1.25rem', textAlign: 'center' }} fontWeight={600} color="white">
               <span role="img" aria-label="party">
                 🎉
               </span>{' '}
-              FESW has arrived{' '}
+              {GORV_TOKEN_NAME} has arrived{' '}
               <span role="img" aria-label="party">
                 🎉
               </span>
@@ -103,7 +105,7 @@ export default function ClaimPopup() {
           </AutoColumn>
           <AutoColumn style={{ zIndex: 10 }} justify="center">
             <ButtonPrimary padding="8px" borderRadius="8px" width={'fit-content'} onClick={toggleSelfClaimModal}>
-              Claim your FESW tokens
+              Claim your {GORV_TOKEN_NAME} tokens
             </ButtonPrimary>
           </AutoColumn>
         </StyledClaimPopup>

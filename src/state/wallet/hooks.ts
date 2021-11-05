@@ -1,5 +1,5 @@
 import { FESW } from './../../constants/index'
-import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount } from '@feswap/sdk'
+import { Currency, CurrencyAmount, JSBI, Token, TokenAmount } from '@feswap/sdk'
 import { useMemo } from 'react'
 import ERC20_INTERFACE from '../../constants/abis/erc20'
 import { useAllTokens } from '../../hooks/Tokens'
@@ -8,7 +8,7 @@ import { useMulticallContract } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
 import { useSingleContractMultipleData, useMultipleContractSingleData } from '../multicall/hooks'
 import { useUserUnclaimedAmount } from '../claim/hooks'
-import { useTotalUniEarned } from '../stake/hooks'
+import { useTotalFeswEarned } from '../stake/hooks'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -106,7 +106,7 @@ export function useCurrencyBalances(
   ])
 
   const tokenBalances = useTokenBalances(account, tokens)
-  const containsETH: boolean = useMemo(() => currencies?.some(currency => currency === ETHER) ?? false, [currencies])
+  const containsETH: boolean = useMemo(() => currencies?.some(currency => !(currency instanceof Token) ) ?? false, [currencies])
   const ethBalance = useETHBalances(containsETH ? [account] : [])
 
   return useMemo(
@@ -114,7 +114,7 @@ export function useCurrencyBalances(
       currencies?.map(currency => {
         if (!account || !currency) return undefined
         if (currency instanceof Token) return tokenBalances[currency.address]
-        if (currency === ETHER) return ethBalance[account]
+        if (!(currency instanceof Token)) return ethBalance[account]
         return undefined
       }) ?? [],
     [account, currencies, ethBalance, tokenBalances]
@@ -135,22 +135,22 @@ export function useAllTokenBalances(): { [tokenAddress: string]: TokenAmount | u
 }
 
 // get the total owned, unclaimed, and unharvested FESW for account
-export function useAggregateUniBalance(): TokenAmount | undefined {
+export function useAggregateFeswBalance(): TokenAmount | undefined {
   const { account, chainId } = useActiveWeb3React()
 
-  const uni = chainId ? FESW[chainId] : undefined
+  const fesw = chainId ? FESW[chainId] : undefined
 
-  const uniBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, uni)
-  const uniUnclaimed: TokenAmount | undefined = useUserUnclaimedAmount(account)
-  const uniUnHarvested: TokenAmount | undefined = useTotalUniEarned()
+  const feswBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, fesw)
+  const feswUnclaimed: TokenAmount | undefined = useUserUnclaimedAmount(account)
+  const feswUnHarvested: TokenAmount | undefined = useTotalFeswEarned()
 
-  if (!uni) return undefined
+  if (!fesw) return undefined
 
   return new TokenAmount(
-    uni,
+    fesw,
     JSBI.add(
-      JSBI.add(uniBalance?.raw ?? JSBI.BigInt(0), uniUnclaimed?.raw ?? JSBI.BigInt(0)),
-      uniUnHarvested?.raw ?? JSBI.BigInt(0)
+      JSBI.add(feswBalance?.raw ?? JSBI.BigInt(0), feswUnclaimed?.raw ?? JSBI.BigInt(0)),
+      feswUnHarvested?.raw ?? JSBI.BigInt(0)
     )
   )
 }

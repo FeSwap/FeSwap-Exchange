@@ -10,8 +10,14 @@ export enum WALLET_BALANCE {
   FESW
 }
 
+export enum NFT_BID_TYPE {
+  FESW,
+  YESW
+}
+
 export enum USER_UI_INFO {
   USER_PRICE_INPUT,
+  BASE_GIVEAWAY,
   FESW_GIVEAWAY,
   LAST_NFT_PRICE,
   BID_FESW_GIVEAWAY
@@ -57,7 +63,7 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.ERR_NO_TOKENS ]: 'Select Token Pair',
   [USER_BUTTON_ID.ERR_BID_ENDED]: 'Bid Completed',
   [USER_BUTTON_ID.ERR_INPUT_VALUE]: 'Enter the Price',
-  [USER_BUTTON_ID.ERR_LOW_BALANCE]: 'Insufficient ETH  Balance',
+  [USER_BUTTON_ID.ERR_LOW_BALANCE]: 'Insufficient ETH Balance',
   [USER_BUTTON_ID.ERR_LOW_PRICE]: 'Low Bid Price',
   [USER_BUTTON_ID.ERR_LOW_BUY_PRICE]: 'Low Buy Price',
   [USER_BUTTON_ID.ERR_NO_RECIPIENT]: 'Enter a recipient',

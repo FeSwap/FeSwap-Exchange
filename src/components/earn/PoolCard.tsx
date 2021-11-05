@@ -3,7 +3,7 @@ import { RowBetween } from '../Row'
 import styled from 'styled-components'
 import { TYPE, StyledInternalLink } from '../../theme'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { ETHER, JSBI, TokenAmount } from '@feswap/sdk'
+import { ETHER, JSBI, TokenAmount, NATIVE } from '@feswap/sdk'
 import { ButtonPrimary } from '../Button'
 import { StakingInfo } from '../../state/stake/hooks'
 import { useColor } from '../../hooks/useColor'
@@ -18,6 +18,8 @@ import { ZERO } from '../../utils'
 import { SeparatorBlack } from '../SearchModal/styleds'
 import { useCurrencyFromToken } from '../../hooks/Tokens'
 import { Countdown } from './Countdown'
+import { useActiveWeb3React } from '../../hooks'
+import { FESW } from '../../constants'
 
 const StatContainer = styled.div`
   display: flex;
@@ -56,6 +58,10 @@ const BottomSection = styled.div<{ showBackground: boolean }>`
 `
 
 export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) {
+  const { chainId } = useActiveWeb3React()
+  const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
+  const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : 'ETH'
+
   const token0 = stakingInfo.tokens[0]
   const token1 = stakingInfo.tokens[1]
 
@@ -104,7 +110,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
         <TopSection>
           <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
           <TYPE.black fontWeight={600} fontSize={24} style={{ marginLeft: '8px' }}>
-            {currency0?.symbol}🔗{currency1?.symbol}
+            {currency0?.getSymbol(chainId)}🔗{currency1?.getSymbol(chainId)}
           </TYPE.black>
           <StyledInternalLink to={`/fesw/${currencyId(currency0)}/${currencyId(currency1)}`} style={{ width: '100%' }}>
             <ButtonPrimary padding="8px" borderRadius="8px">
@@ -116,7 +122,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
           <RowBetween>
             <TYPE.black>Total deposited equivalent</TYPE.black>
             <TYPE.black>
-              {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ETH`}
+              {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ${NATIVE_SYMBOL}`}
             </TYPE.black>
           </RowBetween>
           { !!USDTPrice && valueOfTotalStakedAmountInUSDT?.greaterThan(ZERO) && (
@@ -134,8 +140,8 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
                 ? stakingInfo.active
                   ? `${stakingInfo.totalRewardRate
                       ?.multiply(BIG_INT_SECONDS_IN_DAY)
-                      ?.toFixed(0, { groupSeparator: ',' })} FESW / Day`
-                  : '0 FESW / Day'
+                      ?.toFixed(0, { groupSeparator: ',' })} ${GORV_TOKEN_NAME} / Day`
+                  : `0 ${GORV_TOKEN_NAME} / Day`
                 : '-'}
             </TYPE.black>
           </RowBetween>
@@ -157,8 +163,8 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
                   ? stakingInfo.active
                     ? `${stakingInfo.rewardRate
                         ?.multiply(BIG_INT_SECONDS_IN_DAY)
-                        ?.toSignificant(4, { groupSeparator: ',' })} FESW / Day`
-                    : '0 FESW / Day'
+                        ?.toSignificant(4, { groupSeparator: ',' })} ${GORV_TOKEN_NAME} / Day`
+                    : `0 ${GORV_TOKEN_NAME} / Day`
                   : '-'}
               </TYPE.black>
             </BottomSection>
