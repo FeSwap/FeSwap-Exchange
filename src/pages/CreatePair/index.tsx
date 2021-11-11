@@ -268,7 +268,6 @@ export default function CreatePairByNft() {
     }
   }
 
-
   const handleConfirmDismiss = useCallback(() => {
     setNftMngState({ showConfirm: false, nftMngToConfirm, attemptingTxn, nftManageErrorMessage, txHash })
     // if there was a tx hash, we want to clear the input
@@ -297,11 +296,15 @@ export default function CreatePairByNft() {
     [onNftCurrencySelection] 
   )
 
+  const title: string = useMemo(()=>{ 
+                          return feswType(chainId) === "FESW" ? "Create/Config NFT Pool" : "Config NFT Pool"}
+                          , [chainId])
+
   const [showMore, setShowMore] = useState(false)
 
   const fixedList = useRef<FixedSizeList>()
 
-   const changeRateTriggerCallback = useCallback(
+  const changeRateTriggerCallback = useCallback(
     (triggerRate: number) => {
       onNftTriggerRate( triggerRate)
     },
@@ -313,7 +316,7 @@ export default function CreatePairByNft() {
       <AppBody>
         <StyledPageCard bgColor={'red'}>
         <CardNoise />
-        <PageHeader header="Create/Config NFT Pool" />
+        <PageHeader header = {title} />
         <Wrapper id="nft-bid-page">
             <ConfirmNftManageModal
               isOpen={showConfirm}
@@ -345,7 +348,7 @@ export default function CreatePairByNft() {
                 <LinkStyledButton id="add-recipient-button" onClick={() => onChangeNftRecipient('')}>
                   <Text fontWeight={500} fontSize={16}>
                     + Specify Profit Receiver
-                    <QuestionHelper text="Your NFT owner address will be used to receive the liquidity pool exchange profit by default.
+                    <QuestionHelper text="By default your NFT owner address will be used to receive the gain, 60% of the liquidity pool protocol profit.
                                           Anyhow you could specify a different receiver address." />
                   </Text>
                 </LinkStyledButton>
@@ -457,7 +460,7 @@ export default function CreatePairByNft() {
                   { (nftStatus === NFT_BID_PHASE.BidToStart) && (
                     <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
                       You will be the first bidder <br />
-                      Minimum Bid Price: <strong> 0.2 {NATIVE[chainId].symbol} </strong>
+                      Minimum Bid Price: <strong> {feswType(chainId) === "FESW" ? '0.2': '0'} {NATIVE[chainId].symbol} </strong>
                     </TYPE.italic>
                   )}
                   { ((nftStatus === NFT_BID_PHASE.BidPhase) || (nftStatus === NFT_BID_PHASE.BidDelaying)) && (

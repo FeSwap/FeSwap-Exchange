@@ -104,7 +104,7 @@ export default function NftModalHeader({
       <AutoColumn justify="flex-start" gap="md" style={{ padding: '6px 0 0 0px', height: '50px' }}>
         { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) && chainId &&
           <TYPE.italic size={20} textAlign="left" style={{ width: '100%' }}>
-            The bidding winner will earn 60% of the exchange profit corresponding to the NFT token pair. 
+            The bidding winner will earn 60% of the protocol profit corresponding to the NFT token pair. 
             No mather win or lose, each participant will also get some giveaway {FESW[chainId].symbol} tokens.  
           </TYPE.italic>
         }

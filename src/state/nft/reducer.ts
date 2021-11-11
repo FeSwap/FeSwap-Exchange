@@ -20,7 +20,6 @@ export interface FeswaPairInfo {
 }
 
 export interface FeswaNftConfig {
-  readonly pairBidType:           string
   readonly feswGiveRate:          Fraction
   readonly AirdropRateForWinner:  Fraction 
   readonly MinPriceIncrease:      Fraction

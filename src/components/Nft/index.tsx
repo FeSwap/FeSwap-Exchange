@@ -22,6 +22,7 @@ import { wrappedCurrency, unwrappedToken } from '../../utils/wrappedCurrency'
 import { transparentize } from 'polished'
 import { NftBidTrade } from '../../state/nft/hooks'
 import { FESW } from '../../constants'
+import { feswType } from '../../hooks/useContract'
 
 enum NFT_BID_GOING {
   ONGING,
@@ -55,7 +56,7 @@ const NftItem = styled(RowBetween)<{ ifBid: boolean }>`
   border-radius: 8px;
   height: 56px;
   display: grid;
-  grid-template-columns:  ${({ ifBid }) => (ifBid ? '150px 15px 12px minmax(0, 150px)' : '150px minmax(0, 150px)')};
+  grid-template-columns:  ${({ ifBid }) => (ifBid ? '168px 15px 12px minmax(0, 150px)' : '150px minmax(0, 150px)')};
    grid-gap: 20px;
   cursor: ${({ disabled }) => !disabled && 'pointer'};
   pointer-events: ${({ disabled }) => disabled && 'none'};
@@ -116,16 +117,25 @@ export function NFTBidHelpInfo({nftBid}:{nftBid: NftBidTrade}) {
   const RATE_BASE   = nftBid.feswaNftConfig?.feswGiveRate.divide('5').toFixed(0, { groupSeparator: ',' }) ?? ''
 
   return (
-        <>
-          <Text> 1. First NFT bidder of each token pair gets 1000 {GORV_TOKEN_NAME}.</Text>
-          <Text> 2. Each bidder gets airdrop based on the price increasement at the rate of {RATE_BASE} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
-          <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increasement of the next bidder. </Text>
-          <Text> 4. Each bidding winner gets final airdrop based on the final price at the rate 
-                    of {RATE_WINNER} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
-          <Text> 5. Bidding winner must create the NFT corresponding token pair within 4 days, otherwise the NFT will be on bidding again, and 
-                    only half of the price is refunded. </Text>
-          <Text> 6. The NFT winner will earn 60% of the exchange profit corresponding to the NFT token pair. </Text>
-        </>
+        feswType(chainId) === "FESW" 
+        ? <>
+            <Text> 1. Each first NFT bidder of each token pair gets 1000 {GORV_TOKEN_NAME}.</Text>
+            <Text> 2. Each bidder always gets 500 {GORV_TOKEN_NAME} for each next time bidding.</Text>
+            <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increasement of the next bidder. </Text>
+            <Text> 4. Each bidding winner gets final airdrop based on the final price at the rate 
+                      of {RATE_WINNER} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
+            <Text> 5. The NFT winner will earn 60% of the protocol profit corresponding to the NFT token pair. </Text>
+          </>
+        : <>
+            <Text> 1. Each first NFT bidder of each token pair gets 1000 {GORV_TOKEN_NAME}.</Text>
+            <Text> 2. Each bidder gets airdrop based on the price increasement at the rate of {RATE_BASE} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
+            <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increasement of the next bidder. </Text>
+            <Text> 4. Each bidding winner gets final airdrop based on the final price at the rate 
+                      of {RATE_WINNER} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
+            <Text> 5. Bidding winner must claim the NFT corresponding token pair within 4 days starting from the time bidding ended, 
+                      otherwise the NFT will be on bidding again, and only half of the price is refunded. </Text>
+            <Text> 6. The NFT winner will earn 60% of the protocol profit corresponding to the NFT token pair. </Text>
+          </>
   )
 }
 

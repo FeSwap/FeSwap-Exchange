@@ -12,16 +12,17 @@ import { wrappedCurrency } from './wrappedCurrency'
 export default function useUSDCPrice(currency?: Currency): Price | undefined {
   const { chainId } = useActiveWeb3React()
   const wrapped = wrappedCurrency(currency, chainId)
+  const Usdc = USDC[chainId??ChainId.MAINNET]
   const tokenPairs: [Currency | undefined, Currency | undefined][] = useMemo(
     () => [
       [
         chainId && wrapped && currencyEquals(WETH[chainId], wrapped) ? undefined : currency,
         chainId ? WETH[chainId] : undefined
       ],
-      [wrapped?.equals(USDC) ? undefined : wrapped, chainId === ChainId.MAINNET ? USDC : undefined],
-      [chainId ? WETH[chainId] : undefined, chainId === ChainId.MAINNET ? USDC : undefined]
+      [wrapped?.equals(Usdc) ? undefined : wrapped, chainId === ChainId.MAINNET ? Usdc : undefined],
+      [chainId ? WETH[chainId] : undefined, chainId === ChainId.MAINNET ? Usdc : undefined]
     ],
-    [chainId, currency, wrapped]
+    [chainId, currency, wrapped, Usdc]
   )
   const [[ethPairState, ethPair], [usdcPairState, usdcPair], [usdcEthPairState, usdcEthPair]] = usePairs(tokenPairs)
 
@@ -33,14 +34,14 @@ export default function useUSDCPrice(currency?: Currency): Price | undefined {
     if (wrapped.equals(WETH[chainId])) {
       if (usdcPair) {
         const price = usdcPair.priceOf(WETH[chainId])
-        return new Price(currency, USDC, price.denominator, price.numerator)
+        return new Price(currency, Usdc, price.denominator, price.numerator)
       } else {
         return undefined
       }
     }
     // handle usdc
-    if (wrapped.equals(USDC)) {
-      return new Price(USDC, USDC, '1', '1')
+    if (wrapped.equals(Usdc)) {
+      return new Price(Usdc, Usdc, '1', '1')
     }
 
     const ethPairETHAmount = ethPair?.reserveOfOutput(WETH[chainId])
@@ -49,20 +50,20 @@ export default function useUSDCPrice(currency?: Currency): Price | undefined {
 
     // all other tokens
     // first try the usdc pair
-    if (usdcPairState === PairState.EXISTS && usdcPair && usdcPair.reserveOfOutput(USDC).greaterThan(ethPairETHUSDCValue)) {
+    if (usdcPairState === PairState.EXISTS && usdcPair && usdcPair.reserveOfOutput(Usdc).greaterThan(ethPairETHUSDCValue)) {
       const price = usdcPair.priceOf(wrapped)
-      return new Price(currency, USDC, price.denominator, price.numerator)
+      return new Price(currency, Usdc, price.denominator, price.numerator)
     }
     if (ethPairState === PairState.EXISTS && ethPair && usdcEthPairState === PairState.EXISTS && usdcEthPair) {
-      if (usdcEthPair.reserveOfOutput(USDC).greaterThan('0') && ethPair.reserveOfOutput(WETH[chainId]).greaterThan('0')) {
-        const ethUsdcPrice = usdcEthPair.priceOf(USDC)
+      if (usdcEthPair.reserveOfOutput(Usdc).greaterThan('0') && ethPair.reserveOfOutput(WETH[chainId]).greaterThan('0')) {
+        const ethUsdcPrice = usdcEthPair.priceOf(Usdc)
         const currencyEthPrice = ethPair.priceOf(WETH[chainId])
         const usdcPrice = ethUsdcPrice.multiply(currencyEthPrice).invert()
-        return new Price(currency, USDC, usdcPrice.denominator, usdcPrice.numerator)
+        return new Price(currency, Usdc, usdcPrice.denominator, usdcPrice.numerator)
       }
     }
     return undefined
-  }, [chainId, currency, ethPair, ethPairState, usdcEthPair, usdcEthPairState, usdcPair, usdcPairState, wrapped])
+  }, [chainId, currency, ethPair, ethPairState, usdcEthPair, usdcEthPairState, usdcPair, usdcPairState, wrapped, Usdc])
 }
 
 export function useUSDTPrice(currency?: Currency): Price | undefined {

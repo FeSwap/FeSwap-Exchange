@@ -22,7 +22,7 @@ import { useStakingInfo } from '../../state/stake/hooks'
 import { BIG_INT_ZERO } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
-  max-width: 480px;
+  max-width: 560px;
   width: 100%;
 `
 

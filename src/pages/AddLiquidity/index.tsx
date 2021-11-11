@@ -452,7 +452,7 @@ export default function AddLiquidity({
                     </TYPE.body>
                     <QuestionHelper text="Your liquidity will be provided to two sub-pools, pool A->B, and pool B->A. 
                                           You could specify the split ratio of the total liquidty, or just click 🔨 to use the
-                                          ratio recommended by the system. 
+                                          ratio recommended by the app. 
                                           You could also provide liquidity solely to anyone of the sub-pools."/>
                   </Row>
                   <CardWrapper >

@@ -35,7 +35,7 @@ import { ZERO } from '../../utils'
 import { FESW } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
-  max-width: 480px;
+  max-width: 560px;
   width: 100%;
 `
 

@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/FeswGovernor.json'
 import { abi as SPONSOR_ABI } from '@feswap/governance/build/FeswSponsor.json'
 import { abi as FESW_ABI } from '@feswap/governance/build/Fesw.json'
-import { abi as NFT_BID_ABI } from '@feswap/governance/build/FeswaNFT.json'
+import { abi as NFT_BID_ABI } from '@feswap/governance/build/IFeswaNFT.json'
 import { abi as NFT_FACTORY_ABI } from '@feswap/core/build/FeSwapFactory.json'
 import { abi as NFT_ROUTER_ABI } from '@feswap/core/build/FeSwapRouter.json'
 import { abi as STAKING_REWARDS_ABI } from '@feswap/governance/build/StakingTwinRewards.json'
@@ -131,13 +131,13 @@ export function useStakingContract(stakingAddress?: string, withSignerIfPossible
   return useContract(stakingAddress, STAKING_REWARDS_ABI, withSignerIfPossible)
 }
 
-export function feswType(chainId: ChainId): string {
+export function feswType(chainId?: ChainId): string {
   if( chainId === ChainId.MAINNET ||
       chainId === ChainId.ROPSTEN ||
       chainId === ChainId.RINKEBY ||
       chainId === ChainId.GÖRLI ||
       chainId === ChainId.KOVAN ) return 'FESW'
-  return 'YESW'
+  return 'FESW-V2'
 }
 
 export function useSocksController(): Contract | null {

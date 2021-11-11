@@ -72,11 +72,13 @@ export default function NftMngModalHeader({
         ) : null}
       <AutoColumn justify="flex-start" gap="md" style={{ padding: '6px 0 0 0px', height: '50px' }}>
         <TYPE.italic size={20} textAlign="left" style={{ width: '100%' }}>
-          The AMM liquidity pool <b>{pairSymbol}</b> will be created.
-          { (recipient === null) ? ` The profit will be sent to your wallet automatically.` : ` You set a specific profit receiver.` } 
+          { (buttonID === USER_BUTTON_ID.OK_CREATE_PAIR) 
+            ? <span>The AMM liquidity pool <b>{pairSymbol}</b> will be created.</span>
+            : <span>You are configuring the liquidity pool <b>{pairSymbol}</b>.</span>}
+          { (recipient === null) ? ` The profit will be sent to your wallet automatically.` : ` You are setting a specific profit receiver.` } 
           { (nftManageTrx.rateTrigger === 0)  
             ? <span> And general arbitrage trigger rate will be used.</span>
-            : <span> And you set the arbitrage trigger rate as <b> {(nftManageTrx.rateTrigger/10).toFixed(1)}%</b>.</span> }                             
+            : <span> And you are setting the arbitrage trigger rate to <b> {(nftManageTrx.rateTrigger/10).toFixed(1)}%</b>.</span> }                             
         </TYPE.italic>
       </AutoColumn>
 

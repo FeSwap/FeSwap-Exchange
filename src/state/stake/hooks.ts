@@ -30,7 +30,7 @@ export const STAKING_REWARDS_INFO: {
       stakingRewardAddress: '0xaC262B589b785e48E2A331Cb9cAf86fFAf069f91'
     },
     {
-      tokens: [WETH[ChainId.MAINNET], USDC],
+      tokens: [WETH[ChainId.MAINNET], USDC[ChainId.MAINNET]],
       stakingRewardAddress: '0xA4A0B0A90f1574d02c55577f7aA5a698Ca4B47c8'
     },
     {
@@ -95,10 +95,18 @@ export const STAKING_REWARDS_INFO: {
     }
   ],
   [ChainId.BSC_TESTNET]: [
-        {
-          tokens: [WETH[ChainId.BSC_TESTNET], USDT[ChainId.BSC_TESTNET]],
-          stakingRewardAddress: '0x80a861409a2Afd6B9E19DC165b697D7038922605'
-        }
+    {
+      tokens: [WETH[ChainId.BSC_TESTNET], FESW[ChainId.BSC_TESTNET]],
+      stakingRewardAddress: '0x7e9dd96D0360BCc12F04032e9871722D931814b3'
+    },
+    {
+      tokens: [WETH[ChainId.BSC_TESTNET], USDC[ChainId.BSC_TESTNET]],
+      stakingRewardAddress: '0x82Ab1bf9174f7920649BC7ED8248132474B3824f'
+    },
+    {
+      tokens: [WETH[ChainId.BSC_TESTNET], USDT[ChainId.BSC_TESTNET]],
+      stakingRewardAddress: '0x957d1f6857919F17e052c0D1D324C6eBB107c8FD'
+    }
   ],
 }
 

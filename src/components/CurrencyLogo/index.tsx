@@ -36,6 +36,10 @@ const StyledLogo = styled(Logo)<{ size: string }>`
 
 const logo: { readonly [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: EthereumLogo,
+  [ChainId.ROPSTEN]: EthereumLogo,
+  [ChainId.RINKEBY]: EthereumLogo,
+  [ChainId.GÖRLI]: EthereumLogo,
+  [ChainId.KOVAN]: EthereumLogo,
   [ChainId.BSC]: BinanceCoinLogo,
   [ChainId.BSC_TESTNET]: BinanceCoinLogo,
   [ChainId.MATIC]: MaticLogo,

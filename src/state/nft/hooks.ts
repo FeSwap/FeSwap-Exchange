@@ -22,7 +22,6 @@ import { PairBidInfo, FeswaPairInfo, FeswaNftConfig } from './reducer'
 import { WEI_DENOM } from '../../utils'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useNFTPairAdded } from '../user/hooks'
-import { feswType } from '../../hooks/useContract'
 
 export interface NftBidTrade {
   readonly pairCurrencies: { [field in Field]?: Currency | null }
@@ -299,14 +298,6 @@ export function useDerivedNftInfo(): {
   const SaleStartTime : BigNumber | undefined = useSingleCallResult(nftBidContract, 'SaleStartTime', undefined, 
                                                 NEVER_RELOAD)?.result?.[0] ?? undefined
 
-//  const pairBidType : string | undefined = useSingleCallResult(nftBidContract, 'SYMBOL', undefined, 
-//                                                NEVER_RELOAD)?.result?.[0] ?? undefined
-  const pairBidType : string | undefined = useMemo(()=>{
-      if(!chainId) return undefined 
-      return feswType(chainId)
-    },[chainId]
-  )
-
   const parsedAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, ETHER, true) ?? undefined
   const feswGiveRate = AirdropRateForWinner ? new Fraction( AirdropRateForWinner.toString(), '1') : undefined   // 1ETH -> 20000 FESW Giveaway
 
@@ -317,12 +308,12 @@ export function useDerivedNftInfo(): {
   }
 
   const feswaNftConfig : FeswaNftConfig | undefined = useMemo(()=>{
-      if(!pairBidType || !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate) return undefined
-      return {  pairBidType, feswGiveRate, 
+      if( !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate) return undefined
+      return {  feswGiveRate, 
                 AirdropRateForWinner: new Fraction( AirdropRateForWinner.toString(), WEI_DENOM), 
                 MinPriceIncrease: new Fraction( MinPriceIncrease.toString(), WEI_DENOM)
               }
-    }, [pairBidType, MinPriceIncrease, AirdropRateForWinner, feswGiveRate]
+    }, [MinPriceIncrease, AirdropRateForWinner, feswGiveRate]
   )
 
   const feswToken = chainId ? FESW[chainId] : undefined

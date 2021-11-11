@@ -38,7 +38,7 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
 import { BigNumber } from 'ethers'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useNftBidContract } from '../../hooks/useContract'
+import { useNftBidContract, feswType } from '../../hooks/useContract'
 import { TransactionResponse } from '@ethersproject/providers'
 import { calculateGasMargin, WEI_DENOM, ZERO_FRACTION, ONE_FRACTION, TWO_TENTH_FRACTION, HUNDREAD_TWO_FRACTION,
   ONE_TENTH_FRACTION, TEN_PERCENT_MORE } from '../../utils'
@@ -50,6 +50,7 @@ import { FixedSizeList } from 'react-window'
 import { useNFTPairAdder } from '../../state/user/hooks'
 import { ZERO_ADDRESS } from '../../constants'
 import QuestionHelper from '../../components/QuestionHelper'
+
 
 const LabelRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -120,11 +121,11 @@ export default function Nft({
   )
 
   const newNftBidPrice: Fraction = useMemo(() => {
-      if(!nftBidPrice){
-        if(feswaNftConfig?.pairBidType === "FESN")  return ZERO_FRACTION
+      if(!nftBidPrice || !feswaNftConfig){
+        if(feswType(chainId) === "FESW-V2")  return ZERO_FRACTION
         else return TWO_TENTH_FRACTION
       }
-      if(feswaNftConfig?.pairBidType === "FESN"){  
+      if(feswType(chainId) === "FESW-V2"){  
         let newNftBidPrice1 = nftBidPrice.add(feswaNftConfig.MinPriceIncrease)
         let newNftBidPrice2 = nftBidPrice.multiply(HUNDREAD_TWO_FRACTION)
         return newNftBidPrice1.lessThan(newNftBidPrice2) ? newNftBidPrice2 : newNftBidPrice1
@@ -134,7 +135,7 @@ export default function Nft({
                 ? nftBidPrice.add(ONE_TENTH_FRACTION) 
                 : nftBidPrice.multiply(TEN_PERCENT_MORE)
       }
-    }, [feswaNftConfig, nftBidPrice]
+    }, [chainId, feswaNftConfig, nftBidPrice]
   )
 
   const [buttonID, nftStatusPrompt, inputTitleID] = useMemo(()=>{
@@ -254,12 +255,12 @@ export default function Nft({
 
   const [ nftBidPriceString, newNftBidPriceString ] = useMemo(()=>{
       if(!nftBidPrice){
-        if(feswaNftConfig?.pairBidType === "FESN")  return ['','0.2']
+        if(feswType(chainId) === "FESW")  return ['','0.2']
         else return ['','0']
       }
       return [ nftBidPrice.toSignificant(6, undefined, Rounding.ROUND_UP), 
                newNftBidPrice.toSignificant(6, undefined, Rounding.ROUND_UP) ]
-    },[nftBidPrice, newNftBidPrice, feswaNftConfig])
+    },[chainId, nftBidPrice, newNftBidPrice])
 
   const nftLastBidTime = useMemo(()=>{
       if (!feswaPairBidInfo.pairBidInfo) return ''
@@ -353,34 +354,60 @@ export default function Nft({
   }
 
   async function handleClaimNft(){
-     if(!feswaPairBidInfo || !account || !nftBidContract) return
+     if(!feswaPairBidInfo || !account || !nftBidContract || !chainId) return
     if(feswaPairBidInfo.ownerPairNft !== account) return
     const nftID = feswaPairBidInfo.tokenIDPairNft.toHexString()
     const toAddess = recipientAddress === null ? account : recipientAddress
-
-    setNftBidState({ attemptingTxn: true, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: undefined })
-    await nftBidContract.estimateGas['ManageFeswaPair'](nftID, toAddess, 10, 0)
-      .then(async(estimatedGasLimit) => {
-        await nftBidContract.ManageFeswaPair(nftID, toAddess, 10, 0, { gasLimit: calculateGasMargin(estimatedGasLimit) })
-        .then((response: TransactionResponse) => {
-          addTransaction(response, {
-            summary: `NFT Claiming: ${(pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId))}🔗${(pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId))}`
+    
+    if( feswType(chainId) === "FESW"){
+      setNftBidState({ attemptingTxn: true, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: undefined })
+      await nftBidContract.estimateGas['FeswaPairSettle'](nftID)
+        .then(async(estimatedGasLimit) => {
+          await nftBidContract.FeswaPairSettle(nftID, { gasLimit: calculateGasMargin(estimatedGasLimit) })
+          .then((response: TransactionResponse) => {
+            addTransaction(response, {
+              summary: `NFT Claiming: ${(pairCurrencies[Field.TOKEN_A]?.symbol)}🔗${(pairCurrencies[Field.TOKEN_B]?.symbol)}`
+            })
+            setNftBidState({ attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: response.hash })
           })
-          setNftBidState({ attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: response.hash })
+          .catch((error: any) => {
+              // if the user rejected the tx, pass this along
+              if (error?.code === 4001) {
+                  throw new Error(`NFT Claiming failed: You denied transaction signature.`)
+              } else {
+                // otherwise, the error was unexpected and we need to convey that
+                throw new Error(`NFT Claiming failed: ${error.message}`)
+              }
+          })
         })
         .catch((error: any) => {
-            // if the user rejected the tx, pass this along
-            if (error?.code === 4001) {
-                throw new Error(`NFT Claiming failed: You denied transaction signature.`)
-            } else {
-              // otherwise, the error was unexpected and we need to convey that
-              throw new Error(`NFT Claiming failed: ${error.message}`)
-            }
+          setNftBidState({attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: error.message, txHash: undefined })
         })
-      })
-      .catch((error: any) => {
-        setNftBidState({attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: error.message, txHash: undefined })
-      })
+    }
+    else{
+      setNftBidState({ attemptingTxn: true, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: undefined })
+      await nftBidContract.estimateGas['ManageFeswaPair'](nftID, toAddess, 10, 0)
+        .then(async(estimatedGasLimit) => {
+          await nftBidContract.ManageFeswaPair(nftID, toAddess, 10, 0, { gasLimit: calculateGasMargin(estimatedGasLimit) })
+          .then((response: TransactionResponse) => {
+            addTransaction(response, {
+              summary: `NFT Claiming: ${(pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId))}🔗${(pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId))}`
+            })
+            setNftBidState({ attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: undefined, txHash: response.hash })
+          })
+          .catch((error: any) => {
+              // if the user rejected the tx, pass this along
+              if (error?.code === 4001) {
+              } else {
+                // otherwise, the error was unexpected and we need to convey that
+                throw new Error(`NFT Claiming failed: ${error.message}`)
+              }
+          })
+        })
+        .catch((error: any) => {
+          setNftBidState({attemptingTxn: false, nftBidToConfirm, showConfirm, nftBidErrorMessage: error.message, txHash: undefined })
+        })
+    }
   }
 
   async function handleSellNft(closeSale: boolean = false){
