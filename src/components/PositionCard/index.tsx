@@ -243,8 +243,8 @@ export function MinimalPositionCard({ pair, tokenA, showUnwrapped = false, borde
             <span role="img" aria-label="wizard-icon">
               ⭐️
             </span>{' '}
-            By adding liquidity you&apos;ll earn the arbitrage profits coming frm all the trades on this pair, which is proportional to your share
-            of the pool, and is equivalent to commision rate of 0.25-1.0%. Profits are added to the pool, and can be claimed by withdrawing your liquidity.
+            By adding liquidity you&apos;ll earn the arbitrage profits coming from all the trades on this pair, which is proportional to your share
+            of the pool, and is equivalent to the exchange commision rate of 0.25-1.0%. Profits are added to the pool, and can be claimed by withdrawing your liquidity.
           </TYPE.subHeader>
         </LightCard>
       )}
@@ -325,7 +325,7 @@ export default function FullPositionCard({ pair, border, stakedBalance0, stakedB
         <FixedHeightRow>
           <AutoRow gap="8px">
             <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={20} />
-            <Text fontWeight={500} fontSize={20}>
+            <Text fontWeight={500} fontSize={20} width={'9em'}>
               {!currency0 || !currency1 ? <Dots>Loading</Dots> : `${currency0.getSymbol(chainId)}🔗${currency1.getSymbol(chainId)}`}
             </Text>
             { (!!stakedBalance0Inline || !!stakedBalance1Inline) && (

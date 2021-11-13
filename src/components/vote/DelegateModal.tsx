@@ -13,8 +13,9 @@ import { isAddress } from 'ethers/lib/utils'
 import useENS from '../../hooks/useENS'
 import { useDelegateCallback } from '../../state/governance/hooks'
 import { useTokenBalance } from '../../state/wallet/hooks'
-import { FESW } from '../../constants'
+import { FESW, NETWORK_NAME } from '../../constants'
 import { LoadingView, SubmittedView } from '../ModalViews'
+import { SwapCallbackError, BottomGrouping } from '../swap/styleds'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -42,6 +43,7 @@ interface VoteModalProps {
 export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalProps) {
   const { account, chainId } = useActiveWeb3React()
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
+  const Network = chainId ? NETWORK_NAME[chainId] : ''
 
   // state for delegate input
   const [usingDelegate, setUsingDelegate] = useState(false)
@@ -63,10 +65,12 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
   const [attempting, setAttempting] = useState(false)
+  const [errMessage, setErrMessage] = useState<string | undefined>()
 
   // wrapper to reset state on modal close
   function wrappedOndismiss() {
     setHash(undefined)
+    setErrMessage(undefined)
     setAttempting(false)
     onDismiss()
   }
@@ -80,7 +84,14 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
     // try delegation and store hash
     const hash = await delegateCallback(parsedAddress ?? undefined)?.catch(error => {
       setAttempting(false)
-      console.log(error)
+      
+      // if the user rejected the tx, pass this along
+      if (error?.code === 4001) {
+        setErrMessage(`${title} failed: Refused to sign the transaction.`)
+      } else {
+        // otherwise, the error was unexpected and we need to convey that
+        setErrMessage(`${title} failed: ${error.message}`)
+      }
     })
 
     if (hash) {
@@ -97,24 +108,28 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
               <TYPE.mediumHeader fontWeight={500}>{title}</TYPE.mediumHeader>
               <StyledClosed stroke="black" onClick={wrappedOndismiss} />
             </RowBetween>
-            <TYPE.body>Earned {GORV_TOKEN_NAME} tokens represent voting shares in FeSwap governance.</TYPE.body>
+            <TYPE.body>Earned {GORV_TOKEN_NAME} tokens represent voting shares in FeSwap 
+                        governance on <b>{Network}</b>.</TYPE.body>
             <TYPE.body>
               You can either vote on each proposal yourself or delegate your votes to a third party.
             </TYPE.body>
             {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />}
-            <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
-              <TYPE.mediumHeader color="white">{usingDelegate ? 'Delegate Votes' : 'Self Delegate'}</TYPE.mediumHeader>
-            </ButtonPrimary>
+            <BottomGrouping style={{ width: '100%' }}>
+              <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
+                <TYPE.mediumHeader color="white">{usingDelegate ? 'Delegate Votes' : 'Self Delegate'}</TYPE.mediumHeader>
+              </ButtonPrimary>
+              {errMessage && <SwapCallbackError error={errMessage} />}
+            </BottomGrouping>
             <TextButton onClick={() => setUsingDelegate(!usingDelegate)}>
               <TYPE.blue>
-                {usingDelegate ? 'Remove' : 'Add'} Delegate {!usingDelegate && '+'}
+                {usingDelegate ? 'Delegate Self' : 'Specify Delegatee'}
               </TYPE.blue>
             </TextButton>
           </AutoColumn>
         </ContentWrapper>
       )}
       {attempting && !hash && (
-        <LoadingView onDismiss={wrappedOndismiss}>
+        <LoadingView onDismiss={wrappedOndismiss} title={usingDelegate ? 'Votes to delegatee' : 'Delegating self'} >
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>{usingDelegate ? 'Delegating votes' : 'Unlocking Votes'}</TYPE.largeHeader>
             <TYPE.main fontSize={36}>{uniBalance?.toSignificant(4)}</TYPE.main>
@@ -122,7 +137,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
         </LoadingView>
       )}
       {hash && (
-        <SubmittedView onDismiss={wrappedOndismiss} hash={hash}>
+        <SubmittedView onDismiss={wrappedOndismiss} hash={hash} title={usingDelegate ? 'Votes to delegatee' : 'Delegating self'}>
           <AutoColumn gap="12px" justify={'center'}>
             <TYPE.largeHeader>Transaction Submitted</TYPE.largeHeader>
             <TYPE.main fontSize={36}>{uniBalance?.toSignificant(4)}</TYPE.main>

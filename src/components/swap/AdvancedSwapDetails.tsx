@@ -105,13 +105,3 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
 //    View pair analytics ↗
 //  </InfoLink>
 //  </AutoColumn>
-
-//<AutoColumn style={{ padding: '0 16px' }}>
-//<RowFixed>
-//  <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-//    Route
-//  </TYPE.black>
-//  <QuestionHelper text="Routing through these tokens resulted in the best price for your trade." />
-//</RowFixed>
-//<SwapRoute trade={trade} />
-//</AutoColumn>

@@ -33,6 +33,7 @@ export const HUNDREAD_FRACTION = new Fraction(HUNDREAD, ONE)
 export const THOUSAND_FRACTION = HUNDREAD_FRACTION.multiply(TEN_FRACTION)
 export const TEN_THOUSAND_FRACTION = HUNDREAD_FRACTION.multiply(HUNDREAD_FRACTION)
 export const HUNDREAD_TWO_FRACTION = new Fraction(HUNDREAD_TWO, HUNDREAD)
+export const ONE_OVER_10K_FRACTION = ONE_OVER_HUNDREAD.multiply(ONE_OVER_HUNDREAD)
 
 export const MAXJSBI = JSBI.BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 

@@ -10,6 +10,8 @@ import { ArrowUpCircle } from 'react-feather'
 import Circle from '../../assets/images/blue-loader.svg'
 import { getExplorerLink} from '../../utils/explorer'
 import { ExternalLink } from '../../theme/components'
+import { useAllTransactions } from '../../state/transactions/hooks'
+import { useEffect } from 'react'
 
 const ConfirmOrLoadingWrapper = styled.div`
   width: 100%;
@@ -52,6 +54,16 @@ export function SubmittedView({
   const theme = useContext(ThemeContext)
   const { chainId } = useActiveWeb3React()
 
+  const allTransactions = useAllTransactions()
+  
+  // once confirmed txn is found, close the confirm window
+  useEffect(() => {
+    if (hash && allTransactions[hash].receipt){
+      onDismiss()
+    }
+  }, [hash, allTransactions, onDismiss])
+
+
   return (
     <ConfirmOrLoadingWrapper>
       <RowBetween>
@@ -65,7 +77,7 @@ export function SubmittedView({
         {children}
         {chainId && hash && (
           <ExternalLink href={getExplorerLink(chainId, hash, 'transaction')} style={{ marginLeft: '4px' }}>
-            <TYPE.subHeader>View transaction on Etherscan</TYPE.subHeader>
+            <TYPE.subHeader>View transaction on Explorer</TYPE.subHeader>
           </ExternalLink>
         )}
       </AutoColumn>

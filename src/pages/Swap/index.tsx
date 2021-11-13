@@ -18,7 +18,7 @@ import TradePrice from '../../components/swap/TradePrice'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
 import PageHeader from '../../components/PageHeader'
-import {SettingsIcon} from '../../components/Settings'
+//import {SettingsIcon} from '../../components/Settings'
 import {StyledPageCard} from '../../components/earn/styled'
 
 import { INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
@@ -43,8 +43,22 @@ import { warningSeverity } from '../../utils/prices'
 import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
 import Loader from '../../components/Loader'
-import { CardNoise } from '../../components/earn/styled'
+//import { CardNoise } from '../../components/earn/styled'
 import QuestionHelper from '../../components/QuestionHelper'
+import { ONE_OVER_10K_FRACTION } from '../../utils'
+
+
+export function SwapHelpInfo() {
+  return (<>
+            <Text> 1. Connect to your wallet on one specific blockchain. </Text>
+            <Text> 2. Select the two tokens you want to sell out and buy in. </Text>
+            <Text> 3. Input the amount to sell, or to buy. </Text>
+            <Text> 4. Click the <b>Swap</b> button, and confirm the transaction within your wallet.</Text>
+            <Text> 5. Waiting your tranaction recoreded in the blockchain.</Text>
+            <Text> <b>Remindings:</b> Please check and understand the swap settings in title bar <b><big>⚙</big></b>. </Text>
+          </>
+  )
+}
 
 //export default function Swap({ history }: RouteComponentProps) {
 export default function Swap() {
@@ -270,6 +284,8 @@ export default function Swap() {
     onCurrencySelection
   ])
 
+//  <PageHeader header={'Swap'}> <SettingsIcon /> </PageHeader>
+// <CardNoise />
   return (
     <>
       <TokenWarningModal
@@ -279,8 +295,9 @@ export default function Swap() {
       />
       <AppBody>
       <StyledPageCard bgColor={'red'}>
-        <CardNoise />
-        <PageHeader header={'Swap'}> <SettingsIcon /> </PageHeader>
+        <PageHeader header={'Swap'}>
+          { chainId && ( <QuestionHelper text={'Swap Guidance:'} info={<SwapHelpInfo/>} /> ) } 
+        </PageHeader>
         <Wrapper id="swap-page">
           <ConfirmSwapModal
             isOpen={showConfirm}
@@ -388,7 +405,7 @@ export default function Swap() {
                                 to mitigate the gap." />
                       </RowFixed>
                       <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                        {priceGap.toSignificant(4)}%
+                        {priceGap.lessThan(ONE_OVER_10K_FRACTION) ? '< 0.01': priceGap.toSignificant(4)}%
                       </Text>
                     </RowBetween>
                   )}

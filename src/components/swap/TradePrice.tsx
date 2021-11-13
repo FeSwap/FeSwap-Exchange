@@ -23,8 +23,8 @@ export default function TradePrice({ price, showInverted, setShowInverted }: Tra
 
   const show = Boolean(price?.baseCurrency && price?.quoteCurrency)
   const label = showInverted
-    ? `${price?.quoteCurrency?.getSymbol(chainId)} per ${price?.baseCurrency?.getSymbol(chainId)}`
-    : `${price?.baseCurrency?.getSymbol(chainId)} per ${price?.quoteCurrency?.getSymbol(chainId)}`
+    ? `${price?.quoteCurrency?.getSymbol(chainId)} / ${price?.baseCurrency?.getSymbol(chainId)}`
+    : `${price?.baseCurrency?.getSymbol(chainId)} / ${price?.quoteCurrency?.getSymbol(chainId)}`
 
   return (
     <Text

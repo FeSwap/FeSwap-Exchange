@@ -12,7 +12,8 @@ import { useTotalFeswEarned } from '../../state/stake/hooks'
 import { useAggregateFeswBalance, useTokenBalance } from '../../state/wallet/hooks'
 import { ExternalLink, StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
 import { computeUniCirculation } from '../../utils/computeUniCirculation'
-import useUSDCPrice from '../../utils/useUSDCPrice'
+import useUSDTPrice from '../../utils/useUSDCPrice'
+//import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
 import { CardSection, DataCard, CardNoise } from '../earn/styled'
@@ -51,7 +52,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
   const feswToClaim: TokenAmount | undefined = useTotalFeswEarned()
 
   const totalSupply: TokenAmount | undefined = useTotalSupply(fesw)
-  const feswPrice = useUSDCPrice(fesw)
+  const feswPrice = useUSDTPrice(fesw)
   const blockTimestamp = useCurrentBlockTimestamp()
   const unclaimedFESW = useTokenBalance(useMerkleDistributorContract()?.address, fesw)
   const circulation: TokenAmount | undefined = useMemo(
@@ -85,7 +86,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <AutoColumn gap="md">
                 <RowBetween>
                   <TYPE.black color="black">Balance:</TYPE.black>
-                  <TYPE.black color="black">{feswBalance?.toFixed(2, { groupSeparator: ',' })}</TYPE.black>
+                  <TYPE.black color="black">{feswBalance?.toFixed(4, { groupSeparator: ',' })}</TYPE.black>
                 </RowBetween>
                 <RowBetween>
                   <TYPE.black color="black">Unclaimed:</TYPE.black>
@@ -107,7 +108,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
           <AutoColumn gap="md">
             <RowBetween>
               <TYPE.black color="black">{GORV_TOKEN_NAME} price:</TYPE.black>
-              <TYPE.black color="black">${feswPrice?.toFixed(2) ?? '-'}</TYPE.black>
+              <TYPE.black color="black">${feswPrice?.toFixed(4) ?? '-'}</TYPE.black>
             </RowBetween>
             <RowBetween>
               <TYPE.black color="black">{GORV_TOKEN_NAME} in circulation:</TYPE.black>

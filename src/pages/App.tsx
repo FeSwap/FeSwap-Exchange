@@ -27,7 +27,7 @@ import Nft from './Nft'
 import CreateProposal from './CreateProposal'
 import {RedirectNftCheckSingleId, RedirectNftCheckTwoIds} from './Nft/redirects'
 import CreatePairByNft from './CreatePair'
-import Sponsor from './Sponsor'
+//import Sponsor from './Sponsor'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 //import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 
@@ -79,6 +79,8 @@ function TopLevelModals() {
 <Route exact strict path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
 */
 
+// <Route exact strict path="/sponsor" component={Sponsor} />
+
 export default function App() {
   return (
     <Suspense fallback={null}>
@@ -114,7 +116,6 @@ export default function App() {
               <Route exact path="/nft" component={Nft} />
               <Route exact path="/nft/:currencyIdA" component={RedirectNftCheckSingleId} />
               <Route exact path="/nft/:currencyIdA/:currencyIdB" component={RedirectNftCheckTwoIds} />
-              <Route exact strict path="/sponsor" component={Sponsor} />
               <Route exact strict path="/create-proposal" component={CreateProposal} />
               <Route component={RedirectPathToSwapOnly} />
             </Switch>

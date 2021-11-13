@@ -106,7 +106,7 @@ export default function AddressInputPanel({
             <RowBetween>
               {address && chainId && (
                 <ExternalLink href={getExplorerLink(chainId, name ?? address, 'address')} style={{ fontSize: '15px' }}>
-                  (View on Etherscan)
+                  (View on Explorer)
                 </ExternalLink>
               )}
             </RowBetween>

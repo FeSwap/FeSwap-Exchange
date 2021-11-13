@@ -132,6 +132,8 @@ export default function AddLiquidity({
   const deadline = useTransactionDeadline() // custom from users settings
   const [swapSlippage] = useUserSlippageTolerance() // custom from users
   const [txHash, setTxHash] = useState<string>('')
+  const [errMessage, setErrMessage] = useState<string | undefined>()
+
 
   const allowedSlippage = swapSlippage + (priceDiff ? JSBI.toNumber(priceDiff?.multiply(TEN_THOUSAND_FRACTION).quotient) : 0)
 
@@ -257,9 +259,13 @@ export default function AddLiquidity({
       )
       .catch(error => {
         setAttemptingTxn(false)
-        // we only care if the error is something _other_ than the user rejected the tx
-        if (error?.code !== 4001) {
-          console.error(error)
+
+        // if the user rejected the tx, pass this along
+        if (error?.code === 4001) {
+          setErrMessage(`Adding Liquidity failed: You denied to sign the transaction.`)
+        } else {
+          // otherwise, the error was unexpected and we need to convey that
+          setErrMessage(`Adding Liquidity failed: ${error.message}`)
         }
       })
   }
@@ -323,6 +329,7 @@ export default function AddLiquidity({
         noLiquidity={noLiquidity}
         onAdd={onAdd}
         poolTokenPercentage={poolTokenPercentage}
+        errMessage={errMessage}
       />
     )
   }
@@ -371,6 +378,7 @@ export default function AddLiquidity({
       onFieldAInput('')
     }
     setTxHash('')
+    setErrMessage(undefined)
   }, [onFieldAInput, txHash])
 
   const isCreate = history.location.pathname.includes('/create')
@@ -396,6 +404,8 @@ export default function AddLiquidity({
               />
             )}
             pendingText={pendingText}
+            pendingTitle={'Adding Liquidity'}
+            submittedTitle={'Add Liquidity Submitted'}
           />
           <AutoColumn gap={'md'}>
             { (pairState === PairState.EXISTS && noLiquidity) && (

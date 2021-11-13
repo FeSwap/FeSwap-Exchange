@@ -9510,7 +9510,7 @@
     },
     {
       "name": "Dai Stablecoin",
-      "address": "0xcB1e72786A6eb3b44C2a2429e317c8a2462CFeb1",
+      "address": "0x50B1acf59DC192fe8fEfcc019390a17738921610",
       "symbol": "DAI",
       "decimals": 18,
       "chainId": 80001,
@@ -9526,7 +9526,7 @@
     },
     {
       "name": "Tether USD",
-      "address": "0x3813e82e6f7098b9583FC0F33a962D02018B6803",
+      "address": "0xD89EDB2B7bc5E80aBFD064403e1B8921004Cdb4b",
       "symbol": "USDT",
       "decimals": 6,
       "chainId": 80001,
@@ -9539,6 +9539,22 @@
       "decimals": 18,
       "chainId": 80001,
       "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0/logo.png"
+    },
+    {
+      "name": "USD Coin",
+      "address": "0xE3919298d04b2E383fCC2625c15973b40B0F3bA5",
+      "symbol": "USDC",
+      "decimals": 8,
+      "chainId": 80001,
+      "logoURI": "https://raw.githubusercontent.com/sushiswap/icons/master/token/usdc.jpg"
+    },
+    {
+      "name": "Wrapped BTC",
+      "address": "0xeabc1f3d0d8b6c8788f080d66b353b6124aa9aa5",
+      "symbol": "WBTC",
+      "decimals": 8,
+      "chainId": 80001,
+      "logoURI": "https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png"
     },
     {
       "chainId": 1666600000,

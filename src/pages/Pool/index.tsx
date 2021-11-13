@@ -134,13 +134,13 @@ export default function Pool() {
             <CardSection>
               <AutoColumn gap="md">
                 <RowBetween>
-                  <TYPE.black fontWeight={600}>Liquidity provider gains</TYPE.black>
+                  <TYPE.black fontWeight={600}>Liquidity provider profit</TYPE.black>
                 </RowBetween>
                 <RowBetween>
                   <TYPE.black fontSize={14}>
-                    {`Liquidity providers gains from the internal exchange smoothing the price difference of sub-pools, 
-                    which is equivalent to 0.25-1% exchange fee rate based on the pool configuaration. 
-                    Gains are shared by all liquidity providers, and can be claimed any time.`}
+                    {`Liquidity providers make profit from the internal exchange mitigating the price gap of two sub-pools, 
+                    which is equivalent to the exchange fee rate of 0.25-1% based on the pool configuaration. 
+                    All profit are shared by all liquidity providers, and can be claimed at any time.`}
                   </TYPE.black>
                 </RowBetween>
               </AutoColumn>

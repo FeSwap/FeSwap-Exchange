@@ -14,6 +14,8 @@ import Circle from '../../assets/images/blue-loader.svg'
 
 import { getExplorerLink} from '../../utils/explorer'
 import { useActiveWeb3React } from '../../hooks'
+import { useAllTransactions } from '../../state/transactions/hooks'
+import { useEffect } from 'react'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -70,7 +72,7 @@ function TransactionSubmittedContent({
 }: {
   onDismiss: () => void
   hash: string | undefined
-  chainId: ChainId
+  chainId?: ChainId
   submittedTitle?: string; 
 }) {
   const theme = useContext(ThemeContext)
@@ -95,7 +97,7 @@ function TransactionSubmittedContent({
           {chainId && hash && (
             <ExternalLink href={getExplorerLink(chainId, hash, 'transaction')}>
               <Text fontWeight={500} fontSize={14} color={theme.primary1}>
-                View on Etherscan
+                View on Explorer
               </Text>
             </ExternalLink>
           )}
@@ -184,8 +186,14 @@ export default function TransactionConfirmationModal({
   submittedTitle
 }: ConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()
-
-  if (!chainId) return null
+  const allTransactions = useAllTransactions()
+  
+  // once confirmed txn is found, close the confirm window
+  useEffect(() => {
+    if (hash && allTransactions[hash].receipt){
+      onDismiss()
+    }
+  }, [hash, allTransactions, onDismiss])
 
   // confirmation screen
   return (

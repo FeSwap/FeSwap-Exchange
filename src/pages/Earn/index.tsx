@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { ChainId } from '@feswap/sdk'
 import { AutoColumn } from '../../components/Column'
 import styled, { ThemeContext }  from 'styled-components'
 import { STAKING_REWARDS_INFO, useStakingInfo } from '../../state/stake/hooks'
@@ -10,7 +9,7 @@ import { CardSection, DataCard, CardNoise } from '../../components/earn/styled'
 import Loader from '../../components/Loader'
 import { useActiveWeb3React } from '../../hooks'
 import { EmptyProposals } from '../Pool'
-import { FESW } from '../../constants'
+import { FESW, NETWORK_NAME } from '../../constants'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 560px;
@@ -36,38 +35,6 @@ const DataRow = styled(RowBetween)`
 flex-direction: column;
 `};
 `
-
-
-export const NETWORK_NAME: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]:            '',
-  [ChainId.RINKEBY]:            '',
-  [ChainId.ROPSTEN]:            '',
-  [ChainId.GÖRLI]:              '',
-  [ChainId.KOVAN]:              '',
-  [ChainId.BSC]:                'on Binance Smart Chain',
-  [ChainId.BSC_TESTNET]:        'on Binance Smart Chain testnet',
-  [ChainId.MATIC]:              'on Ploygon mainnet',
-  [ChainId.MATIC_TESTNET]:      'on Ploygon testnet',
-  [ChainId.HARMONY]:            'on Harmony mainnet',
-  [ChainId.HARMONY_TESTNET]:    'on Harmony testnet',
-  [ChainId.FANTOM]:             'on Fantom mainnet',
-  [ChainId.FANTOM_TESTNET]:     'on Fantom testnet',
-  [ChainId.HECO]:               'on Huobi ECO Chain',
-  [ChainId.HECO_TESTNET]:       'on Huobi ECO Chain Test',
-  [ChainId.ARBITRUM]:           'on Arbitrum mainnet',
-  [ChainId.ARBITRUM_TESTNET]:   'on Arbitrum testnet',
-  [ChainId.AVALANCHE]:          'on Avalanche mainnet',
-  [ChainId.AVALANCHE_TESTNET]:  'on Avalanche testnet',
-  [ChainId.OKEX]:               '',
-  [ChainId.OKEX_TESTNET]:       '',
-  [ChainId.PALM]:               '',
-  [ChainId.PALM_TESTNET]:       '',
-  [ChainId.MOONBEAM]:           '',
-  [ChainId.MOONRIVER]:          '',
-  [ChainId.XDAI]:               '',
-  [ChainId.CELO]:               ''
-}
-
 
 export default function Earn() {
   const { account, chainId } = useActiveWeb3React()
@@ -100,7 +67,7 @@ export default function Earn() {
               </RowBetween>
               <RowBetween>
                 <TYPE.black fontSize={14}>
-                  To reward providing liquidity, {GORV_TOKEN_NAME}, the {DAO_NAME} protocol governance token <b>{Network}</b>, 
+                  To reward providing liquidity, {GORV_TOKEN_NAME}, the {DAO_NAME} protocol governance token on <b>{Network}</b>, 
                   are distributed based on depositing liquidity tokens.
                 </TYPE.black>
               </RowBetween>

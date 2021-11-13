@@ -22,10 +22,8 @@ import Settings from '../Settings'
 import Menu from '../Menu'
 
 import Row, { RowFixed } from '../Row'
-//import Row from '../Row'
 
 import Web3Status from '../Web3Status'
-//import ClaimModal from '../claim/ClaimModal'
 import { useToggleSelfClaimModal, useShowClaimPopup } from '../../state/application/hooks'
 import { useUserHasAvailableClaim } from '../../state/claim/hooks'
 import { useUserHasSubmittedClaim } from '../../state/transactions/hooks'
@@ -34,7 +32,6 @@ import Modal from '../Modal'
 import UniBalanceContent from './UniBalanceContent'
 import usePrevious from '../../hooks/usePrevious'
 import { FESW } from '../../constants'
-//import { Menu as MenuIcon } from 'react-feather'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -165,18 +162,6 @@ const HideSmall = styled.span`
     display: none;
   `};
 `
-
-/*
-const HideMenuLarge = styled.span`
-  display: none;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: inherit;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: inherit;
-  `};
-`
-*/
 
 const NetworkCard = styled(BlueCard)`
   border-radius: 8px;
@@ -310,7 +295,9 @@ export default function Header() {
   const countUpValue = aggregateBalance?.toFixed(0) ?? '0'
   const countUpValuePrevious = usePrevious(countUpValue) ?? '0'
 
-  // <ClaimModal />
+//<StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
+//  Sponsor<span style={{color:'red', fontSize:'0.8em'}}><sup>❤</sup></span>
+//</StyledNavLink>
 
   return (
     <HeaderFrame>
@@ -347,9 +334,6 @@ export default function Header() {
               </StyledNavLink>
               <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
                 DAO
-              </StyledNavLink>
-              <StyledNavLink id={`stake-nav-link`} to={'/sponsor'}>
-                Sponsor<span style={{color:'red', fontSize:'0.8em'}}><sup>❤</sup></span>
               </StyledNavLink>
               <StyledExternalLink id={`stake-nav-link`} href={'https://www.feswap.io/docs'}>
                 Docs <span style={{ fontSize: '11px' }}>↗</span>

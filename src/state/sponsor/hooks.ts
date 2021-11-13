@@ -164,6 +164,10 @@ export function useDerivedSponsorInfo(): {
     inputError = inputError ?? 'Sponsor Not Started'
   }
 
+  if( SponsorStartTime && ((now/1000) > (SponsorStartTime.toNumber() + 3600*24*30))) {
+    inputError = inputError ?? 'Sponsor Ended'
+  }
+
   if (!parsedAmount) {
     inputError = inputError ?? 'Enter an amount'
   }

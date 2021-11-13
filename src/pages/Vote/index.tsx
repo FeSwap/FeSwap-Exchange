@@ -13,7 +13,7 @@ import { useAllProposalData, ProposalData, useUserVotes, useUserDelegatee } from
 import DelegateModal from '../../components/vote/DelegateModal'
 import { useTokenBalance } from '../../state/wallet/hooks'
 import { useActiveWeb3React } from '../../hooks'
-import { FESW, ZERO_ADDRESS } from '../../constants'
+import { FESW, ZERO_ADDRESS, NETWORK_NAME } from '../../constants'
 import { JSBI, TokenAmount, ChainId } from '@feswap/sdk'
 import { shortenAddress } from '../../utils'
 import { getExplorerLink} from '../../utils/explorer'
@@ -101,6 +101,7 @@ const EmptyProposals = styled.div`
 export default function Vote() {
   const { account, chainId } = useActiveWeb3React()
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
+  const Network = chainId ? NETWORK_NAME[chainId] : ''
   const theme = useContext(ThemeContext)
 
   // toggle for showing delegation modal
@@ -132,20 +133,20 @@ export default function Vote() {
           <CardSection>
             <AutoColumn gap="md">
               <RowBetween>
-                <TYPE.black fontWeight={600}>Feswap Governance</TYPE.black>
+                <TYPE.black fontWeight={600}>FeSwap Governance</TYPE.black>
               </RowBetween>
               <RowBetween>
                 <TYPE.black fontSize={14}>
-                {GORV_TOKEN_NAME} tokens represent voting shares in Feswap governance. You can vote on each proposal yourself or
+                {GORV_TOKEN_NAME} tokens represent voting shares in FeSwap governance on <b>{Network}</b>. You can vote on each proposal yourself or
                   delegate your votes to a third party.
                 </TYPE.black>
               </RowBetween>
               <ExternalLink
                 style={{ color: 'black', textDecoration: 'underline' }}
-                href="https://www.feswap.io/blog/feswap"
+                href="https://www.feswap.io/docs/feswap/governance"
                 target="_blank"
               >
-                <TYPE.black fontSize={14}>Read more about Feswap governance ↗</TYPE.black>
+                <TYPE.black fontSize={14}>Read more about FeSwap governance ↗</TYPE.black>
               </ExternalLink>
             </AutoColumn>
           </CardSection>

@@ -35,7 +35,7 @@ import AppBody from '../AppBody'
 import QuestionHelper from '../../components/QuestionHelper'
 import { Wrapper } from '../Pool/styleds'
 import { useApproveCallback, ApprovalState } from '../../hooks/useApproveCallback'
-import { Dots } from '../../components/swap/styleds'
+import { Dots, SwapCallbackError, BottomGrouping } from '../../components/swap/styleds'
 import { useBurnActionHandlers } from '../../state/burn/hooks'
 import { useDerivedBurnInfo, useBurnState } from '../../state/burn/hooks'
 import { Field, Amount } from '../../state/burn/actions'
@@ -226,6 +226,8 @@ export default function RemoveLiquidity({
 
   // txn values
   const [txHash, setTxHash] = useState<string>('')
+  const [errMessage, setErrMessage] = useState<string>('')
+
   const deadline = useTransactionDeadline()
   const blockTimestamp = useCurrentBlockTimestamp()
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -552,10 +554,16 @@ export default function RemoveLiquidity({
             label: [currencyA?.getSymbol(chainId), currencyB?.getSymbol(chainId)].join('/')
           })
         })
-        .catch((error: Error) => {
+        .catch((error: any) => {
           setAttemptingTxn(false)
-          // we only care if the error is something _other_ than the user rejected the tx
-          console.error(error)
+
+          // if the user rejected the tx, pass this along
+          if (error?.code === 4001) {
+            setErrMessage(`Removing Liquidity failed: You denied to sign the transaction.`)
+          } else {
+            // otherwise, the error was unexpected and we need to convey that
+            setErrMessage(`Removing Liquidity failed: ${error.message}`)
+          }
         })
     }
   }
@@ -644,13 +652,16 @@ export default function RemoveLiquidity({
             </RowBetween>
           </>
         )}
-        <ButtonPrimary  disabled={( !noRemoveLiquidity[Field.PAIR_AB] && signatureDataAB === null && approvalAB !== ApprovalState.APPROVED) ||
-                                  ( !noRemoveLiquidity[Field.PAIR_BA] && signatureDataBA === null && approvalBA !== ApprovalState.APPROVED) }
-                        onClick={onRemove} >
-          <Text fontWeight={500} fontSize={20}>
-            Confirm
-          </Text>
-        </ButtonPrimary>
+        <BottomGrouping>
+          <ButtonPrimary  disabled={( !noRemoveLiquidity[Field.PAIR_AB] && signatureDataAB === null && approvalAB !== ApprovalState.APPROVED) ||
+                                    ( !noRemoveLiquidity[Field.PAIR_BA] && signatureDataBA === null && approvalBA !== ApprovalState.APPROVED) }
+                          onClick={onRemove} >
+            <Text fontWeight={500} fontSize={20}>
+              Confirm
+            </Text>
+          </ButtonPrimary>
+          {errMessage && <SwapCallbackError error={errMessage} />}
+        </BottomGrouping>
       </>
     )
   }
@@ -675,6 +686,8 @@ export default function RemoveLiquidity({
       onUserInput(Field.PAIR_BA, 0)
     }
     setTxHash('')
+    setErrMessage('')
+
   }, [onUserInput, txHash])
 
   const liquidityPercentChangeCallbackAB = useCallback(
@@ -720,6 +733,8 @@ export default function RemoveLiquidity({
               />
             )}
             pendingText={pendingText}
+            pendingTitle={'Removing Liquidity'}
+            submittedTitle={'Remove Liquidity Submitted'}
           />
           { (!noUserLiquidity[Field.PAIR_AB] || !noUserLiquidity[Field.PAIR_BA] )  &&
             <RowFixed  style={{ padding: '0px 0px 4px 12px' }}>

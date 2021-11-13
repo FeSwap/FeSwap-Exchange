@@ -42,7 +42,7 @@ export const ProposalSubmissionModal = ({
             {hash && (
               <ExternalLink href={getExplorerLink(chainId??ChainId.MAINNET, hash, 'transaction')}>
                 <Text fontWeight={500} fontSize={14} color={theme.primary1}>
-                  View on Etherscan
+                  View on Explorer
                 </Text>
               </ExternalLink>
             )}

@@ -108,6 +108,20 @@ export const STAKING_REWARDS_INFO: {
       stakingRewardAddress: '0x957d1f6857919F17e052c0D1D324C6eBB107c8FD'
     }
   ],
+  [ChainId.MATIC_TESTNET]: [
+    {
+      tokens: [WETH[ChainId.MATIC_TESTNET], FESW[ChainId.MATIC_TESTNET]],
+      stakingRewardAddress: '0x7e9dd96D0360BCc12F04032e9871722D931814b3'
+    },
+//    {
+//      tokens: [WETH[ChainId.MATIC_TESTNET], USDC[ChainId.MATIC_TESTNET]],
+//      stakingRewardAddress: '0x82Ab1bf9174f7920649BC7ED8248132474B3824f'
+//    },
+//    {
+//      tokens: [WETH[ChainId.MATIC_TESTNET], USDT[ChainId.MATIC_TESTNET]],
+//      stakingRewardAddress: '0x957d1f6857919F17e052c0D1D324C6eBB107c8FD'
+//    }
+  ]
 }
 
 export interface StakingInfo {

@@ -22,6 +22,36 @@ export const USDC:  { [chainId: number]: Token }  = {
 }
 */
 
+export const NETWORK_NAME: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]:            'Ethereum',
+  [ChainId.RINKEBY]:            'Ethereum Rinkeby Testnet',
+  [ChainId.ROPSTEN]:            'Ethereum Ropsten Testnet',
+  [ChainId.GÖRLI]:              'Ethereum Görli Testnet',
+  [ChainId.KOVAN]:              'Ethereum Kovan Testnet',
+  [ChainId.BSC]:                'Binance Smart Chain',
+  [ChainId.BSC_TESTNET]:        'Binance Smart Chain Testnet',
+  [ChainId.MATIC]:              'Ploygon mainnet',
+  [ChainId.MATIC_TESTNET]:      'Ploygon Testnet',
+  [ChainId.HARMONY]:            'Harmony mainnet',
+  [ChainId.HARMONY_TESTNET]:    'Harmony Testnet',
+  [ChainId.FANTOM]:             'Fantom mainnet',
+  [ChainId.FANTOM_TESTNET]:     'Fantom Testnet',
+  [ChainId.HECO]:               'Huobi ECO Chain',
+  [ChainId.HECO_TESTNET]:       'Huobi ECO Chain Testnet',
+  [ChainId.ARBITRUM]:           'Arbitrum mainnet',
+  [ChainId.ARBITRUM_TESTNET]:   'Arbitrum Testnet',
+  [ChainId.AVALANCHE]:          'Avalanche mainnet',
+  [ChainId.AVALANCHE_TESTNET]:  'Avalanche Testnet',
+  [ChainId.OKEX]:               'To Support Chain',
+  [ChainId.OKEX_TESTNET]:       'To Support Test Chain',
+  [ChainId.PALM]:               'To Support Chain',
+  [ChainId.PALM_TESTNET]:       'To Support Test Chain',
+  [ChainId.MOONBEAM]:           'To Support Test Chain',
+  [ChainId.MOONRIVER]:          'To Support Chain',
+  [ChainId.XDAI]:               'To Support Chain',
+  [ChainId.CELO]:               'To Support Chain'
+}
+
 export const USDT:  { [chainId: number]: Token }  = {
       [ChainId.MAINNET]:  new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
       [ChainId.ROPSTEN]:  new Token(ChainId.ROPSTEN, '0x110a13FC3efE6A245B50102D2d79B3E76125Ae83', 6, 'USDT', 'Tether USD'),

@@ -209,13 +209,13 @@ export function useDelegateCallback(): (delegatee: string | undefined) => undefi
     (delegatee: string | undefined) => {
       if (!library || !chainId || !account || !isAddress(delegatee ?? '')) return undefined
       const args = [delegatee]
-      if (!feswContract) throw new Error('No FESW Contract!')
+      if (!feswContract) throw new Error('No FeSwap Governance Contract!')
       return feswContract.estimateGas.delegate(...args, {}).then(estimatedGasLimit => {
         return feswContract
           .delegate(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
           .then((response: TransactionResponse) => {
             addTransaction(response, {
-              summary: `Delegated votes`
+              summary: `Delegated votes to ${delegatee ? 'the delegatee' : 'self'}.` 
             })
             return response.hash
           })

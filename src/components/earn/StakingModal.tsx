@@ -358,7 +358,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                         Approve {pairCurrency1?.getSymbol(chainId)}🔗{pairCurrency0?.getSymbol(chainId)} {(approval1 === ApprovalState.PENDING)? ' Pending' : ''}
                       </ButtonConfirmed> )
                   } 
-                </>
+                </> 
               )}
 
               { !approveOverall && (

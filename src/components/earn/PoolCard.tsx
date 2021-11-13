@@ -14,7 +14,7 @@ import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { BIG_INT_SECONDS_IN_DAY } from '../../constants'
-import { ZERO } from '../../utils'
+import { ZERO, ZERO_FRACTION } from '../../utils'
 import { SeparatorBlack } from '../SearchModal/styleds'
 import { useCurrencyFromToken } from '../../hooks/Tokens'
 import { Countdown } from './Countdown'
@@ -102,23 +102,12 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
 
   // get the USD value of staked WETH
   const USDTPrice = useUSDTPrice(WETH)
-  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH ? USDTPrice?.quote(valueOfTotalStakedAmountInWETH) : undefined
-  console.log("CCCCCCCCCC USDTPrice valueOfTotalStakedAmountInUSDT", USDTPrice, 
-                USDTPrice?.toSignificant(6),
-                valueOfTotalStakedAmountInWETH,   
-                valueOfTotalStakedAmountInWETH?.toSignificant(6),
-                valueOfTotalStakedAmountInUSDT, 
-                valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' }))
-
-//  { !!USDTPrice && valueOfTotalStakedAmountInUSDT?.greaterThan(ZERO) && (
-//    <RowBetween>
-//      <div/>
-//      <TYPE.black>
-//        {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })}`}
-//      </TYPE.black>
-//    </RowBetween>
-//  )}
-
+  const valueOfTotalStakedAmountInUSDT = useMemo(() => {
+      if( !valueOfTotalStakedAmountInWETH || !USDTPrice ) return undefined
+      if( USDTPrice.equalTo(ZERO_FRACTION) ) return undefined
+      return USDTPrice.quote(valueOfTotalStakedAmountInWETH)
+    }, [USDTPrice, valueOfTotalStakedAmountInWETH])
+  
   return (
       <StyledPositionCard bgColor={backgroundColor}>
         <CardNoise />
@@ -137,7 +126,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
           <RowBetween>
             <TYPE.black>Total deposited equivalent</TYPE.black>
             <TYPE.black>
-              {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ${NATIVE_SYMBOL}`}
+              {`${valueOfTotalStakedAmountInWETH?.toSignificant(2, { groupSeparator: ',' }) ?? '-'} ${NATIVE_SYMBOL}`}
             </TYPE.black>
           </RowBetween>
           
@@ -145,7 +134,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
             <RowBetween>
               <div/>
               <TYPE.black>
-                {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })}`}
+                {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(2, { groupSeparator: ',' })}`}
               </TYPE.black>
             </RowBetween>
           )}
