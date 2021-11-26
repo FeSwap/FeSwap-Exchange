@@ -79,6 +79,7 @@ export default function ConfirmNftModal({
       switch (buttonID) {
         case USER_BUTTON_ID.OK_INIT_BID:
         case USER_BUTTON_ID.OK_TO_BID:
+        case USER_BUTTON_ID.OK_TO_REBID:
           return `Bidding ${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(6)} ${NATIVE[chainId].symbol} for the NFT representing
                   ${nftBid.pairCurrencies[Field.TOKEN_A]?.getSymbol(chainId)}🔗${nftBid.pairCurrencies[Field.TOKEN_B]?.getSymbol(chainId)} `
         case USER_BUTTON_ID.OK_TO_CLAIM:

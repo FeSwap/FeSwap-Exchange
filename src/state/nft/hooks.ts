@@ -289,6 +289,9 @@ export function useDerivedNftInfo(): {
 
   const feswaPairINfo =  useSingleCallResult(nftBidContract, 'getPoolInfoByTokens', pairTokenAddress)?.result??undefined
 
+  const AirdropFirstBidder : BigNumber | undefined = useSingleCallResult(nftBidContract, 'AIRDROP_FOR_FIRST', undefined, 
+                                                      NEVER_RELOAD)?.result?.[0] ?? undefined
+
   const AirdropRateForWinner : BigNumber | undefined = useSingleCallResult(nftBidContract, 'AIRDROP_RATE_FOR_WINNER', undefined, 
                                                       NEVER_RELOAD)?.result?.[0] ?? undefined
   
@@ -308,12 +311,13 @@ export function useDerivedNftInfo(): {
   }
 
   const feswaNftConfig : FeswaNftConfig | undefined = useMemo(()=>{
-      if( !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate) return undefined
+      if( !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate || !AirdropFirstBidder) return undefined
       return {  feswGiveRate, 
+                AirdropFirstBidder: new Fraction(AirdropFirstBidder.toString(), WEI_DENOM), 
                 AirdropRateForWinner: new Fraction( AirdropRateForWinner.toString(), WEI_DENOM), 
                 MinPriceIncrease: new Fraction( MinPriceIncrease.toString(), WEI_DENOM)
               }
-    }, [MinPriceIncrease, AirdropRateForWinner, feswGiveRate]
+    }, [MinPriceIncrease, AirdropRateForWinner, feswGiveRate, AirdropFirstBidder]
   )
 
   const feswToken = chainId ? FESW[chainId] : undefined

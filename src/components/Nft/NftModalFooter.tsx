@@ -36,6 +36,7 @@ export default function NftModalFooter({
 
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
   const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : ''
+  const FIRST_AIRDROP = nftBid.feswaNftConfig?.AirdropFirstBidder.toFixed(0, { groupSeparator: ',' }) ?? ''
   const RATE_WINNER = nftBid.feswaNftConfig?.feswGiveRate.toFixed(0, { groupSeparator: ',' }) ?? ''
   const RATE_BASE   = nftBid.feswaNftConfig?.feswGiveRate.divide('5').toFixed(0, { groupSeparator: ',' }) ?? ''
   const BaseGiveaway  = feswType(chainId) === "FESW-V2" 
@@ -47,11 +48,11 @@ export default function NftModalFooter({
                       :''
 
   const NormalBidderPrompt = feswType(chainId) === "FESW-V2" 
-                        ? `will get the base giveaway at the rate of ${RATE_BASE} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL} for the bidding price increase. `
+                        ? `will get the base giveaway at the rate of ${RATE_BASE} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL} for the bidding price increment. `
                         : `will get 500 ${GORV_TOKEN_NAME} for each next bidding. `
   const FinalBidderPrePrompt = NormalBidderPrompt.concat( `If you win the bid, the final giveway is airdroped at the rate of ${RATE_WINNER} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL}. 
                               If failed, your payment will be returned back.`)
-  const firtBidderPrompt = (nftBid.firtBidder) ? `You can always get 1000 ${GORV_TOKEN_NAME} as this NFT initial bidder. And you ` : 'You '
+  const firtBidderPrompt = (nftBid.firtBidder) ? `You can always get ${FIRST_AIRDROP} ${GORV_TOKEN_NAME} as this NFT initial bidder. And you ` : 'You '
   const BidderPrompt = firtBidderPrompt.concat(FinalBidderPrePrompt)
 
   const claimPrompt = `The FESW giveway is airdroped at the rate of ${RATE_WINNER} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL}. Thanks for bidding!`
@@ -60,7 +61,7 @@ export default function NftModalFooter({
 
   return (
     <>
-      { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID) 
+      { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID) || (buttonID === USER_BUTTON_ID.OK_TO_REBID)
           || (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) || (buttonID === USER_BUTTON_ID.OK_BUY_NFT) ) && chainId &&
         <AutoColumn gap="6px">
           <RowBetween align="center">
@@ -86,7 +87,7 @@ export default function NftModalFooter({
                 paddingLeft: '10px'
               }}
             >
-              { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) ? 
+              { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID) || (buttonID === USER_BUTTON_ID.OK_TO_REBID)) ? 
                 `${FirtBidGiveaway.add(BaseGiveaway).toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${GORV_TOKEN_NAME}` : null }
               { (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) ? 
                 `${nftBid.parsedAmounts[USER_UI_INFO.BID_FESW_GIVEAWAY]?.toSignificant(6, undefined, Rounding.ROUND_DOWN)} ${GORV_TOKEN_NAME}` : null }
@@ -97,7 +98,7 @@ export default function NftModalFooter({
               } 
             </Text>
           </RowBetween>
-          { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) &&  FinalGiveaway && 
+          { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID) || (buttonID === USER_BUTTON_ID.OK_TO_REBID)) &&  FinalGiveaway && 
             <RowBetween align="center">
               <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
                 Possible Final Win Giveaway:

@@ -93,7 +93,7 @@ const builders = {
   },
 
   avalanche: (chainName: string, data: string, type: 'transaction' | 'token' | 'address' | 'block') => {
-    const prefix = `https://cchain.explorer.avax${chainName ? `-${chainName}` : ''}.network`
+    const prefix = `https://${chainName ? `${chainName}.` : ''}snowtrace.io`
     switch (type) {
       case 'transaction':
         return `${prefix}/tx/${data}`

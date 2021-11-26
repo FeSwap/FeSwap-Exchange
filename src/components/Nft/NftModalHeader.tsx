@@ -35,6 +35,7 @@ export default function NftModalHeader({
 
   const theme = useContext(ThemeContext)
   const { chainId } = useActiveWeb3React()
+  const FIRST_AIRDROP = nftBid.feswaNftConfig?.AirdropFirstBidder.toFixed(0, { groupSeparator: ',' }) ?? ''
 
   return (
     <AutoColumn gap={'md'} style={{ marginTop: '20px' }}  >
@@ -67,6 +68,7 @@ export default function NftModalHeader({
             <TYPE.black color={theme.text1} fontSize={24}>
               { ( (buttonID === USER_BUTTON_ID.OK_INIT_BID) 
                   || (buttonID === USER_BUTTON_ID.OK_TO_BID)
+                  || (buttonID === USER_BUTTON_ID.OK_TO_REBID)
                   || (buttonID === USER_BUTTON_ID.OK_FOR_SALE)
                   || (buttonID === USER_BUTTON_ID.OK_CHANGE_PRICE) ) ? 
                 `${nftBid?.parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.toSignificant(8)} ${NATIVE[chainId].symbol}` : null}
@@ -102,10 +104,24 @@ export default function NftModalHeader({
         </SwapShowAcceptChanges>
       ) : null}
       <AutoColumn justify="flex-start" gap="md" style={{ padding: '6px 0 0 0px', height: '50px' }}>
-        { ((buttonID === USER_BUTTON_ID.OK_INIT_BID) || (buttonID === USER_BUTTON_ID.OK_TO_BID)) && chainId &&
+        { (buttonID === USER_BUTTON_ID.OK_INIT_BID) && chainId &&
+          <TYPE.italic size={20} textAlign="left" style={{ width: '100%' }}>
+            You can always get {FIRST_AIRDROP} {FESW[chainId].symbol} as this NFT first bidder, and some additional {FESW[chainId].symbol} if
+            the bidding price is not zero. The bidding winner will earn 60% of the protocol profit corresponding to the NFT token pair.
+          </TYPE.italic>
+        }
+        { (buttonID === USER_BUTTON_ID.OK_TO_BID) && chainId &&
           <TYPE.italic size={20} textAlign="left" style={{ width: '100%' }}>
             The bidding winner will earn 60% of the protocol profit corresponding to the NFT token pair. 
-            No mather win or lose, each participant will also get some giveaway {FESW[chainId].symbol} tokens.  
+            No mather win or lose, each participant will get some giveaway {FESW[chainId].symbol} tokens propotional 
+            to the bidding price increment.
+          </TYPE.italic>
+        }
+        { (buttonID === USER_BUTTON_ID.OK_TO_REBID) && chainId &&
+          <TYPE.italic size={20} textAlign="left" style={{ width: '100%' }}>
+            The bidding winner will earn 60% of the protocol profit corresponding to the NFT token pair. 
+            No mather win or lose, each participant will get some giveaway {FESW[chainId].symbol} tokens 
+            if the re-bidding price is not zero.  
           </TYPE.italic>
         }
         { ((buttonID === USER_BUTTON_ID.OK_FOR_SALE) || (buttonID === USER_BUTTON_ID.OK_CHANGE_PRICE)) && chainId &&

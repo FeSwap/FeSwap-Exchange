@@ -108,28 +108,35 @@ export function getBidDuration(chainId?: ChainId): number {
   return 3600 * 24 * 3
 }
 
+export function getReOpenDuration(chainId?: ChainId): number {
+  if(  (chainId === ChainId.MAINNET) || (chainId === ChainId.ROPSTEN) || (chainId === ChainId.RINKEBY)
+      || (chainId === ChainId.GÖRLI) || (chainId === ChainId.KOVAN )) return Number.POSITIVE_INFINITY
+  return 3600 * 24 * 4
+}
+
 export function NFTBidHelpInfo({nftBid}:{nftBid: NftBidTrade}) {
   const { chainId } = useActiveWeb3React()
 
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : ''
   const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : ''
+  const FIRST_AIRDROP = nftBid.feswaNftConfig?.AirdropFirstBidder.toFixed(0, { groupSeparator: ',' }) ?? ''
   const RATE_WINNER = nftBid.feswaNftConfig?.feswGiveRate.toFixed(0, { groupSeparator: ',' }) ?? ''
   const RATE_BASE   = nftBid.feswaNftConfig?.feswGiveRate.divide('5').toFixed(0, { groupSeparator: ',' }) ?? ''
 
   return (
         feswType(chainId) === "FESW" 
         ? <>
-            <Text> 1. Each first NFT bidder of each token pair gets 1000 {GORV_TOKEN_NAME}.</Text>
+            <Text> 1. Each first NFT bidder of each token pair gets {FIRST_AIRDROP} {GORV_TOKEN_NAME}.</Text>
             <Text> 2. Each bidder always gets 500 {GORV_TOKEN_NAME} for each next time bidding.</Text>
-            <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increasement of the next bidder. </Text>
+            <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increment of the next bidder. </Text>
             <Text> 4. Each bidding winner gets final airdrop based on the final price at the rate 
                       of {RATE_WINNER} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
             <Text> 5. The NFT winner will earn 60% of the protocol profit corresponding to the NFT token pair. </Text>
           </>
         : <>
-            <Text> 1. Each first NFT bidder of each token pair gets 1000 {GORV_TOKEN_NAME}.</Text>
-            <Text> 2. Each bidder gets airdrop based on the price increasement at the rate of {RATE_BASE} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
-            <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increasement of the next bidder. </Text>
+            <Text> 1. Each first NFT bidder of each token pair gets {FIRST_AIRDROP} {GORV_TOKEN_NAME}.</Text>
+            <Text> 2. Each bidder gets airdrop based on the price increment at the rate of {RATE_BASE} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
+            <Text> 3. While being surpassed, each bidder is refunded with additional 10% of the price increment of the next bidder. </Text>
             <Text> 4. Each bidding winner gets final airdrop based on the final price at the rate 
                       of {RATE_WINNER} {GORV_TOKEN_NAME}/{NATIVE_SYMBOL}.</Text>
             <Text> 5. Bidding winner must claim the NFT corresponding token pair within 4 days starting from the time bidding ended, 

@@ -45,6 +45,7 @@ export enum USER_BUTTON_ID {
   ERR_NO_RECIPIENT,
   OK_INIT_BID,
   OK_TO_BID,
+  OK_TO_REBID,
   OK_BUY_NFT,
   OK_FOR_SALE,
   OK_CHANGE_PRICE,
@@ -69,6 +70,7 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
   [USER_BUTTON_ID.ERR_NO_RECIPIENT]: 'Enter a recipient',
   [USER_BUTTON_ID.OK_INIT_BID]: 'Initiate a Bid',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bid the NFT',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Re-Bid the NFT',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
@@ -83,6 +85,7 @@ export const BidButtonPrompt: {[field in USER_BUTTON_ID]: string} = {
 export const BidConfirmTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm NFT Bid',
   [USER_BUTTON_ID.OK_TO_BID]: 'Confirm NFT Bid',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Confirm NFT Re-Bid',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
@@ -96,6 +99,7 @@ export const BidConfirmTitle: {[field: number]: string} = {
 export const BidPendingTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Confirming NFT Bid',
   [USER_BUTTON_ID.OK_TO_BID]: 'Confirming NFT Bid',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Confirming NFT Re-Bid',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirming Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirming Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
@@ -109,6 +113,7 @@ export const BidPendingTitle: {[field: number]: string} = {
 export const BidSubmittedTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'NFT Bid Submitted',
   [USER_BUTTON_ID.OK_TO_BID]: 'NFT Bid Submitted',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'NFT Re-Bid Submitted',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Confirm Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Confirm Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change NFT Price', 
@@ -122,6 +127,7 @@ export const BidSubmittedTitle: {[field: number]: string} = {
 export const BidConfirmLine1: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Bidding NFT:',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bidding NFT:',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Re-Bidding NFT:',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'NFT to Buy:',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'NFT to Sell:',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT to Change:', 
@@ -135,6 +141,7 @@ export const BidConfirmLine1: {[field: number]: string} = {
 export const BidConfirmLine2: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Bidding price:',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bidding price:',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Re-Bidding price:',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Buying Price:',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'NFT Sell Price:',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'New NFT Price:', 
@@ -148,6 +155,7 @@ export const BidConfirmLine2: {[field: number]: string} = {
 export const BidConfirmButton: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Confirm Bid',
   [USER_BUTTON_ID.OK_TO_BID]: 'Confirm Bid',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Confirm Re-Bid',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'Buy NFT',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Sell NFT',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'Change Price', 
@@ -161,6 +169,7 @@ export const BidConfirmButton: {[field: number]: string} = {
 export const userInputTitle: {[field: number]: string} = {
   [USER_BUTTON_ID.OK_INIT_BID]: 'Bid Price',
   [USER_BUTTON_ID.OK_TO_BID]: 'Bid Price',
+  [USER_BUTTON_ID.OK_TO_REBID]: 'Re-Bid Price',
   [USER_BUTTON_ID.OK_BUY_NFT]: 'NFT New Sale Price',
   [USER_BUTTON_ID.OK_FOR_SALE]: 'Selling Price',
   [USER_BUTTON_ID.OK_CHANGE_PRICE]: 'NFT New Price', 

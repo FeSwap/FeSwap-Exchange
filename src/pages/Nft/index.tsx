@@ -45,7 +45,7 @@ import { calculateGasMargin, WEI_DENOM, ZERO_FRACTION, ONE_FRACTION, TWO_TENTH_F
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { DateTime } from 'luxon'
-import NftList, { StyledNFTButton, getBidDuration, NFTBidHelpInfo } from '../../components/Nft'
+import NftList, { StyledNFTButton, getBidDuration, getReOpenDuration, NFTBidHelpInfo } from '../../components/Nft'
 import { FixedSizeList } from 'react-window'
 import { useNFTPairAdder } from '../../state/user/hooks'
 import { ZERO_ADDRESS } from '../../constants'
@@ -154,6 +154,7 @@ export default function Nft({
 
     const now = DateTime.now().toSeconds()
     const timeNormalEnd = timeNftCreation + getBidDuration(chainId)             // Normal: 3600 * 24 * 14
+    const timeReopen = timeNftCreation + getReOpenDuration(chainId)
     
     function setButtonAndInputTitleID(buttonID: USER_BUTTON_ID, titleID?: USER_BUTTON_ID, force?: boolean): USER_BUTTON_ID {
       inputTitleID = titleID??buttonID
@@ -169,12 +170,18 @@ export default function Nft({
         break
       case NFT_BID_PHASE.BidPhase: 
         if(now >= timeNormalEnd){
-          if (feswaPairBidInfo.ownerPairNft === account) {
-            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
-          } else {
-            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)
+          if(now < timeReopen){
+            if (feswaPairBidInfo.ownerPairNft === account) {
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
+            } else {
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)
+            }
+            nftStatusString = nftStatusString??'Bid Completed'
           }
-          nftStatusString = nftStatusString??'Bid Completed'
+          else{
+            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_REBID)
+            nftStatusString = nftStatusString??'Open for re-bidding'
+          }
         }else {
           buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
                           ? setButtonAndInputTitleID(USER_BUTTON_ID.ERR_LOW_PRICE, USER_BUTTON_ID.OK_TO_BID)
@@ -184,12 +191,18 @@ export default function Nft({
         break
       case NFT_BID_PHASE.BidDelaying: 
         if(now >= (timeNftLastBid + 3600 * 2)) {
-          if (feswaPairBidInfo.ownerPairNft === account) {
-            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
-          } else {
-            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)
+          if(now < timeReopen){
+            if (feswaPairBidInfo.ownerPairNft === account) {
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
+            } else {
+              buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.ERR_BID_ENDED, USER_BUTTON_ID.OK_TO_BID)
+            }
+            nftStatusString = nftStatusString??'Bid Completed'
           }
-          nftStatusString = nftStatusString??'Bid Completed'
+          else{
+            buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_REBID)
+            nftStatusString = nftStatusString??'Open for re-bidding'            
+          }
         } else {
           buttonID =  parsedAmounts[USER_UI_INFO.USER_PRICE_INPUT]?.lessThan(newNftBidPrice)
                           ? setButtonAndInputTitleID(USER_BUTTON_ID.ERR_LOW_PRICE, USER_BUTTON_ID.OK_TO_BID)
@@ -551,6 +564,7 @@ export default function Nft({
             onConfirm={() =>  {
                                 if (buttonID === USER_BUTTON_ID.OK_INIT_BID) handleNftBidding()
                                 if (buttonID === USER_BUTTON_ID.OK_TO_BID) handleNftBidding()
+                                if (buttonID === USER_BUTTON_ID.OK_TO_REBID) handleNftBidding()
                                 if (buttonID === USER_BUTTON_ID.OK_TO_CLAIM) handleClaimNft()
                                 if (buttonID === USER_BUTTON_ID.OK_FOR_SALE) handleSellNft()
                                 if (buttonID === USER_BUTTON_ID.OK_CHANGE_PRICE) handleSellNft()
