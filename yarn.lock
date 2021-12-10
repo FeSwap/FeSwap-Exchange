@@ -2517,20 +2517,20 @@
   resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.3.1.tgz#98b0e2b10676a85b1f82664a388e2c0d6debf939"
   integrity sha512-mUiOGxeRCZQILjicXdDTZHU7mFxQ2HbkH3IZD9nKMzGLI0FbHGqqZUcCkju6Y9eSadgLxrbelQBTcKm91PyIog==
 
-"@feswap/core@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.4.1.tgz#f4dcad06bc5e68081c6d4e32ff8ae235dcadc3e5"
-  integrity sha512-DOCCDYqorC8OqsKu637cyMSwPoepLCrMnhDWt5KfZdqIVUiVmB/Av6xVIPF37sp7M6XkAjxRgYRuFme80+egBw==
+"@feswap/core@^1.4.2":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@feswap/core/-/core-1.4.2.tgz#7267ec49adee485c7007654e159a261d2cad79d1"
+  integrity sha512-6Il16x0IoACK+n+X7K2WjGXuolcT9vF+dQWNkxLmYSLA25VnnvtT3nQ9R43ek30DvbiR1DzmViQ5xSrQAWU92w==
 
-"@feswap/governance@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@feswap/governance/-/governance-1.3.1.tgz#6e89f23b1a54ac93a5552762169d6847b154da35"
-  integrity sha512-vwnBZMTZ10CJ0V80Aoi+tQk4ZdUe60mj6MKsneZMTGb3tT/ZJcQKBciTw76ZgV5aNlQM5cxTme2LQRqsaRG8mg==
+"@feswap/governance@^1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@feswap/governance/-/governance-1.3.2.tgz#1bb1b29b1280d6b6f1b88e9ce248e02c88f9f311"
+  integrity sha512-t4Wr34Kzzc0FYyx9x2Bci3jVNhz+P9893ipK1u+MEz7d+kgZQ6ClA74BG4hOre+XC43p+3BucwMqMc1/5ljXKA==
 
-"@feswap/sdk@^1.7.1":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.7.1.tgz#68a6f9647cac50692b7d91afc28a4b37b0406341"
-  integrity sha512-Jw5zaSy/10/Djr4/XQV9gbkBMvv5/gGjWTtrbCMsd/Z7NhvoH1D5xMaNvq+PvoOf7C32bCD2xsUQL0vNIlwEVA==
+"@feswap/sdk@^1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@feswap/sdk/-/sdk-1.7.2.tgz#9e6f0a53b3d3ce28de1d97bb439ec32f786997f6"
+  integrity sha512-tPhnbwOs3Yn3uDWirBzhg2SICGjfR9wmFuo4MFt0efuQRCjOTnt7lhgvfPjir4rnJ42uwKlzSNfZmiQO4bus+A==
   dependencies:
     "@feswap/core" "^1.3.1"
     big.js "^5.2.2"

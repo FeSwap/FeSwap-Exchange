@@ -1,8 +1,8 @@
-import { JSBI, Token, TokenAmount } from '@feswap/sdk'
+import { ChainId, JSBI, Token, TokenAmount } from '@feswap/sdk'
 import { BigNumber } from 'ethers'
 import { STAKING_GENESIS } from '../state/stake/hooks'
 
-const STAKING_END = STAKING_GENESIS + 60 * 60 * 24 * 122
+//const STAKING_END = STAKING_GENESIS + 60 * 60 * 24 * 120
 
 const TREASURY_VESTING_GENESIS = 1627318800       // 1600387200
 
@@ -61,7 +61,8 @@ export function computeUniCirculation(
   let wholeAmount = JSBI.BigInt(USERS_AMOUNT)
 
   // staking rewards
-  wholeAmount = withVesting(wholeAmount, blockTimestamp, STAKING_REWARDS_AMOUNT, STAKING_GENESIS, STAKING_END)
+  wholeAmount = withVesting(wholeAmount, blockTimestamp, STAKING_REWARDS_AMOUNT, 
+                STAKING_GENESIS[ChainId.MAINNET], STAKING_GENESIS[ChainId.MAINNET] + 60 * 60 * 24 * 120)
 
   // treasury vesting
   wholeAmount = withVesting(

@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { STAKING_GENESIS, REWARDS_DURATION_DAYS } from '../../state/stake/hooks'
 import { TYPE } from '../../theme'
 import { RowBetween } from '../../components/Row'
+import { ChainId } from '@feswap/sdk'
+import { useActiveWeb3React } from '../../hooks'
 
 const MINUTE = 60
 const HOUR = MINUTE * 60
@@ -10,8 +12,10 @@ const REWARDS_DURATION = DAY * REWARDS_DURATION_DAYS
 
 export function Countdown({ exactEnd, duration }: { exactEnd?: Date, duration?: number }) {
   // get end/beginning times
-  const end = useMemo(() => (exactEnd ? Math.floor(exactEnd.getTime() / 1000) : STAKING_GENESIS + (duration??REWARDS_DURATION)), [
-    exactEnd, duration])
+  const { chainId } = useActiveWeb3React()
+  const end = useMemo(() => (exactEnd ? 
+                Math.floor(exactEnd.getTime() / 1000) : STAKING_GENESIS[chainId??ChainId.MAINNET] + (duration??REWARDS_DURATION)), [
+    exactEnd, duration, chainId])
   const begin = useMemo(() => end - (duration??REWARDS_DURATION), [end, duration])
 
   // get current time

@@ -35,8 +35,8 @@ const RPC = {
   [ChainId.KOVAN]: 'https://eth-kovan.alchemyapi.io/v2/6OVAa_B_rypWWl9HqtiYK26IRxXiYqER',
   [ChainId.BSC]: 'https://bsc-dataseed.binance.org/',
   [ChainId.BSC_TESTNET]: 'https://data-seed-prebsc-2-s3.binance.org:8545',
-  [ChainId.MATIC]: 'https://rpc-mainnet.maticvigil.com',
-  [ChainId.MATIC_TESTNET]: 'https://rpc-mumbai.matic.today',
+  [ChainId.MATIC]: 'https://polygon-rpc.com',
+  [ChainId.MATIC_TESTNET]: 'https://rpc-mumbai.maticvigil.com',
   [ChainId.HARMONY]: 'https://api.harmony.one',
   [ChainId.HARMONY_TESTNET]: 'https://api.s0.b.hmny.io',
   [ChainId.FANTOM]: 'https://rpcapi.fantom.network',
@@ -53,6 +53,9 @@ const RPC = {
 //  [ChainId.OKEX_TESTNET]: 'https://exchaintestrpc.okex.org',
 //  [ChainId.PALM]: 'https://palm-mainnet.infura.io/v3/da5fbfafcca14b109e2665290681e267',
 }
+
+//[ChainId.MATIC]: 'https://rpc-mainnet.maticvigil.com',
+//[ChainId.MATIC_TESTNET]: 'https://rpc-mumbai.matic.today',
 
 const supportedChainIds = [
   1,          // mainnet

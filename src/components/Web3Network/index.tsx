@@ -10,7 +10,7 @@ export const NETWORK_LABELS: { [chainId in ChainId]?: string } = {
   [ChainId.KOVAN]: 'Kovan',
   [ChainId.BSC]: 'BSC',
   [ChainId.BSC_TESTNET]: 'BSC Test',
-  [ChainId.MATIC]: 'Matic',
+  [ChainId.MATIC]: 'Polygon (Matic)',
   [ChainId.MATIC_TESTNET]: 'Matic Test',
   [ChainId.FANTOM]: 'Fantom',
   [ChainId.FANTOM_TESTNET]: 'Fantom Testnet',

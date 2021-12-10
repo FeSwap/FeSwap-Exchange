@@ -153,8 +153,7 @@ export default function Nft({
     const timeNftLastBid: number = feswaPairBidInfo.pairBidInfo.lastBidTime.toNumber()
 
     const now = DateTime.now().toSeconds()
-    const timeNormalEnd = timeNftCreation + getBidDuration(chainId)             // Normal: 3600 * 24 * 14
-    const timeReopen = timeNftCreation + getReOpenDuration(chainId)
+    const timeNormalEnd = timeNftCreation + getBidDuration(chainId)             // Normal: 3600 * 24 * 3
     
     function setButtonAndInputTitleID(buttonID: USER_BUTTON_ID, titleID?: USER_BUTTON_ID, force?: boolean): USER_BUTTON_ID {
       inputTitleID = titleID??buttonID
@@ -170,7 +169,7 @@ export default function Nft({
         break
       case NFT_BID_PHASE.BidPhase: 
         if(now >= timeNormalEnd){
-          if(now < timeReopen){
+          if(now < (timeNftCreation + getBidDuration(chainId) + getReOpenDuration(chainId)) ){
             if (feswaPairBidInfo.ownerPairNft === account) {
               buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
             } else {
@@ -191,7 +190,7 @@ export default function Nft({
         break
       case NFT_BID_PHASE.BidDelaying: 
         if(now >= (timeNftLastBid + 3600 * 2)) {
-          if(now < timeReopen){
+          if(now < (timeNftLastBid + getReOpenDuration(chainId))){
             if (feswaPairBidInfo.ownerPairNft === account) {
               buttonID = setButtonAndInputTitleID(USER_BUTTON_ID.OK_TO_CLAIM, USER_BUTTON_ID.OK_TO_CLAIM, true)
             } else {
@@ -649,6 +648,12 @@ export default function Nft({
                     <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
                       You will be the first bidder <br />
                       Minimum Bid Price: <strong> {newNftBidPriceString} {NATIVE[chainId].symbol} </strong>
+                      { (buttonID === USER_BUTTON_ID.ERR_NO_START) && feswaNftConfig &&
+                          <span> <br/>Bid will start at: 
+                             <Text color={theme.primary1}><strong> {DateTime.fromSeconds(feswaNftConfig.SaleStartTime.toNumber())
+                                  .toFormat("yyyy-LLL-dd HH:mm:ss")}</strong></Text>
+                          </span>    
+                      }                    
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidPhase) && (

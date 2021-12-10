@@ -311,13 +311,14 @@ export function useDerivedNftInfo(): {
   }
 
   const feswaNftConfig : FeswaNftConfig | undefined = useMemo(()=>{
-      if( !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate || !AirdropFirstBidder) return undefined
+      if( !MinPriceIncrease || !AirdropRateForWinner || !feswGiveRate || !AirdropFirstBidder || !SaleStartTime) return undefined
       return {  feswGiveRate, 
                 AirdropFirstBidder: new Fraction(AirdropFirstBidder.toString(), WEI_DENOM), 
                 AirdropRateForWinner: new Fraction( AirdropRateForWinner.toString(), WEI_DENOM), 
-                MinPriceIncrease: new Fraction( MinPriceIncrease.toString(), WEI_DENOM)
+                MinPriceIncrease: new Fraction( MinPriceIncrease.toString(), WEI_DENOM),
+                SaleStartTime: SaleStartTime
               }
-    }, [MinPriceIncrease, AirdropRateForWinner, feswGiveRate, AirdropFirstBidder]
+    }, [MinPriceIncrease, AirdropRateForWinner, feswGiveRate, AirdropFirstBidder, SaleStartTime]
   )
 
   const feswToken = chainId ? FESW[chainId] : undefined
