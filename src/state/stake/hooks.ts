@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@feswap/sdk'
+import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair, WETH9 } from '@feswap/sdk'
 import { useMemo } from 'react'
 import { FESW, USDT, WBTC, USDC } from '../../constants'
 //import { FESW } from '../../constants'
@@ -9,7 +9,35 @@ import { tryParseAmount } from '../swap/hooks'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import { ZERO_ADDRESS } from '../../constants'
 
-export const STAKING_GENESIS = 1630411200     //1627318800     // 1600387200
+export const STAKING_GENESIS: { [chainId in ChainId]: number } = {
+  [ChainId.MAINNET]:           1630360800,
+  [ChainId.ROPSTEN]:           1627318800,
+  [ChainId.RINKEBY]:           1627318800,
+  [ChainId.GÖRLI]:             1627318800,
+  [ChainId.KOVAN]:             1627318800,
+  [ChainId.BSC]:               0,
+  [ChainId.BSC_TESTNET]:       1636113600, 
+  [ChainId.MATIC]:             1639551600,
+  [ChainId.MATIC_TESTNET]:     1636286400,
+  [ChainId.HARMONY]:           0,
+  [ChainId.HARMONY_TESTNET]:   1636113600,
+  [ChainId.FANTOM]:            0,
+  [ChainId.FANTOM_TESTNET]:    1636113600,
+  [ChainId.HECO]:              0,
+  [ChainId.HECO_TESTNET]:      1636113600,
+  [ChainId.ARBITRUM]:          0,
+  [ChainId.ARBITRUM_TESTNET]:  1636113600,
+  [ChainId.AVALANCHE]:         0,
+  [ChainId.AVALANCHE_TESTNET]: 1636113600,
+  [ChainId.OKEX]:               0,
+  [ChainId.OKEX_TESTNET]:       1636113600,
+  [ChainId.PALM]:               0,    
+  [ChainId.PALM_TESTNET]:       0,
+  [ChainId.MOONBEAM]:           0,
+  [ChainId.MOONRIVER]:          0,
+  [ChainId.XDAI]:               0,
+  [ChainId.CELO]:               0
+}
 
 export const REWARDS_DURATION_DAYS = 120      // 60
 
@@ -113,14 +141,36 @@ export const STAKING_REWARDS_INFO: {
       tokens: [WETH[ChainId.MATIC_TESTNET], FESW[ChainId.MATIC_TESTNET]],
       stakingRewardAddress: '0x7e9dd96D0360BCc12F04032e9871722D931814b3'
     },
-//    {
-//      tokens: [WETH[ChainId.MATIC_TESTNET], USDC[ChainId.MATIC_TESTNET]],
-//      stakingRewardAddress: '0x82Ab1bf9174f7920649BC7ED8248132474B3824f'
-//    },
-//    {
-//      tokens: [WETH[ChainId.MATIC_TESTNET], USDT[ChainId.MATIC_TESTNET]],
-//      stakingRewardAddress: '0x957d1f6857919F17e052c0D1D324C6eBB107c8FD'
-//    }
+    {
+      tokens: [WETH[ChainId.MATIC_TESTNET], USDC[ChainId.MATIC_TESTNET]],
+      stakingRewardAddress: '0x82Ab1bf9174f7920649BC7ED8248132474B3824f'
+    },
+    {
+      tokens: [WETH[ChainId.MATIC_TESTNET], USDT[ChainId.MATIC_TESTNET]],
+      stakingRewardAddress: '0x957d1f6857919F17e052c0D1D324C6eBB107c8FD'
+    }
+  ],
+  [ChainId.MATIC]: [
+    {
+      tokens: [WETH[ChainId.MATIC], USDC[ChainId.MATIC]],
+      stakingRewardAddress: '0xe05dbD3379fcFd8CF9288d690950DDc0141cEFF4'
+    },
+    {
+      tokens: [WETH[ChainId.MATIC], WETH9[ChainId.MATIC]],
+      stakingRewardAddress: '0xde7fA1fbc848452F03883B3b8a6AEF0E81995aD0'
+    },
+    {
+      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
+      stakingRewardAddress: '0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37'
+    },
+    {
+      tokens: [WETH[ChainId.MATIC], USDT[ChainId.MATIC]],
+      stakingRewardAddress: '0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A'
+    },
+    {
+      tokens: [WETH[ChainId.MATIC], FESW[ChainId.MATIC]],
+      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
+    }
   ]
 }
 

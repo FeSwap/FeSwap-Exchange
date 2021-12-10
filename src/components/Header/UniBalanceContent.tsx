@@ -1,17 +1,17 @@
 import { ChainId, TokenAmount } from '@feswap/sdk'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
 import tokenLogo from '../../assets/images/token-logo.png'
 import { FESW } from '../../constants'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { useActiveWeb3React } from '../../hooks'
-import { useMerkleDistributorContract } from '../../hooks/useContract'
-import useCurrentBlockTimestamp from '../../hooks/useCurrentBlockTimestamp'
+//import { useMerkleDistributorContract } from '../../hooks/useContract'
+//import useCurrentBlockTimestamp from '../../hooks/useCurrentBlockTimestamp'
 import { useTotalFeswEarned } from '../../state/stake/hooks'
 import { useAggregateFeswBalance, useTokenBalance } from '../../state/wallet/hooks'
 import { ExternalLink, StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
-import { computeUniCirculation } from '../../utils/computeUniCirculation'
+//import { computeUniCirculation } from '../../utils/computeUniCirculation'
 import useUSDTPrice from '../../utils/useUSDCPrice'
 //import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { AutoColumn } from '../Column'
@@ -46,22 +46,23 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const fesw = chainId ? FESW[chainId] : undefined
 
-
   const total = useAggregateFeswBalance()
   const feswBalance: TokenAmount | undefined = useTokenBalance(account ?? undefined, fesw)
   const feswToClaim: TokenAmount | undefined = useTotalFeswEarned()
 
   const totalSupply: TokenAmount | undefined = useTotalSupply(fesw)
   const feswPrice = useUSDTPrice(fesw)
-  const blockTimestamp = useCurrentBlockTimestamp()
-  const unclaimedFESW = useTokenBalance(useMerkleDistributorContract()?.address, fesw)
-  const circulation: TokenAmount | undefined = useMemo(
-    () =>
-      blockTimestamp && fesw && chainId === ChainId.MAINNET
-        ? computeUniCirculation(fesw, blockTimestamp, unclaimedFESW)
-        : totalSupply,
-    [blockTimestamp, chainId, totalSupply, unclaimedFESW, fesw]
-  )
+  const circulation = totalSupply
+
+//  const blockTimestamp = useCurrentBlockTimestamp()
+//  const unclaimedFESW = useTokenBalance(useMerkleDistributorContract()?.address, fesw)
+//  const circulation: TokenAmount | undefined = useMemo(
+//    () =>
+//      blockTimestamp && fesw && chainId === ChainId.MAINNET
+//        ? computeUniCirculation(fesw, blockTimestamp, unclaimedFESW)
+//        : totalSupply,
+//   [blockTimestamp, chainId, totalSupply, unclaimedFESW, fesw]
+//  )
 
   return (
     <ContentWrapper gap="lg">

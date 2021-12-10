@@ -1,7 +1,8 @@
-import { FACTORY_ADDRESS, ROUTER_ADDRESS } from '@feswap/sdk'
+import { FACTORY_ADDRESS, ROUTER_ADDRESS, STAKE_FACTORY_ADDRESS } from '@feswap/sdk'
 import { Contract } from '@ethersproject/contracts'
 import { abi as GOVERNANCE_ABI } from '@feswap/governance/build/FeswGovernor.json'
 import { abi as SPONSOR_ABI } from '@feswap/governance/build/FeswSponsor.json'
+import { abi as STAKE_REWARD_FACTORY_ABI } from '@feswap/governance/build/StakingTwinRewardsFactory.json'
 import { abi as FESW_ABI } from '@feswap/governance/build/Fesw.json'
 import { abi as NFT_BID_ABI } from '@feswap/governance/build/IFeswaNFT.json'
 import { abi as NFT_FACTORY_ABI } from '@feswap/core/build/FeSwapFactory.json'
@@ -120,6 +121,11 @@ export function useFeswRouterContract(): Contract | null {
 export function useSponsorContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(SPONSOR_ADDRESS[chainId??ChainId.MAINNET], SPONSOR_ABI, true)
+}
+
+export function useStakingFactoryContract(): Contract | null {
+  const { chainId } = useActiveWeb3React()
+  return useContract(STAKE_FACTORY_ADDRESS[chainId??ChainId.MAINNET], STAKE_REWARD_FACTORY_ABI, true)
 }
 
 export function useNftBidContract(): Contract | null {

@@ -36,7 +36,7 @@ const RPC = {
   [ChainId.BSC]: 'https://bsc-dataseed.binance.org/',
   [ChainId.BSC_TESTNET]: 'https://data-seed-prebsc-2-s3.binance.org:8545',
   [ChainId.MATIC]: 'https://polygon-rpc.com',
-  [ChainId.MATIC_TESTNET]: ' https://rpc-mumbai.maticvigil.com',
+  [ChainId.MATIC_TESTNET]: 'https://rpc-mumbai.maticvigil.com',
   [ChainId.HARMONY]: 'https://api.harmony.one',
   [ChainId.HARMONY_TESTNET]: 'https://api.s0.b.hmny.io',
   [ChainId.FANTOM]: 'https://rpcapi.fantom.network',
