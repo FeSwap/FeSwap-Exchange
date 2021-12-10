@@ -80,7 +80,6 @@ interface TokenPairSelectPanelProps {
   hideInput?: boolean
   otherCurrency?: Currency | null
   id: string
-  showCommonBases?: boolean
   customBalanceText?: string
 }
 
@@ -92,8 +91,7 @@ export default function TokenPairSelectPanel({
   pair = null, // used for double token logo
   hideInput = false,
   otherCurrency,
-  id,
-  showCommonBases
+  id
 }: TokenPairSelectPanelProps) {
 
   const { chainId } = useActiveWeb3React()
@@ -197,7 +195,7 @@ export default function TokenPairSelectPanel({
         onCurrencySelect={onCurrencySelect}
         selectedCurrency={currency}
         otherSelectedCurrency={otherCurrency}
-        showCommonBases={showCommonBases}
+        showCommonBases={true}
       />
     </InputPanel>
   )

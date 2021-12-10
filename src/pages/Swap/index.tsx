@@ -323,6 +323,7 @@ export default function Swap() {
               onMax={handleMaxInput}
               onCurrencySelect={handleInputSelect}
               otherCurrency={currencies[Field.OUTPUT]}
+              showCommonBases={true}
               id="swap-currency-input"
             />
             <AutoColumn justify="space-between">
@@ -352,6 +353,7 @@ export default function Swap() {
               currency={currencies[Field.OUTPUT]}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
+              showCommonBases={true}
               id="swap-currency-output"
             />
 

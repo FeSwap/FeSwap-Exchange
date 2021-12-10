@@ -24,6 +24,7 @@ export interface FeswaNftConfig {
   readonly AirdropFirstBidder:    Fraction
   readonly AirdropRateForWinner:  Fraction 
   readonly MinPriceIncrease:      Fraction
+  readonly SaleStartTime:         BigNumber
 }
 
 export interface NftState {

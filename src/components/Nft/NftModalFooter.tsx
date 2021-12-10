@@ -13,7 +13,7 @@ import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { SwapCallbackError } from '../swap/styleds'
 import {NftBidTrade} from '../../state/nft/hooks'
 import { USER_BUTTON_ID, BidConfirmButton, USER_UI_INFO } from '../../state/nft/actions'
-import { THOUSAND_FRACTION, ZERO_FRACTION } from '../../utils'
+import { ZERO_FRACTION } from '../../utils'
 import { feswType } from '../../hooks/useContract'
 
 export default function NftModalFooter({
@@ -57,7 +57,7 @@ export default function NftModalFooter({
 
   const claimPrompt = `The FESW giveway is airdroped at the rate of ${RATE_WINNER} ${GORV_TOKEN_NAME}/${NATIVE_SYMBOL}. Thanks for bidding!`
   const buyPrompt = "If new sale price is set, the NFT will be kept for sale at new price, otherwise the NFT sale will be closed."
-  const FirtBidGiveaway = (nftBid.firtBidder) ? THOUSAND_FRACTION : ZERO_FRACTION
+  const FirtBidGiveaway = (nftBid.firtBidder) ? (nftBid.feswaNftConfig?.AirdropFirstBidder??ZERO_FRACTION) : ZERO_FRACTION
 
   return (
     <>

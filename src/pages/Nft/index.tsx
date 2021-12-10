@@ -649,6 +649,11 @@ export default function Nft({
                     <TYPE.italic textAlign="center" fontSize={15} style={{ width: '100%' }}>
                       You will be the first bidder <br />
                       Minimum Bid Price: <strong> {newNftBidPriceString} {NATIVE[chainId].symbol} </strong>
+                      { nftBidEndingTime.startsWith('Ended')
+                        ? <span>  Bid Completed at: <strong> {nftBidEndingTime.substr(5)} </strong> </span>
+                        : <span>  Bid Ending Time: <strong> {nftBidEndingTime} </strong>  <br /> 
+                                  Minimum Bid Price: <strong> {newNftBidPriceString} {NATIVE[chainId].symbol} </strong> </span> 
+                      }
                     </TYPE.italic>
                   )}
                   { (nftStatus === NFT_BID_PHASE.BidPhase) && (

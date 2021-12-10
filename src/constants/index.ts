@@ -1,4 +1,4 @@
-import { ChainId, JSBI, Percent, Token, WETH, FESW_ADDRESS, GOVERNANCE_ADDRESS, TIMELOCK_ADDRESS, Fraction } from '@feswap/sdk'
+import { ChainId, JSBI, Percent, Token, WETH, FESW_ADDRESS, GOVERNANCE_ADDRESS, TIMELOCK_ADDRESS, Fraction, WETH9 } from '@feswap/sdk'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { FIVE_FRACTION, TEN_FRACTION, THOUSAND_FRACTION, TEN_THOUSAND_FRACTION, TWO_FRACTION, HUNDREAD_FRACTION } from '../utils'
 
@@ -12,7 +12,7 @@ type ChainTokenList = {
   readonly [chainId in ChainId]: Token[]
 }
 
-export const DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin')
+//export const DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin')
 // export const USDC = new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin USDC')
 
 /*
@@ -101,24 +101,55 @@ export const USDT:  { [chainId: number]: Token }  = {
       [ChainId.HECO_TESTNET]:       new Token(ChainId.HECO_TESTNET,     '0xd459Dad367788893c17c09e17cFBF0bf25c62833', 18, 'USDC', 'USD Coin'),
       [ChainId.ARBITRUM]:           new Token(ChainId.ARBITRUM,         '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
       [ChainId.ARBITRUM_TESTNET]:   new Token(ChainId.ARBITRUM_TESTNET, '0xeb0a8d25cc479825e6Ca942D516a1534C32dFBe4', 6, 'USDC', 'USD Coin'),
-      [ChainId.AVALANCHE]:          new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
-      [ChainId.AVALANCHE_TESTNET]:  new Token(ChainId.MAINNET, '0x4501A3bD995dadA98477a76E472CA186C6914B8B', 6, 'USDC', 'USD Coin'),
-      [ChainId.OKEX]:               new Token(ChainId.MAINNET, '0xc946DAf81b08146B1C7A8Da2A851Ddf2B3EAaf85', 6, 'USDC', 'USD Coin'),
-      [ChainId.OKEX_TESTNET]:       new Token(ChainId.MAINNET, '0xd459Dad367788893c17c09e17cFBF0bf25c62833', 6, 'USDC', 'USD Coin'),
-      [ChainId.PALM]:               new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
-      [ChainId.PALM_TESTNET]:       new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
-      [ChainId.MOONBEAM]:           new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
-      [ChainId.MOONRIVER]:          new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin'),
-      [ChainId.XDAI]:               new Token(ChainId.MAINNET, '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83', 6, 'USDC', 'USD Coin'),
-      [ChainId.CELO]:               new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin')
-    }
+      [ChainId.AVALANCHE]:          new Token(ChainId.AVALANCHE,          '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+      [ChainId.AVALANCHE_TESTNET]:  new Token(ChainId.AVALANCHE_TESTNET,  '0x4501A3bD995dadA98477a76E472CA186C6914B8B', 6, 'USDC', 'USD Coin'),
+      [ChainId.OKEX]:               new Token(ChainId.OKEX,               '0xc946DAf81b08146B1C7A8Da2A851Ddf2B3EAaf85', 6, 'USDC', 'USD Coin'),
+      [ChainId.OKEX_TESTNET]:       new Token(ChainId.OKEX_TESTNET,       '0xd459Dad367788893c17c09e17cFBF0bf25c62833', 6, 'USDC', 'USD Coin'),
+      [ChainId.PALM]:               new Token(ChainId.PALM,               '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+      [ChainId.PALM_TESTNET]:       new Token(ChainId.PALM_TESTNET,       '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+      [ChainId.MOONBEAM]:           new Token(ChainId.MOONBEAM,           '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+      [ChainId.MOONRIVER]:          new Token(ChainId.MOONRIVER,          '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+      [ChainId.XDAI]:               new Token(ChainId.XDAI,               '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83', 6, 'USDC', 'USD Coin'),
+      [ChainId.CELO]:               new Token(ChainId.CELO,               '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin')
+  }
+
+  export const DAI: { [chainId in ChainId]: Token } = {
+    [ChainId.MAINNET]:            new Token(ChainId.MAINNET,  '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.ROPSTEN]:            new Token(ChainId.ROPSTEN,  '0x31F42841c2db5173425b5223809CF3A38FEde360', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.RINKEBY]:            new Token(ChainId.RINKEBY,  '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.GÖRLI]:              new Token(ChainId.GÖRLI,    '0xdc31Ee1784292379Fbb2964b3B9C4124D8F89C60', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.KOVAN]:              new Token(ChainId.KOVAN,    '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.BSC]:                new Token(ChainId.BSC,          '0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.BSC_TESTNET]:        new Token(ChainId.BSC_TESTNET,  '0xEC5dCb5Dbf4B114C9d0F65BcCAb49EC54F6A0867', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.MATIC]:              new Token(ChainId.MATIC,          '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.MATIC_TESTNET]:      new Token(ChainId.MATIC_TESTNET,  '0x50B1acf59DC192fe8fEfcc019390a17738921610', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.HARMONY]:            new Token(ChainId.HARMONY,        '0xEf977d2f931C1978Db5F6747666fa1eACB0d0339', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.HARMONY_TESTNET]:    new Token(ChainId.HARMONY_TESTNET,  '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.FANTOM]:             new Token(ChainId.FANTOM,           '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.FANTOM_TESTNET]:     new Token(ChainId.FANTOM_TESTNET,   '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.HECO]:               new Token(ChainId.HECO,             '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.HECO_TESTNET]:       new Token(ChainId.HECO_TESTNET,     '0x60d64Ef311a4F0E288120543A14e7f90E76304c6', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.ARBITRUM]:           new Token(ChainId.ARBITRUM,         '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.ARBITRUM_TESTNET]:   new Token(ChainId.ARBITRUM_TESTNET, '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.AVALANCHE]:          new Token(ChainId.AVALANCHE,        '0xbA7dEebBFC5fA1100Fb055a87773e1E99Cd3507a', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.AVALANCHE_TESTNET]:  new Token(ChainId.AVALANCHE_TESTNET,'0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.OKEX]:               new Token(ChainId.OKEX,         '0x21cDE7E32a6CAF4742d00d44B07279e7596d26B9', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.OKEX_TESTNET]:       new Token(ChainId.OKEX_TESTNET, '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.PALM]:               new Token(ChainId.PALM,         '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.PALM_TESTNET]:       new Token(ChainId.PALM_TESTNET, '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.MOONBEAM]:           new Token(ChainId.MOONBEAM,     '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.MOONRIVER]:          new Token(ChainId.MOONRIVER,    '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.XDAI]:               new Token(ChainId.XDAI,         '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+    [ChainId.CELO]:               new Token(ChainId.CELO,         '0x0000000000000000000000000000000000000000', 18, 'DAI', 'Dai Stablecoin'),
+}
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
 export const MKR = new Token(ChainId.MAINNET, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 18, 'MKR', 'Maker')
 export const AMPL = new Token(ChainId.MAINNET, '0xD46bA6D942050d489DBd938a2C909A5d5039A161', 9, 'AMPL', 'Ampleforth')
 export const WBTC :{ [chainId: number]: Token }  = {
       [ChainId.MAINNET]:  new Token(ChainId.MAINNET, '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', 8, 'WBTC', 'Wrapped BTC'),
-      [ChainId.RINKEBY]:  new Token(ChainId.RINKEBY, '0x577D296678535e4903D59A4C929B718e1D575e0A', 8, 'WBTC', 'Wrapped BTC')      
+      [ChainId.RINKEBY]:  new Token(ChainId.RINKEBY, '0x577D296678535e4903D59A4C929B718e1D575e0A', 8, 'WBTC', 'Wrapped BTC'),
+      [ChainId.MATIC]:  new Token(ChainId.MATIC, '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6', 8, 'WBTC', 'Wrapped BTC'),
   }
 
 // Block time here is slightly higher (~1s) than average in order to avoid ongoing proposals past the displayed time
@@ -153,26 +184,6 @@ export const FESW_FACTORY_ADDRESS_RINKEBY     = '0x75f7b730c51610aba6f3d89deb486
 export const FESW_FACTORY_ADDRESS_KOVAN       = '0x75f7b730c51610aba6f3d89deb4864f156c8e747'         // on test Chain
 //export const FESW_FACTORY_ADDRESS_GÖRLI     = '0x615835Cc22064a17df5A3E8AE22F58e67bCcB778'         // on test Chain 1st
 export const FESW_FACTORY_ADDRESS_GÖRLI       = '0x1BdB1555bDc425183ad56FcB31c06205726FEFB0'         // on test Chain 2nd
-
-/*
-export const FESW_FACTORY_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]:            FESW_FACTORY_ADDRESS_MAINNET,
-  [ChainId.ROPSTEN]:            FESW_FACTORY_ADDRESS_ROPSTEN,
-  [ChainId.RINKEBY]:            FESW_FACTORY_ADDRESS_RINKEBY,
-  [ChainId.GÖRLI]:              FESW_FACTORY_ADDRESS_GÖRLI,
-  [ChainId.KOVAN]:              FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.BSC]:                FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.BSC_TESTNET]:        FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.MATIC]:              FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.MATIC_TESTNET]:      FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.HARMONY]:            FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.HARMONY_TESTNET]:    FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.FANTOM]:             FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.FANTOM_TESTNET]:     FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.HECO]:               FESW_FACTORY_ADDRESS_KOVAN,
-  [ChainId.HECO_TESTNET]:       FESW_FACTORY_ADDRESS_KOVAN
-}
-*/
 
 //export const FESW_ROUTER_ADDRESS  = '0x09179ceebad6b676F6E6B0474907335be3E30D89'       // Rinkeby (2021/06/14)
 //export const FESW_ROUTER_ADDRESS  = '0x6E923637948657BB1b5610C81b9C6a44bBa63297'       // Rinkeby (2021/06/26)
@@ -306,7 +317,7 @@ export const WETH_ONLY: ChainTokenList = {
 // used to construct intermediary pairs for trading
 export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   ...WETH_ONLY,
-  [ChainId.MAINNET]: [...WETH_ONLY[ChainId.MAINNET], DAI, USDC[ChainId.MAINNET], USDT[ChainId.MAINNET], COMP, MKR]
+  [ChainId.MAINNET]: [...WETH_ONLY[ChainId.MAINNET], DAI[ChainId.MAINNET], USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]]
 }
 
 /**
@@ -315,20 +326,21 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
  */
 export const CUSTOM_BASES: { [chainId in ChainId]?: { [tokenAddress: string]: Token[] } } = {
   [ChainId.MAINNET]: {
-    [AMPL.address]: [DAI, WETH[ChainId.MAINNET]]
+    [AMPL.address]: [DAI[ChainId.MAINNET], WETH[ChainId.MAINNET]]
   }
 }
 
 // used for display in the default list when adding liquidity
 export const SUGGESTED_BASES: ChainTokenList = {
   ...WETH_ONLY,
-  [ChainId.MAINNET]: [...WETH_ONLY[ChainId.MAINNET], DAI, USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]]
+  [ChainId.MAINNET]: [...WETH_ONLY[ChainId.MAINNET], DAI[ChainId.MAINNET], USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]],
+  [ChainId.MATIC]: [ WETH9[ChainId.MATIC], USDC[ChainId.MATIC], USDT[ChainId.MATIC], WBTC[ChainId.MATIC], DAI[ChainId.MATIC], FESW[ChainId.MATIC]]
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
 export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
   ...WETH_ONLY,
-  [ChainId.MAINNET]: [...WETH_ONLY[ChainId.MAINNET], DAI, USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]]
+  [ChainId.MAINNET]: [...WETH_ONLY[ChainId.MAINNET], DAI[ChainId.MAINNET], USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]]
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
@@ -338,7 +350,7 @@ export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } 
       new Token(ChainId.MAINNET, '0x39AA39c021dfbaE8faC545936693aC917d5E7563', 8, 'cUSDC', 'Compound USD Coin')
     ],
     [USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]],
-    [DAI, USDT[ChainId.MAINNET]]
+    [DAI[ChainId.MAINNET], USDT[ChainId.MAINNET]]
   ]
 }
 
