@@ -6381,7 +6381,7 @@
       "logoURI": "https://raw.githubusercontent.com/sushiswap/icons/master/token/yfi.jpg"
     },
     {
-      "address": "0xd89edb2b7bc5e80abfd064403e1b8921004cdb4b",
+      "address": "0xD89EDB2B7bc5E80aBFD064403e1B8921004Cdb4b",
       "chainId": 421611,
       "name": "Tether USD",
       "symbol": "USDT",
@@ -9558,7 +9558,7 @@
     },
     {
       "name": "Wrapped BTC",
-      "address": "0xeabc1f3d0d8b6c8788f080d66b353b6124aa9aa5",
+      "address": "0xEAbC1f3d0D8b6C8788f080d66B353b6124Aa9AA5",
       "symbol": "WBTC",
       "decimals": 8,
       "chainId": 80001,
@@ -9830,7 +9830,7 @@
     },
     {
       "chainId": 1666700000,
-      "address": "0xd89edb2b7bc5e80abfd064403e1b8921004cdb4b",
+      "address": "0xD89EDB2B7bc5E80aBFD064403e1B8921004Cdb4b",
       "symbol": "WBTC",
       "name": "Wrapped BTC",
       "decimals": 8,
@@ -9846,7 +9846,7 @@
     },
     {
       "name": "Tether USD",
-      "address": "0xeabc1f3d0d8b6c8788f080d66b353b6124aa9aa5",
+      "address": "0xEAbC1f3d0D8b6C8788f080d66B353b6124Aa9AA5",
       "symbol": "USDT",
       "decimals": 6,
       "chainId": 1666700000,

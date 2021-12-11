@@ -106,7 +106,7 @@ export default function Earn() {
                     ? <TYPE.black textAlign="center" fontSize={15} style={{ width: '100%' }}>
                         <Text><strong>Liquidity mining will start off from: </strong></Text>
                         <Text fontSize={18} color={theme.primary1}><strong>2021-12-15 15:00:00 (UTC+8)</strong></Text><br/>
-                        <Text><strong>4 Liquidity pools will be open for mining: </strong></Text>
+                        <Text><strong>Five Liquidity pools will be open for mining: </strong></Text>
                         <Text fontSize={18} color={theme.primary1}><strong>MATIC/USDC, WETH/MATIC, WETH/USDC</strong></Text>
                         <Text fontSize={18} color={theme.primary1}><strong>MATIC/USDT, MATIC/FESW@M</strong></Text>
                       </TYPE.black>

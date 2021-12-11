@@ -1,10 +1,10 @@
 import { FESW } from './../../constants/index'
-import { TokenAmount, JSBI, ChainId } from '@feswap/sdk'
+import { TokenAmount, ChainId } from '@feswap/sdk'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useEffect, useState } from 'react'
 import { useActiveWeb3React } from '../../hooks'
 import { useMerkleDistributorContract } from '../../hooks/useContract'
-import { useSingleCallResult } from '../multicall/hooks'
+//import { useSingleCallResult } from '../multicall/hooks'
 import { calculateGasMargin, isAddress } from '../../utils'
 import { useTransactionAdder } from '../transactions/hooks'
 
@@ -51,7 +51,7 @@ export function useUserClaimData(account: string | null | undefined): UserClaimD
   const key = `${chainId}:${account}`
   const [claimInfo, setClaimInfo] = useState<{ [key: string]: UserClaimData | null }>({})
 
-  useEffect(() => {
+   useEffect(() => {
     if (!account || !chainId) return
     fetchClaim(account, chainId).then(accountClaimInfo =>
       setClaimInfo(claimInfo => {
@@ -68,24 +68,26 @@ export function useUserClaimData(account: string | null | undefined): UserClaimD
 
 // check if user is in blob and has not yet claimed FESW
 export function useUserHasAvailableClaim(account: string | null | undefined): boolean {
-  const userClaimData = useUserClaimData(account)
-  const distributorContract = useMerkleDistributorContract()
-  const isClaimedResult = useSingleCallResult(distributorContract, 'isClaimed', [userClaimData?.index])
-  // user is in blob and contract marks as unclaimed
-  return Boolean(userClaimData && !isClaimedResult.loading && isClaimedResult.result?.[0] === false)
+  return false
+//  const userClaimData = useUserClaimData(account)
+//  const distributorContract = useMerkleDistributorContract()
+//  const isClaimedResult = useSingleCallResult(distributorContract, 'isClaimed', [userClaimData?.index])
+//  // user is in blob and contract marks as unclaimed
+//  return Boolean(userClaimData && !isClaimedResult.loading && isClaimedResult.result?.[0] === false)
 }
 
 export function useUserUnclaimedAmount(account: string | null | undefined): TokenAmount | undefined {
-  const { chainId } = useActiveWeb3React()
-  const userClaimData = useUserClaimData(account)
-  const canClaim = useUserHasAvailableClaim(account)
-
-  const uni = chainId ? FESW[chainId] : undefined
-  if (!uni) return undefined
-  if (!canClaim || !userClaimData) {
-    return new TokenAmount(uni, JSBI.BigInt(0))
-  }
-  return new TokenAmount(uni, JSBI.BigInt(userClaimData.amount))
+  return undefined
+//  const { chainId } = useActiveWeb3React()
+//  const userClaimData = useUserClaimData(account)
+//  const canClaim = useUserHasAvailableClaim(account)
+//
+//  const uni = chainId ? FESW[chainId] : undefined
+//  if (!uni) return undefined
+//  if (!canClaim || !userClaimData) {
+//    return new TokenAmount(uni, JSBI.BigInt(0))
+//  }
+//  return new TokenAmount(uni, JSBI.BigInt(userClaimData.amount))
 }
 
 export function useClaimCallback(

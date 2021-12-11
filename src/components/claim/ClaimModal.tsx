@@ -139,7 +139,7 @@ export default function ClaimModal() {
           <AutoColumn gap="md" style={{ padding: '1rem', paddingTop: '0' }} justify="center">
             <TYPE.subHeader fontWeight={500}>
               As a member of the Uniswap community you may claim {GORV_TOKEN_NAME} to be used for voting and governance. <br /> <br />
-              <ExternalLink href="https://www.feswap.io/blog/uni">Read more about {GORV_TOKEN_NAME}</ExternalLink>
+              <ExternalLink href="https://www.feswap.io/blog">Read more about {GORV_TOKEN_NAME}</ExternalLink>
             </TYPE.subHeader>
             <ButtonPrimary
               disabled={!isAddress(account ?? '')}
