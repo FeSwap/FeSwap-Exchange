@@ -5,7 +5,7 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   DEFAULT_TOKEN_LIST_URL,
   't2crtokens.eth', // kleros
   'tokens.1inch.eth', // 1inch
-  'synths.snx.eth',
+//  'synths.snx.eth',
   'tokenlist.dharma.eth',
   'defi.cmc.eth',
   'erc20.cmc.eth',

@@ -1,4 +1,5 @@
-import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair, WETH9 } from '@feswap/sdk'
+import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@feswap/sdk'
+//import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair, WETH9 } from '@feswap/sdk'
 import { useMemo } from 'react'
 import { FESW, USDT, WBTC, USDC } from '../../constants'
 //import { FESW } from '../../constants'
@@ -151,26 +152,26 @@ export const STAKING_REWARDS_INFO: {
     }
   ],
   [ChainId.MATIC]: [
-    {
-      tokens: [WETH[ChainId.MATIC], USDC[ChainId.MATIC]],
-      stakingRewardAddress: '0xe05dbD3379fcFd8CF9288d690950DDc0141cEFF4'
-    },
-    {
-      tokens: [WETH[ChainId.MATIC], WETH9[ChainId.MATIC]],
-      stakingRewardAddress: '0xde7fA1fbc848452F03883B3b8a6AEF0E81995aD0'
-    },
-    {
-      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
-      stakingRewardAddress: '0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37'
-    },
-    {
-      tokens: [WETH[ChainId.MATIC], USDT[ChainId.MATIC]],
-      stakingRewardAddress: '0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A'
-    },
-    {
-      tokens: [WETH[ChainId.MATIC], FESW[ChainId.MATIC]],
-      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
-    }
+//    {
+//      tokens: [WETH[ChainId.MATIC], USDC[ChainId.MATIC]],
+//      stakingRewardAddress: '0xe05dbD3379fcFd8CF9288d690950DDc0141cEFF4'
+//    },
+//    {
+//      tokens: [WETH[ChainId.MATIC], WETH9[ChainId.MATIC]],
+//      stakingRewardAddress: '0xde7fA1fbc848452F03883B3b8a6AEF0E81995aD0'
+//    },
+//    {
+//      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
+//      stakingRewardAddress: '0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37'
+//    },
+//    {
+//      tokens: [WETH[ChainId.MATIC], USDT[ChainId.MATIC]],
+//      stakingRewardAddress: '0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A'
+//    },
+//    {
+//      tokens: [WETH[ChainId.MATIC], FESW[ChainId.MATIC]],
+//      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
+//    }
   ]
 }
 

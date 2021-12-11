@@ -1,3 +1,4 @@
+import { ChainId } from '@feswap/sdk'
 import React, { useContext } from 'react'
 import { AutoColumn } from '../../components/Column'
 import styled, { ThemeContext }  from 'styled-components'
@@ -10,6 +11,7 @@ import Loader from '../../components/Loader'
 import { useActiveWeb3React } from '../../hooks'
 import { EmptyProposals } from '../Pool'
 import { FESW, NETWORK_NAME } from '../../constants'
+import { Text } from 'rebass'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 560px;
@@ -99,7 +101,17 @@ export default function Earn() {
             : stakingRewardsExist && stakingInfos?.length === 0 
               ? (<Loader style={{ margin: 'auto' }} />) 
               : (!stakingRewardsExist) 
-                ? ( <EmptyProposals>No active pools</EmptyProposals>) 
+                ? ( <EmptyProposals>
+                    {chainId === ChainId.MATIC 
+                    ? <TYPE.black textAlign="center" fontSize={15} style={{ width: '100%' }}>
+                        <Text><strong>Liquidity mining will start off from: </strong></Text>
+                        <Text fontSize={18} color={theme.primary1}><strong>2021-12-15 15:00:00 (UTC+8)</strong></Text><br/>
+                        <Text><strong>4 Liquidity pools will be open for mining: </strong></Text>
+                        <Text fontSize={18} color={theme.primary1}><strong>MATIC/USDC, WETH/MATIC, WETH/USDC</strong></Text>
+                        <Text fontSize={18} color={theme.primary1}><strong>MATIC/USDT, MATIC/FESW@M</strong></Text>
+                      </TYPE.black>
+                    : 'No active pools'}
+                    </EmptyProposals>) 
                 : stakingInfos?.length !== 0 && (
                     stakingInfos?.map(stakingInfo => {
                     // need to sort by added liquidity here
