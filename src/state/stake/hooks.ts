@@ -166,18 +166,25 @@ export const STAKING_REWARDS_INFO: {
     },
 //    {
 //      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
-//      stakingRewardAddress: '0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37'
+//      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
 //    },
 //    {
 //      tokens: [WETH[ChainId.MATIC], WBTC[ChainId.MATIC]],
-//      stakingRewardAddress: '0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A'
+//      stakingRewardAddress: '0xb1bBAfF6Beff00177AF76D9D404Da9F935bAE35f'
 //    },
-//    {
-//      tokens: [WETH[ChainId.MATIC], FESW[ChainId.MATIC]],
-//      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
-//    }
+    {
+      tokens: [WETH[ChainId.MATIC], FESW[ChainId.MATIC]],
+      stakingRewardAddress: '0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A'
+    }
   ]
 }
+
+//0xe05dbD3379fcFd8CF9288d690950DDc0141cEFF4 
+//0xde7fA1fbc848452F03883B3b8a6AEF0E81995aD0 
+//0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37 
+//0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A 
+//0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02 
+//0xb1bBAfF6Beff00177AF76D9D404Da9F935bAE35f
 
 export interface StakingInfo {
   // the address of the reward contract
