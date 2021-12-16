@@ -3,7 +3,7 @@ import { RowBetween } from '../Row'
 import styled from 'styled-components'
 import { TYPE, StyledInternalLink } from '../../theme'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { ETHER, JSBI, TokenAmount, NATIVE } from '@feswap/sdk'
+import { ETHER, JSBI, TokenAmount, NATIVE, ChainId } from '@feswap/sdk'
 import { ButtonPrimary } from '../Button'
 import { StakingInfo } from '../../state/stake/hooks'
 import { useColor } from '../../hooks/useColor'
@@ -81,6 +81,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const totalSupplyOfStakingToken1 = useTotalSupply(stakingInfo?.stakedAmount?.[1].token)
 
   const [, stakingTokenPair] = usePair(...stakingInfo.tokens)
+  const fixByteNum = ((chainId === ChainId.MATIC) || (chainId === ChainId.MATIC_TESTNET)) ? 6 : 4 
 
   // let returnOverMonth: Percent = new Percent('0')
   const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
@@ -126,7 +127,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
           <RowBetween>
             <TYPE.black>Total deposited equivalent</TYPE.black>
             <TYPE.black>
-              {`${valueOfTotalStakedAmountInWETH?.toSignificant(2, { groupSeparator: ',' }) ?? '-'} ${NATIVE_SYMBOL}`}
+              {`${valueOfTotalStakedAmountInWETH?.toSignificant(fixByteNum, { groupSeparator: ',' }) ?? '-'} ${NATIVE_SYMBOL}`}
             </TYPE.black>
           </RowBetween>
           

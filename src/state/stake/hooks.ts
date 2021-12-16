@@ -164,10 +164,10 @@ export const STAKING_REWARDS_INFO: {
       tokens: [WETH[ChainId.MATIC], USDT[ChainId.MATIC]],
       stakingRewardAddress: '0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37'
     },
-//    {
-//      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
-//      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
-//    },
+    {
+      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
+      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
+    },
 //    {
 //      tokens: [WETH[ChainId.MATIC], WBTC[ChainId.MATIC]],
 //      stakingRewardAddress: '0xb1bBAfF6Beff00177AF76D9D404Da9F935bAE35f'

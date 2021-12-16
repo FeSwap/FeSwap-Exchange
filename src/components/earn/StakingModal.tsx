@@ -333,7 +333,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
                     Overall Approve
                   </TYPE.black>
                 </RowFixed>
-                <Toggle isActive={approveOverall} toggle={()=>{console.log('ABABBAB');setApproveOverall(!approveOverall)}} />
+                <Toggle isActive={approveOverall} toggle={()=>{setApproveOverall(!approveOverall)}} />
               </RowBetween>
 
               { approveOverall && (
