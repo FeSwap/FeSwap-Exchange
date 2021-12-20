@@ -402,9 +402,9 @@ export default function Swap() {
                         <Text fontWeight={500} fontSize={14} color={theme.text2}>
                           Pool Price Deviation
                         </Text>
-                        <QuestionHelper text="This is the token price gap between the two sub-pools. 
-                                Once the gap surpass the arbitrage rate (1.0% by default), internal token swap will be committed 
-                                to mitigate the gap." />
+                        <QuestionHelper text="This is the token price deviation between the two correlated unidirectional liquidity 
+                                pools (sub-pools). Once this deviation exceeds a preset percentage (1.0% by default), an internal token exchange 
+                                between the two sub-pools will take place to eliminate the price deviation." />
                       </RowFixed>
                       <Text fontWeight={500} fontSize={14} color={theme.text2}>
                         {priceGap.lessThan(ONE_OVER_10K_FRACTION) ? '< 0.01': priceGap.toSignificant(4)}%
