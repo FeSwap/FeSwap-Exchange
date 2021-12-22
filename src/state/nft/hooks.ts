@@ -383,7 +383,9 @@ export function useDerivedNftInfo(): {
 
   const formattedTo = isAddress(to)
   if (!to || !formattedTo) {
-    inputError = setBidButtonID(inputError, USER_BUTTON_ID.ERR_NO_RECIPIENT)
+    inputError = (inputError === USER_BUTTON_ID.ERR_INPUT_VALUE) 
+                  ? USER_BUTTON_ID.ERR_NO_RECIPIENT
+                  : setBidButtonID(inputError, USER_BUTTON_ID.ERR_NO_RECIPIENT)
   } 
 
   // compare input balance to max input based on version

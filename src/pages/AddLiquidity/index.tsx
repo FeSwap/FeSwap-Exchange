@@ -238,11 +238,11 @@ export default function AddLiquidity({
           addTransaction(response, {
             summary:
               'Add ' +
-              parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
+              parsedAmounts[Field.CURRENCY_A]?.toSignificant(5) +
               ' ' +
               currencies[Field.CURRENCY_A]?.getSymbol(chainId) +
               ' and ' +
-              parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
+              parsedAmounts[Field.CURRENCY_B]?.toSignificant(5) +
               ' ' +
               currencies[Field.CURRENCY_B]?.getSymbol(chainId) +
               ' with the ratio ' + rateSplit.toString() + ':' + (100-rateSplit).toString()

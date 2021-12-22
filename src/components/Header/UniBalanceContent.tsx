@@ -1,4 +1,4 @@
-import { ChainId, TokenAmount } from '@feswap/sdk'
+import { TokenAmount } from '@feswap/sdk'
 import React from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
@@ -10,7 +10,7 @@ import { useActiveWeb3React } from '../../hooks'
 //import useCurrentBlockTimestamp from '../../hooks/useCurrentBlockTimestamp'
 import { useTotalFeswEarned } from '../../state/stake/hooks'
 import { useAggregateFeswBalance, useTokenBalance } from '../../state/wallet/hooks'
-import { ExternalLink, StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
+import { StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
 //import { computeUniCirculation } from '../../utils/computeUniCirculation'
 import useUSDTPrice from '../../utils/useUSDCPrice'
 //import { useUSDTPrice } from '../../utils/useUSDCPrice'
@@ -18,6 +18,7 @@ import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
 import { CardSection, DataCard, CardNoise } from '../earn/styled'
 import { SeparatorBBlack } from '../../components/SearchModal/styleds'
+import { ButtonPrimary } from '../Button'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -42,7 +43,7 @@ const StyledClose = styled(X)`
  * Content for balance stats modal
  */
 export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowUniBalanceModal: any }) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
   const fesw = chainId ? FESW[chainId] : undefined
 
@@ -119,9 +120,42 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <TYPE.black color="black">Total Supply</TYPE.black>
               <TYPE.black color="black">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.black>
             </RowBetween>
-            {fesw && fesw.chainId === ChainId.MAINNET ? (
-              <ExternalLink href={`https://info.feswap.io/token/${fesw.address}`}>View {GORV_TOKEN_NAME} Analytics</ExternalLink>
-            ) : null}
+            { chainId && library && library.provider.isMetaMask &&
+                <ButtonPrimary
+                  padding="12px 12px"
+                  width="100%"
+                  borderRadius="12px"
+                  mt="1rem"
+                  onClick={() => {
+                    const params: any = {
+                      type: 'ERC20',
+                      options: {
+                        address: FESW[chainId].address,
+                        symbol: FESW[chainId].symbol,
+                        decimals: 18,
+                        image: "https://www.feswap.io/img/Fesw.png",
+                      },
+                    }
+                    if(library.provider.request) {
+                      library.provider.request({
+                          method: 'wallet_watchAsset',
+                          params,
+                        })
+                        .then((success) => {
+                          if (success) {
+                            console.log('Successfully added {GORV_TOKEN_NAME} to MetaMask')
+                          } else {
+                            throw new Error('Something went wrong.')
+                          }
+                        })
+                        .catch(console.error)
+                    }
+                  }}
+                >
+                  Add {GORV_TOKEN_NAME} to Metamask
+                </ButtonPrimary>
+            }
+
           </AutoColumn>
         </CardSection>
         <CardNoise />
@@ -129,3 +163,8 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
     </ContentWrapper>
   )
 }
+
+//{fesw && fesw.chainId === ChainId.MAINNET ? (
+//  <ExternalLink href={`https://info.feswap.io/token/${fesw.address}`}>View {GORV_TOKEN_NAME} Analytics</ExternalLink>
+//) : null}
+

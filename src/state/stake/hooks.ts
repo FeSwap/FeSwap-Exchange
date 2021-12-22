@@ -297,7 +297,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
         // get the LP token
         const tokens = info[index].tokens
         const dummyPair = new Pair( new TokenAmount(tokens[0], '0'), new TokenAmount(tokens[1], '0'),
-                                    new TokenAmount(tokens[1], '0'), new TokenAmount(tokens[0], '0'))
+                                    new TokenAmount(tokens[1], '0'), new TokenAmount(tokens[0], '0'), 10100)
 
         // check for account, if no account set to 0
         const [stakingTokenA, stakingTokenB] =  dummyPair.liquidityToken0.address.toLowerCase() < 

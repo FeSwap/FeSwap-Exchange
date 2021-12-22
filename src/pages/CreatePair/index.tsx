@@ -369,7 +369,7 @@ export default function CreatePairByNft() {
                     </Text>
                   </LinkStyledButton>
                 </AutoRow>
-                <AddressInputPanel id="recipient" value={recipient} onChange={onChangeNftRecipient} />
+                <AddressInputPanel id="recipient" placeholder="Profit Receiver Address" value={recipient} onChange={onChangeNftRecipient} />
               </>
             )}
                 <Container hideInput={false} style={{ padding: '0px 0px 6px 0px'}}>

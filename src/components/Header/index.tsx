@@ -271,8 +271,6 @@ const StyledExternalLink = styled(ExternalLink).attrs({
 
 `
 
-
-
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
