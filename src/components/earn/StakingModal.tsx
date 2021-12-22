@@ -97,7 +97,7 @@ export default function StakingModal({ isOpen, onDismiss, stakingInfo, userLiqui
 
   // pair contract for this token to be staked
   const dummyPair = new Pair( new TokenAmount(stakingInfo.tokens[0], '0'), new TokenAmount(stakingInfo.tokens[1], '0'),
-                              new TokenAmount(stakingInfo.tokens[1], '0'), new TokenAmount(stakingInfo.tokens[0], '0'))
+                              new TokenAmount(stakingInfo.tokens[1], '0'), new TokenAmount(stakingInfo.tokens[0], '0'), 10100)
 
   const isContractReverse = !(dummyPair.liquidityToken0.address.toLowerCase() < dummyPair.liquidityToken1.address.toLowerCase())
 

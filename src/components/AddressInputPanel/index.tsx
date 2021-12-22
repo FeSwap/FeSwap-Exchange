@@ -8,6 +8,7 @@ import { ExternalLink } from '../../theme'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
 import { getExplorerLink } from '../../utils/explorer'
+import { feswType } from '../../hooks/useContract'
 
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
@@ -70,13 +71,15 @@ const Input = styled.input<{ error?: boolean }>`
 export default function AddressInputPanel({
   id,
   value,
-  onChange
+  onChange,
+  placeholder
 }: {
   id?: string
   // the typed string value
   value: string
   // triggers whenever the typed value changes
   onChange: (value: string) => void
+  placeholder?: string
 }) {
   const { chainId } = useActiveWeb3React()
 //  const theme = useContext(ThemeContext)
@@ -93,6 +96,7 @@ export default function AddressInputPanel({
   )
 
   const error = Boolean(value.length > 0 && !loading && !address)
+  const placeHolder = placeholder ?? (feswType(chainId) === "FESW" ? "Wallet Address or ENS name" : "Wallet Address")
 
 //  <TYPE.black color={theme.text2} fontWeight={500} fontSize={15}>
 //  Recipient
@@ -117,7 +121,7 @@ export default function AddressInputPanel({
               autoCorrect="off"
               autoCapitalize="off"
               spellCheck="false"
-              placeholder="Wallet Address or ENS name"
+              placeholder={placeHolder}
               error={error}
               pattern="^(0x[a-fA-F0-9]{40})$"
               onChange={handleInput}

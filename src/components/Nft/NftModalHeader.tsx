@@ -156,8 +156,8 @@ export default function NftModalHeader({
       {recipient !== null ? (
         <AutoColumn justify="flex-start" gap="sm" style={{ padding: '12px 0 0 0px' }}>
           <TYPE.main>
-            Output will be sent to{' '}
-            <b title={recipient}>{isAddress(recipient) ? shortenAddress(recipient) : recipient}</b>
+            Profit will be sent to:{' '}
+            <b title={recipient}>{isAddress(recipient) ? shortenAddress(recipient) : 'Wrong Address'}</b>
           </TYPE.main>
         </AutoColumn>
       ) : null}

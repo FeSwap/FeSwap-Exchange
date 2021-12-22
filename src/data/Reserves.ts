@@ -1,12 +1,13 @@
 import { TokenAmount, Pair, Currency } from '@feswap/sdk'
 import { useMemo } from 'react'
-import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPair.json'
+import { abi as IFeSwapPair } from '@feswap/core/build/IFeSwapPairMerge.json'
 import { Interface } from '@ethersproject/abi'
 import { useActiveWeb3React } from '../hooks'
-//import flatMap from 'lodash.flatmap'
+import { feswType } from '../hooks/useContract'
 
 import { useMultipleContractSingleData } from '../state/multicall/hooks'
 import { wrappedCurrency } from '../utils/wrappedCurrency'
+import { BigNumber } from 'ethers'
 
 const PAIR_INTERFACE = new Interface(IFeSwapPair)
 
@@ -45,9 +46,10 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     [tokens]
   )
 
-  const resultsAAB = useMultipleContractSingleData(pairAddressesAB, PAIR_INTERFACE, 'getReserves')
-  const resultsABB = useMultipleContractSingleData(pairAddressesBA, PAIR_INTERFACE, 'getReserves') 
-  
+  const getReservesABI = (feswType(chainId) === "FESW") ? 'getReserves' : 'getReservesWithRate' 
+  const resultsAAB = useMultipleContractSingleData(pairAddressesAB, PAIR_INTERFACE, getReservesABI)
+  const resultsABB = useMultipleContractSingleData(pairAddressesBA, PAIR_INTERFACE, getReservesABI)  
+
   return useMemo(() => {
     return resultsAAB.map((result, i) => {
       const { result: reserves, loading} = result
@@ -63,10 +65,14 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       const { _reserveIn, _reserveOut } = reserves
       const { _reserveIn: _reserveInTwin, _reserveOut: _reserveOuTwin } = reservesTwin 
 
+      const {_rateArbitrage: _triggeRateV2,  _rateTriggerArbitrage: _triggeRateV1} = reserves
+      const _triggeRate: BigNumber = _triggeRateV2 ?? _triggeRateV1
+
       return [
         PairState.EXISTS,
         new Pair( new TokenAmount(tokenA, _reserveIn.toString()), new TokenAmount(tokenB, _reserveOut.toString()),
-                  new TokenAmount(tokenB, _reserveInTwin.toString()), new TokenAmount(tokenA, _reserveOuTwin.toString()))
+                  new TokenAmount(tokenB, _reserveInTwin.toString()), new TokenAmount(tokenA, _reserveOuTwin.toString()), 
+                  _triggeRate.toNumber())
       ]
     })
   }, [resultsAAB, resultsABB, tokens])

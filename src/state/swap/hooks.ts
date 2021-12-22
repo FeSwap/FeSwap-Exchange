@@ -1,6 +1,6 @@
 import useENS from '../../hooks/useENS'
 import { parseUnits } from '@ethersproject/units'
-import { Currency, CurrencyAmount, ETHER, Fraction, JSBI, Token, TokenAmount, Trade } from '@feswap/sdk'
+import { Currency, CurrencyAmount, ETHER, Fraction, JSBI, Token, TokenAmount, Trade, Pair } from '@feswap/sdk'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -100,8 +100,8 @@ const BAD_RECIPIENT_ADDRESSES: string[] = [
  */
 function involvesAddress(trade: Trade, checksummedAddress: string): boolean {
   return (
-    trade.route.path.some(token => token.address === checksummedAddress) ||
-    trade.route.pairs.some(pair => pair.liquidityToken0.address === checksummedAddress)
+    trade.route.path.some((token: Token) => token.address === checksummedAddress) ||
+    trade.route.pairs.some((pair: Pair) => pair.liquidityToken0.address === checksummedAddress)
   )
 }
 
