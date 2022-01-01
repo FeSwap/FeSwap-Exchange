@@ -32,7 +32,7 @@ export function PoolPriceBar({
 
   const pricePromptBA = useMemo(() => {
           if(!price || !price[Field.CURRENCY_B]) return '-'
-          return price[Field.CURRENCY_B]?.lessThan('1') 
+          return price[Field.CURRENCY_B]?.greaterThan('1') 
                     ? `${price[Field.CURRENCY_B]?.invert()?.toSignificant(6)} : 1`
                     : `1 : ${price[Field.CURRENCY_B]?.toSignificant(6)}`
         }, [price])

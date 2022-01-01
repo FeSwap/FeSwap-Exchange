@@ -59,24 +59,24 @@ const RPC = {
 
 const supportedChainIds = [
   1,          // mainnet
-  3,          // ropsten
+//  3,          // ropsten
   4,          // rinkeby
-  5,          // goreli
-  42,         // kovan
+//  5,          // goreli
+//  42,         // kovan
 //  56,         // binance smart chain
-  97,         // binance smart chain testnet
+//  97,         // binance smart chain testnet
   137,        // matic
   80001,      // matic testnet,
 //  1666600000, // harmony
-  1666700000, // harmony testnet
+//  1666700000, // harmony testnet
 //  250,        // fantom
-  4002,       // fantom testnet
+//  4002,       // fantom testnet
 //  128,        // heco
-  256,        // heco testnet
+//  256,        // heco testnet
 //  42161,      // arbitrum
-  421611,      // arbitrum test
+//  421611,      // arbitrum test
 //  43114,        // avalanche
-  43113,        // fuji
+//  43113,        // fuji
 
 //  100, // xdai
 //  1287, // moonbase

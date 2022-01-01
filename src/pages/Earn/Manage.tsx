@@ -3,7 +3,7 @@ import { AutoColumn } from '../../components/Column'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
-import { JSBI, TokenAmount, ETHER, NATIVE } from '@feswap/sdk'
+import { JSBI, TokenAmount, ETHER, WETH9, ChainId } from '@feswap/sdk'
 import { RouteComponentProps } from 'react-router-dom'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import { useCurrency } from '../../hooks/Tokens'
@@ -27,7 +27,7 @@ import { currencyId } from '../../utils/currencyId'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import usePrevious from '../../hooks/usePrevious'
-// import { useUSDTPrice } from '../../utils/useUSDCPrice'
+import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { transparentize } from 'polished'
 import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { LightCard } from '../../components/Card'
@@ -89,7 +89,6 @@ export default function Manage({
 }: RouteComponentProps<{ currencyIdA: string; currencyIdB: string }>) {
   const { account, chainId } = useActiveWeb3React()
   const GORV_TOKEN_NAME = chainId ? FESW[chainId].symbol : 'FESW'
-  const NATIVE_SYMBOL = chainId ? NATIVE[chainId].symbol : 'ETH'
   const DAO_NAME = (GORV_TOKEN_NAME==='FESW') ? 'FeSwap' : 'FeSwap'
 
   // get currencies and pair
@@ -123,38 +122,44 @@ export default function Manage({
   const [showUnstakingModal, setShowUnstakingModal] = useState(false)
   const [showClaimRewardModal, setShowClaimRewardModal] = useState(false)
 
-  const token = currency0 === ETHER ? token1 : token0
-  const WETH = currency0 === ETHER ? token0 : token1
+
+  const [WBASE, token] = (currency0 === ETHER) 
+                          ? [token0, token1]
+                          : (currency1 === ETHER)
+                            ? [token1, token0]
+                            : (token0?.address === WETH9[chainId??ChainId.MATIC].address) 
+                              ? [token0, token1] 
+                              : [token1, token0]
+
   const backgroundColor = useColor(token)
 
   // get WETH value of staked LP tokens
   const totalSupplyOfStakingToken0 = useTotalSupply(stakingInfo?.stakedAmount?.[0].token)
   const totalSupplyOfStakingToken1 = useTotalSupply(stakingInfo?.stakedAmount?.[1].token)
 
-
   const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
-    if (!totalSupplyOfStakingToken0 || !totalSupplyOfStakingToken1 || !stakingTokenPair || !stakingInfo || !WETH ) return undefined
+    if (!totalSupplyOfStakingToken0 || !totalSupplyOfStakingToken1 || !stakingTokenPair || !stakingInfo || !WBASE ) return undefined
     if(JSBI.equal(totalSupplyOfStakingToken0.raw, ZERO) && JSBI.equal(totalSupplyOfStakingToken1.raw, ZERO)) return undefined
 
     return new TokenAmount(
-      WETH,
+      WBASE,
       JSBI.divide(
         JSBI.multiply(
           JSBI.multiply(JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw), 
-                        JSBI.add(stakingTokenPair.reserveOfOutput(WETH).raw, stakingTokenPair.reserveOfInput(WETH).raw)),
+                        JSBI.add(stakingTokenPair.reserveOfOutput(WBASE).raw, stakingTokenPair.reserveOfInput(WBASE).raw)),
           JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
         ),
         JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
       )
     )
-  }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WETH, stakingInfo])
+  }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WBASE, stakingInfo])
 
   const countUpAmount = stakingInfo?.earnedAmount?.toFixed(6) ?? '0'
   const countUpAmountPrevious = usePrevious(countUpAmount) ?? '0'
 
   // get the USD value of staked WETH
-//  const USDTPrice = useUSDTPrice(WETH)
-//  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
+  const USDTPrice = useUSDTPrice(WBASE)
+  const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
 
   const toggleWalletModal = useWalletModalToggle()
 
@@ -167,6 +172,7 @@ export default function Manage({
   }, [account, toggleWalletModal])
 
 //  {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })??' -'}`}
+//{`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'}`}
 
    return (
     <PageWrapper gap="lg" justify="center">
@@ -184,10 +190,11 @@ export default function Manage({
             <AutoColumn gap="sm">
               <TYPE.body style={{ margin: 0 }}>Total Value of Deposits</TYPE.body>
               <TYPE.body fontSize={24} fontWeight={500} style={{ textAlign: 'center' }}>
-                {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'}`}
+                {`$ ${valueOfTotalStakedAmountInUSDT?.toFixed(0, { groupSeparator: ',' })??' -'}`}
               </TYPE.body>
               <TYPE.body fontSize={20} fontWeight={500} style={{ textAlign: 'center' }}>
-               {NATIVE_SYMBOL}
+                {`${valueOfTotalStakedAmountInWETH?.toSignificant(4, { groupSeparator: ',' }) ?? '-'} ${WBASE?.symbol?.substring(1)}`}
+                
               </TYPE.body>
             </AutoColumn>
             <CardNoise />

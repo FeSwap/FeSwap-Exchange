@@ -3,7 +3,7 @@ import { RowBetween } from '../Row'
 import styled from 'styled-components'
 import { TYPE, StyledInternalLink } from '../../theme'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { ETHER, JSBI, TokenAmount, NATIVE, ChainId } from '@feswap/sdk'
+import { ETHER, WETH, WETH9, JSBI, TokenAmount, NATIVE, ChainId, Fraction } from '@feswap/sdk'
 import { ButtonPrimary } from '../Button'
 import { StakingInfo } from '../../state/stake/hooks'
 import { useColor } from '../../hooks/useColor'
@@ -13,6 +13,7 @@ import { CardNoise, StyledPositionCard } from './styled'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import { useUSDTPrice } from '../../utils/useUSDCPrice'
+//import useUSDCPrice from '../../utils/useUSDCPrice'
 import { BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { ZERO, ZERO_FRACTION } from '../../utils'
 import { SeparatorBlack } from '../SearchModal/styleds'
@@ -72,8 +73,14 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const isStaking = JSBI.greaterThan(stakedAmountAll, ZERO)
 
   // get the color of the token
-  const token = currency0 === ETHER ? token1 : token0
-  const WETH = currency0 === ETHER ? token0 : token1
+  const [WBASE, token] = (currency0 === ETHER) 
+                          ? [token0, token1]
+                          : (currency1 === ETHER)
+                            ? [token1, token0]
+                            : (token0.address === WETH9[chainId??ChainId.MATIC].address) 
+                              ? [token0, token1] 
+                              : [token1, token0]
+
   const backgroundColor = useColor(token)
 
   // get WETH value of staked LP tokens
@@ -84,30 +91,41 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   const fixByteNum = ((chainId === ChainId.MATIC) || (chainId === ChainId.MATIC_TESTNET)) ? 6 : 4 
 
   // let returnOverMonth: Percent = new Percent('0')
-  const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
+  const valueOfTotalStakedAmountInWBASE: TokenAmount | undefined = useMemo(() => {
     if (!totalSupplyOfStakingToken0 || !totalSupplyOfStakingToken1 || !stakingTokenPair) return undefined
     if(JSBI.equal(totalSupplyOfStakingToken0.raw, ZERO) && JSBI.equal(totalSupplyOfStakingToken1.raw, ZERO)) return undefined
 
     return new TokenAmount(
-      WETH,
+      WBASE,
       JSBI.divide(
         JSBI.multiply(
           JSBI.multiply(JSBI.add(stakingInfo.totalStakedAmount[0].raw, stakingInfo.totalStakedAmount[1].raw), 
-                        JSBI.add(stakingTokenPair.reserveOfOutput(WETH).raw, stakingTokenPair.reserveOfInput(WETH).raw)),
+                        JSBI.add(stakingTokenPair.reserveOfOutput(WBASE).raw, stakingTokenPair.reserveOfInput(WBASE).raw)),
           JSBI.BigInt(2) // this is b/c the value of LP shares are ~double the value of the WETH they entitle owner to
         ),
         JSBI.add(totalSupplyOfStakingToken0.raw, totalSupplyOfStakingToken1.raw)
       )
     )
-  }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WETH, stakingInfo])
+  }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WBASE, stakingInfo])
 
   // get the USD value of staked WETH
-  const USDTPrice = useUSDTPrice(WETH)
+  const USDT_WBASEPrice = useUSDTPrice(WBASE)
+  const USDT_WETHPrice = useUSDTPrice(WETH[chainId??ChainId.MAINNET])
+
+  const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
+    if(!chainId) return undefined
+    if (WBASE === WETH[chainId]) return valueOfTotalStakedAmountInWBASE;
+    if(!USDT_WBASEPrice || !USDT_WETHPrice || !valueOfTotalStakedAmountInWBASE) return undefined
+    const rawTotalStakedAmountInWBASE = new Fraction(valueOfTotalStakedAmountInWBASE.raw)
+    return new TokenAmount( WBASE, 
+        rawTotalStakedAmountInWBASE.multiply(USDT_WBASEPrice.divide(USDT_WETHPrice)).quotient)
+    }, [chainId, WBASE, USDT_WETHPrice, USDT_WBASEPrice, valueOfTotalStakedAmountInWBASE])
+
   const valueOfTotalStakedAmountInUSDT = useMemo(() => {
-      if( !valueOfTotalStakedAmountInWETH || !USDTPrice ) return undefined
-      if( USDTPrice.equalTo(ZERO_FRACTION) ) return undefined
-      return USDTPrice.quote(valueOfTotalStakedAmountInWETH)
-    }, [USDTPrice, valueOfTotalStakedAmountInWETH])
+      if( !valueOfTotalStakedAmountInWBASE || !USDT_WBASEPrice ) return undefined
+      if( USDT_WBASEPrice.equalTo(ZERO_FRACTION) ) return undefined
+      return USDT_WBASEPrice.quote(valueOfTotalStakedAmountInWBASE)
+    }, [USDT_WBASEPrice, valueOfTotalStakedAmountInWBASE])
   
   return (
       <StyledPositionCard bgColor={backgroundColor}>
@@ -131,7 +149,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
             </TYPE.black>
           </RowBetween>
           
-          { !!USDTPrice && valueOfTotalStakedAmountInUSDT?.greaterThan(ZERO) && (
+          { !!USDT_WBASEPrice && valueOfTotalStakedAmountInUSDT?.greaterThan(ZERO) && (
             <RowBetween>
               <div/>
               <TYPE.black>

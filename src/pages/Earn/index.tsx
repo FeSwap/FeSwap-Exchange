@@ -100,7 +100,7 @@ export default function Earn() {
                 </EmptyProposals>)
             : stakingRewardsExist && stakingInfos?.length === 0 
               ? (<Loader style={{ margin: 'auto' }} />) 
-              : (!stakingRewardsExist) 
+              : (!stakingRewardsExist)
                 ? ( <EmptyProposals>
                     {chainId === ChainId.MATIC 
                     ? <TYPE.black textAlign="center" fontSize={15} style={{ width: '100%' }}>
@@ -113,11 +113,16 @@ export default function Earn() {
                     : 'No active pools'}
                     </EmptyProposals>) 
                 : stakingInfos?.length !== 0 && (
-                    stakingInfos?.map(stakingInfo => {
-                    // need to sort by added liquidity here
-                    return <PoolCard key={stakingInfo.stakingRewardAddress} stakingInfo={stakingInfo} />
-                  })
-                )}
+                    (chainId === ChainId.MAINNET)
+                    ? <TYPE.black textAlign="center" fontSize={24} style={{ width: '100%' }}>
+                        <Text><strong>Liquidity Mining Ended! </strong></Text>
+                        <Text fontSize={16} color={theme.primary1}>Totally 40M FESW distributed!</Text>
+                      </TYPE.black>
+                    : stakingInfos?.map(stakingInfo => {
+                      // need to sort by added liquidity here
+                      return <PoolCard key={stakingInfo.stakingRewardAddress} stakingInfo={stakingInfo} />
+                    }))
+            }
         </PoolSection>
       </AutoColumn>
     </PageWrapper>

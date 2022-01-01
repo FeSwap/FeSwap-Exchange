@@ -15,7 +15,7 @@ import { StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
 import useUSDTPrice from '../../utils/useUSDCPrice'
 //import { useUSDTPrice } from '../../utils/useUSDCPrice'
 import { AutoColumn } from '../Column'
-import { RowBetween } from '../Row'
+import Row, { RowBetween } from '../Row'
 import { CardSection, DataCard, CardNoise } from '../earn/styled'
 import { SeparatorBBlack } from '../../components/SearchModal/styleds'
 import { ButtonPrimary } from '../Button'
@@ -121,9 +121,10 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
               <TYPE.black color="black">{totalSupply?.toFixed(0, { groupSeparator: ',' })}</TYPE.black>
             </RowBetween>
             { chainId && library && library.provider.isMetaMask &&
+              <Row style={{justifyContent: 'center'}}>
                 <ButtonPrimary
                   padding="12px 12px"
-                  width="100%"
+                  width="90%"
                   borderRadius="12px"
                   mt="1rem"
                   onClick={() => {
@@ -154,8 +155,8 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
                 >
                   Add {GORV_TOKEN_NAME} to Metamask
                 </ButtonPrimary>
+              </Row>
             }
-
           </AutoColumn>
         </CardSection>
         <CardNoise />

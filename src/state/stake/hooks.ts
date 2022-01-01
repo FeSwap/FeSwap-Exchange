@@ -168,10 +168,10 @@ export const STAKING_REWARDS_INFO: {
       tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
       stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
     },
-//    {
-//      tokens: [WETH[ChainId.MATIC], WBTC[ChainId.MATIC]],
-//      stakingRewardAddress: '0xb1bBAfF6Beff00177AF76D9D404Da9F935bAE35f'
-//    },
+    {
+      tokens: [WETH9[ChainId.MATIC], WBTC[ChainId.MATIC]],
+      stakingRewardAddress: '0xb1bBAfF6Beff00177AF76D9D404Da9F935bAE35f'
+    },
     {
       tokens: [WETH[ChainId.MATIC], FESW[ChainId.MATIC]],
       stakingRewardAddress: '0xcb0B77d9024d3C2C91Aabc5DfD3B5694Be2fa74A'
