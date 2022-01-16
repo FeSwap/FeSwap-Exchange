@@ -140,6 +140,10 @@ export function useDerivedBurnInfo(
     error = 'Connect Wallet'
   }
 
+  if (  noUserLiquidity[Field.PAIR_AB] && noUserLiquidity[Field.PAIR_BA] ) {
+    error = error ?? 'No Liquidity to Remove'
+  }
+
   if (  !parsedAmounts[Field.PAIR_AB]?.[Amount.LIQUIDITY] && !parsedAmounts[Field.PAIR_BA]?.[Amount.LIQUIDITY] ) {
     error = error ?? 'Enter an amount'
   }

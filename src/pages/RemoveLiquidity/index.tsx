@@ -215,7 +215,7 @@ export default function RemoveLiquidity({
 
   // burn state
   const { Percentage_AB, Percentage_BA } = useBurnState()
-  const { pair, tokenA, tokenB, noUserLiquidity, noRemoveLiquidity, parsedAmounts, error } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined)
+  const { pair, tokenA, tokenB, noRemoveLiquidity, parsedAmounts, error } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined)
   const { onUserInput: onSetPercentage } = useBurnActionHandlers()
 
    const isValid = !error
@@ -712,6 +712,9 @@ export default function RemoveLiquidity({
     liquidityPercentChangeCallbackBA
   )
 
+//  !noUserLiquidity[Field.PAIR_BA] &&
+//  !noUserLiquidity[Field.PAIR_AB]  &&
+//  (!noUserLiquidity[Field.PAIR_AB] || !noUserLiquidity[Field.PAIR_BA] )  &&
   //<CardNoise />
   return (
     <>
@@ -736,16 +739,14 @@ export default function RemoveLiquidity({
             pendingTitle={'Removing Liquidity'}
             submittedTitle={'Remove Liquidity Submitted'}
           />
-          { (!noUserLiquidity[Field.PAIR_AB] || !noUserLiquidity[Field.PAIR_BA] )  &&
-            <RowFixed  style={{ padding: '0px 0px 4px 12px' }}>
+          { <RowFixed  style={{ padding: '0px 0px 4px 12px' }}>
               <Text fontWeight={500}>Percentage of liquidity to remove</Text>
               <QuestionHelper text="You could remove partial liquidity by specifying the removing percantage, 
                                     and you could remove from both the liquidity sub-pools, or just one of them" />
             </RowFixed>
           }
           <AutoColumn gap="md">
-            {!noUserLiquidity[Field.PAIR_AB]  &&
-              <TransparentCard>
+            {<TransparentCard>
                 <AutoColumn gap="4px">
                   <GetRemovePercentage  value={innerLiquidityPercentageAB} 
                                         onChange={setInnerLiquidityPercentageAB} 
@@ -758,8 +759,7 @@ export default function RemoveLiquidity({
                 </AutoColumn>
               </TransparentCard>
             }
-            {!noUserLiquidity[Field.PAIR_BA] &&
-              <TransparentCard>
+            {<TransparentCard>
                 <AutoColumn gap="4px">
                   <GetRemovePercentage  value={innerLiquidityPercentageBA} 
                                         onChange={setInnerLiquidityPercentageBA} 
