@@ -327,13 +327,16 @@ export default function Header() {
               <StyledNavLink id={`stake-nav-link`} to={'/fesw'}>
                 Mining
               </StyledNavLink>
-              <StyledNavLink id={`stake-nav-link`} to={'/nft'}>
+              <StyledNavLink id={`nft-nav-link`} to={'/nft'}>
                 NFT
               </StyledNavLink>
-              <StyledNavLink id={`stake-nav-link`} to={'/vote'}>
+              <StyledNavLink id={`dao-nav-link`} to={'/vote'}>
                 DAO
               </StyledNavLink>
-              <StyledExternalLink id={`stake-nav-link`} href={'https://www.feswap.io/docs'}>
+              <StyledExternalLink id={`charts-nav-link`} href={'https://info.feswap.io'}>
+                Charts <span style={{ fontSize: '11px' }}>↗</span>
+              </StyledExternalLink>	 
+              <StyledExternalLink id={`docs-nav-link`} href={'https://www.feswap.io/docs'}>
                 Docs <span style={{ fontSize: '11px' }}>↗</span>
               </StyledExternalLink>	 
         </HeaderLinks>
