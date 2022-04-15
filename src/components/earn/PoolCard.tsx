@@ -12,8 +12,8 @@ import { CardNoise, StyledPositionCard } from './styled'
 //import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
-import { useUSDTPrice } from '../../utils/useUSDCPrice'
-//import useUSDCPrice from '../../utils/useUSDCPrice'
+import useUSDCPrice  from '../../utils/useUSDCPrice'
+import { USDC } from '../../constants'
 import { BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { ZERO, ZERO_FRACTION } from '../../utils'
 import { SeparatorBlack } from '../SearchModal/styleds'
@@ -71,6 +71,7 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
 
   const stakedAmountAll: JSBI = JSBI.add(stakingInfo.stakedAmount[0].raw, stakingInfo.stakedAmount[1].raw)
   const isStaking = JSBI.greaterThan(stakedAmountAll, ZERO)
+  const Usdc = USDC[chainId??ChainId.MAINNET]
 
   // get the color of the token
   const [WBASE, token] = (currency0 === ETHER) 
@@ -79,7 +80,11 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
                             ? [token1, token0]
                             : (token0.address === WETH9[chainId??ChainId.MATIC].address) 
                               ? [token0, token1] 
-                              : [token1, token0]
+                              : (token1.address === WETH9[chainId??ChainId.MATIC].address)
+                                ? [token1, token0]
+                                : (token0.address === Usdc.address)
+                                  ? [token0, token1]
+                                  : [token1, token0]
 
   const backgroundColor = useColor(token)
 
@@ -109,17 +114,21 @@ export default function PoolCard({ stakingInfo }: { stakingInfo: StakingInfo }) 
   }, [totalSupplyOfStakingToken0, totalSupplyOfStakingToken1, stakingTokenPair, WBASE, stakingInfo])
 
   // get the USD value of staked WETH
-  const USDT_WBASEPrice = useUSDTPrice(WBASE)
-  const USDT_WETHPrice = useUSDTPrice(WETH[chainId??ChainId.MAINNET])
+  const USDT_WBASEPrice = useUSDCPrice(WBASE)
+  const USDT_WETHPrice = useUSDCPrice(WETH[chainId??ChainId.MAINNET])
 
   const valueOfTotalStakedAmountInWETH: TokenAmount | undefined = useMemo(() => {
     if(!chainId) return undefined
     if (WBASE === WETH[chainId]) return valueOfTotalStakedAmountInWBASE;
     if(!USDT_WBASEPrice || !USDT_WETHPrice || !valueOfTotalStakedAmountInWBASE) return undefined
     const rawTotalStakedAmountInWBASE = new Fraction(valueOfTotalStakedAmountInWBASE.raw)
+    if(WBASE.address === Usdc.address) {
+      return new TokenAmount( WETH[chainId], 
+        rawTotalStakedAmountInWBASE.divide(USDT_WETHPrice).quotient)
+    }
     return new TokenAmount( WBASE, 
         rawTotalStakedAmountInWBASE.multiply(USDT_WBASEPrice.divide(USDT_WETHPrice)).quotient)
-    }, [chainId, WBASE, USDT_WETHPrice, USDT_WBASEPrice, valueOfTotalStakedAmountInWBASE])
+    }, [chainId, WBASE, USDT_WETHPrice, USDT_WBASEPrice, Usdc, valueOfTotalStakedAmountInWBASE])
 
   const valueOfTotalStakedAmountInUSDT = useMemo(() => {
       if( !valueOfTotalStakedAmountInWBASE || !USDT_WBASEPrice ) return undefined

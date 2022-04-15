@@ -27,7 +27,7 @@ import { currencyId } from '../../utils/currencyId'
 import { useTotalSupply } from '../../data/TotalSupply'
 import { usePair } from '../../data/Reserves'
 import usePrevious from '../../hooks/usePrevious'
-import { useUSDTPrice } from '../../utils/useUSDCPrice'
+import useUSDCPrice from '../../utils/useUSDCPrice'
 import { transparentize } from 'polished'
 import { BIG_INT_ZERO, BIG_INT_SECONDS_IN_DAY } from '../../constants'
 import { LightCard } from '../../components/Card'
@@ -158,7 +158,7 @@ export default function Manage({
   const countUpAmountPrevious = usePrevious(countUpAmount) ?? '0'
 
   // get the USD value of staked WETH
-  const USDTPrice = useUSDTPrice(WBASE)
+  const USDTPrice = useUSDCPrice(WBASE)
   const valueOfTotalStakedAmountInUSDT = valueOfTotalStakedAmountInWETH && USDTPrice?.quote(valueOfTotalStakedAmountInWETH)
 
   const toggleWalletModal = useWalletModalToggle()

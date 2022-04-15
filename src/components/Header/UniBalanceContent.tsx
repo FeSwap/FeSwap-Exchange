@@ -12,8 +12,7 @@ import { useTotalFeswEarned } from '../../state/stake/hooks'
 import { useAggregateFeswBalance, useTokenBalance } from '../../state/wallet/hooks'
 import { StyledInternalLink, TYPE, UniTokenAnimated } from '../../theme'
 //import { computeUniCirculation } from '../../utils/computeUniCirculation'
-import useUSDTPrice from '../../utils/useUSDCPrice'
-//import { useUSDTPrice } from '../../utils/useUSDCPrice'
+import useUSDCPrice from '../../utils/useUSDCPrice'
 import { AutoColumn } from '../Column'
 import Row, { RowBetween } from '../Row'
 import { CardSection, DataCard, CardNoise } from '../earn/styled'
@@ -52,7 +51,7 @@ export default function UniBalanceContent({ setShowUniBalanceModal }: { setShowU
   const feswToClaim: TokenAmount | undefined = useTotalFeswEarned()
 
   const totalSupply: TokenAmount | undefined = useTotalSupply(fesw)
-  const feswPrice = useUSDTPrice(fesw)
+  const feswPrice = useUSDCPrice(fesw)
   const circulation = totalSupply
 
 //  const blockTimestamp = useCurrentBlockTimestamp()
