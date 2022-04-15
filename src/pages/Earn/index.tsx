@@ -49,6 +49,8 @@ export default function Earn() {
   // staking info for connected account
   const stakingInfos = useStakingInfo()
 
+  console.log('chainId, account:', chainId, account)
+
   /**
    * only show staking cards with balance
    * @todo only account for this if rewards are inactive

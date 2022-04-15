@@ -131,7 +131,7 @@ export default function CreatePairByNft() {
       case NFT_BID_PHASE.BidPhase: 
         [buttonID, nftStatusString] = (now >= timeNormalEnd) 
                                       ? (feswaPairBidInfo.ownerPairNft === account)
-                                        ? [ USER_BUTTON_ID.OK_JUMP_BID, 'Bid Completed'] 
+                                        ? [ USER_BUTTON_ID.OK_CREATE_PAIR, 'Bid Completed'] 
                                         : [ USER_BUTTON_ID.ERR_BID_ENDED, 'Bid Completed'] 
                                       : [ USER_BUTTON_ID.OK_JUMP_BID, 'Bid Ongoing']
         break

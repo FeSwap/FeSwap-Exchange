@@ -157,16 +157,20 @@ export const STAKING_REWARDS_INFO: {
       stakingRewardAddress: '0xe05dbD3379fcFd8CF9288d690950DDc0141cEFF4'
     },
     {
+      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
+      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
+    },
+    {
+      tokens: [WBTC[ChainId.MATIC], USDC[ChainId.MATIC]],
+      stakingRewardAddress: '0x3Ed8078d0A32Bb9aaBb16743887CCb9Cad49E7D9'
+    },     
+    {
       tokens: [WETH[ChainId.MATIC], WETH9[ChainId.MATIC]],
       stakingRewardAddress: '0xde7fA1fbc848452F03883B3b8a6AEF0E81995aD0'
     },
     {
       tokens: [WETH[ChainId.MATIC], USDT[ChainId.MATIC]],
       stakingRewardAddress: '0xBd10777A84Ee91f4bF56b8A0De2a4E487C323b37'
-    },
-    {
-      tokens: [WETH9[ChainId.MATIC], USDC[ChainId.MATIC]],
-      stakingRewardAddress: '0xd62a2c17b0AD040f9BDc4DCAFDe6BdA756ba5D02'
     },
     {
       tokens: [WETH9[ChainId.MATIC], WBTC[ChainId.MATIC]],
